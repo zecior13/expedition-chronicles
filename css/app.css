@@ -1,0 +1,30 @@
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f5f0e6;
+    color:#111;
+}
+
+.screen{
+    display:none;
+    min-height:100vh;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:20px;
+    box-sizing:border-box;
+}
+
+.screen.active{
+    display:flex;
+    flex-direction:column;
+}
+
+button{
+    padding:15px 25px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    background:#2f6b3f;
+    color:white;
+}
