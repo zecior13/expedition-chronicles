@@ -1,69 +1,203 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expedition Chronicles</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f0e6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-    }
+<title>Expedition Chronicles</title>
 
-    .container {
-      max-width: 500px;
-      padding: 20px;
-    }
+<style>
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f5f0e6;
+}
 
-    h2 {
-      font-weight: normal;
-      color: #666;
-      margin-bottom: 40px;
-    }
+.screen{
+    display:none;
+    min-height:100vh;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:20px;
+    box-sizing:border-box;
+}
 
-    button {
-      padding: 15px 30px;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 10px;
-      background: #2f6b3f;
-      color: white;
-      cursor: pointer;
-    }
+.screen.active{
+    display:flex;
+    flex-direction:column;
+}
 
-    button:hover {
-      background: #245331;
-    }
-  </style>
+h1{
+    margin-bottom:10px;
+}
+
+h2{
+    color:#666;
+    font-weight:normal;
+}
+
+input{
+    padding:12px;
+    font-size:18px;
+    width:280px;
+    margin:20px 0;
+}
+
+button{
+    padding:15px 25px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    background:#2f6b3f;
+    color:white;
+    cursor:pointer;
+    margin:5px;
+}
+
+.location{
+    background:white;
+    padding:15px;
+    margin:10px;
+    border-radius:10px;
+    width:250px;
+}
+
+.locked{
+    opacity:0.5;
+}
+
+</style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Expedition Chronicles</h1>
-    <h2>Family Adventures. Forever.</h2>
+<!-- START -->
 
-    <button onclick="startExpedition()">
-      Rozpocznij Ekspedycję
-    </button>
-  </div>
+<div id="startScreen" class="screen active">
 
-  <script>
-    function startExpedition() {
-      alert("Namibia Quest v0.1 rozpocznie się tutaj.");
-    }
-  </script>
+<h1>Expedition Chronicles</h1>
+
+<h2>Family Adventures. Forever.</h2>
+
+<button onclick="showScreen('expeditionScreen')">
+Rozpocznij Ekspedycję
+</button>
+
+</div>
+
+<!-- EXPEDITION -->
+
+<div id="expeditionScreen" class="screen">
+
+<h1>Nowa Ekspedycja</h1>
+
+<input
+id="expeditionName"
+value="Namibia 2026"
+/>
+
+<button onclick="saveExpedition()">
+Dalej
+</button>
+
+</div>
+
+<!-- PLAYERS -->
+
+<div id="playersScreen" class="screen">
+
+<h1>Uczestnicy</h1>
+
+<input id="player1" value="Matylda"><br>
+<input id="player2" value="Gosia"><br>
+<input id="player3" value="Tata"><br>
+
+<button onclick="savePlayers()">
+Rozpocznij Wyprawę
+</button>
+
+</div>
+
+<!-- MAP -->
+
+<div id="mapScreen" class="screen">
+
+<h1>🏜️ Namibia Quest</h1>
+
+<h2 id="expeditionTitle"></h2>
+
+<div class="location">
+📍 Walvis Bay
+</div>
+
+<div class="location locked">
+🔒 Sesriem
+</div>
+
+<div class="location locked">
+🔒 Big Daddy
+</div>
+
+<div class="location locked">
+🔒 Spitzkoppe
+</div>
+
+<div class="location locked">
+🔒 Etosha
+</div>
+
+</div>
+
+<script>
+
+function showScreen(id){
+
+document.querySelectorAll('.screen')
+.forEach(screen=>{
+screen.classList.remove('active');
+});
+
+document
+.getElementById(id)
+.classList.add('active');
+
+}
+
+function saveExpedition(){
+
+localStorage.setItem(
+'expeditionName',
+document.getElementById('expeditionName').value
+);
+
+showScreen('playersScreen');
+
+}
+
+function savePlayers(){
+
+const players = [
+document.getElementById('player1').value,
+document.getElementById('player2').value,
+document.getElementById('player3').value
+];
+
+localStorage.setItem(
+'players',
+JSON.stringify(players)
+);
+
+document.getElementById(
+'expeditionTitle'
+).innerText =
+localStorage.getItem('expeditionName');
+
+showScreen('mapScreen');
+
+}
+
+</script>
 
 </body>
 </html>
