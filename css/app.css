@@ -1,126 +1,235 @@
-body{
+*{
+    box-sizing:border-box;
     margin:0;
-    font-family:Arial,sans-serif;
-    background:#f5f0e6;
-    color:#111;
+    padding:0;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:#e9f3fa;
+}
+
+#app{
+    width:100%;
+    height:100%;
 }
 
 .screen{
     display:none;
-    min-height:100vh;
-    justify-content:center;
-    align-items:center;
+
+    width:100%;
+    height:100%;
+
+    padding:24px;
+
     text-align:center;
-    padding:20px;
-    box-sizing:border-box;
 }
 
 .screen.active{
     display:flex;
+
     flex-direction:column;
+
+    justify-content:center;
+    align-items:center;
+
+    gap:16px;
 }
 
 h1{
-    margin-bottom:10px;
+    font-size:2rem;
 }
 
 h2{
-    color:#666;
-    font-weight:normal;
+    font-size:1.1rem;
+    font-weight:400;
+    color:#555;
 }
 
 input{
-    padding:12px;
-    font-size:18px;
     width:280px;
-    margin:10px 0;
-    border-radius:8px;
+
+    padding:12px;
+
     border:1px solid #ccc;
+    border-radius:10px;
+
+    font-size:1rem;
 }
 
 button{
-    padding:15px 25px;
-    font-size:18px;
+    padding:14px 24px;
+
     border:none;
-    border-radius:10px;
-    background:#2f6b3f;
-    color:white;
-    cursor:pointer;
-    margin:8px;
-}
-
-button.secondary{
-    background:#8b6f47;
-}
-
-.location,
-.card{
-    background:white;
-    padding:18px;
-    margin:10px;
     border-radius:12px;
-    width:280px;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+    background:#1d73b2;
+    color:white;
+
+    font-size:1rem;
+}
+
+.secondary{
+    background:#888;
 }
 
 .location{
+    width:280px;
+
+    padding:18px;
+
+    border-radius:12px;
+
+    background:white;
+
     cursor:pointer;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.1);
 }
 
-.locked{
-    opacity:.45;
-    cursor:not-allowed;
+.location.locked{
+    opacity:0.45;
 }
 
-.guardian{
-    font-size:80px;
-    margin:20px;
+.card{
+    background:white;
+
+    padding:18px;
+
+    border-radius:12px;
+
+    min-width:280px;
 }
 
 .quote{
-    font-size:22px;
-    line-height:1.4;
-    max-width:520px;
-    margin:20px auto;
+    max-width:400px;
+
+    font-style:italic;
+
+    color:#444;
+}
+
+.guardian{
+    font-size:4rem;
 }
 
 .game-screen{
     padding:0;
 }
 
-.game-header{
-    height:60px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 15px;
-    box-sizing:border-box;
-    background:white;
+.game-area{
+    position:relative;
+
     width:100%;
+    height:100%;
+
+    background:#63b7df;
+}
+
+.game-header{
+    position:absolute;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:52px;
+
+    display:flex;
+
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 12px;
+
+    background:rgba(255,255,255,0.85);
+
+    z-index:20;
 }
 
 .small-button{
     padding:8px 12px;
-    font-size:14px;
 }
 
 #kayakCanvas{
-    background:#6bb7e8;
     width:100%;
-    height:calc(100vh - 130px);
-    display:block;
+    height:100%;
 }
 
-.game-controls{
-    height:70px;
-    display:flex;
+.edge-control{
+
+    position:absolute;
+
+    bottom:18px;
+
+    width:96px;
+    height:96px;
+
+    border-radius:50%;
+
+    font-size:2rem;
+    font-weight:bold;
+
+    background:rgba(20,20,20,0.35);
+
+    backdrop-filter:blur(4px);
+
+    z-index:30;
+}
+
+.left-control{
+    left:24px;
+}
+
+.right-control{
+    right:24px;
+}
+
+.rotate-notice{
+    display:none;
+
+    width:100%;
+    height:100%;
+
     justify-content:center;
     align-items:center;
-    gap:20px;
-    background:white;
-    width:100%;
+
+    flex-direction:column;
+
+    gap:16px;
+
+    text-align:center;
 }
 
-.game-controls button{
-    width:80px;
+@media (orientation:portrait){
+
+    .game-area{
+        display:none;
+    }
+
+    .rotate-notice{
+        display:flex;
+    }
+}
+
+@media (orientation:landscape){
+
+    .rotate-notice{
+        display:none;
+    }
+
+    .game-area{
+        display:block;
+    }
 }

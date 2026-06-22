@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Expedition Chronicles</title>
   <link rel="stylesheet" href="css/app.css">
 </head>
@@ -69,16 +69,21 @@
   </section>
 
   <section id="kayakScreen" class="screen game-screen">
-    <div class="game-header">
-      <button class="small-button" onclick="stopKayakGame(); showScreen('guardianScreen')">← Wróć</button>
-      <span>Seal Kayak Adventure — Build 0.04A</span>
+    <div id="rotateNotice" class="rotate-notice">
+      <h1>Obróć iPhone poziomo</h1>
+      <p>Seal Kayak Adventure działa najlepiej w trybie poziomym.</p>
     </div>
 
-    <canvas id="kayakCanvas"></canvas>
+    <div id="gameArea" class="game-area">
+      <div class="game-header">
+        <button class="small-button" onclick="stopKayakGame(); showScreen('guardianScreen')">← Wróć</button>
+        <span>Seal Kayak Adventure — Build 0.05</span>
+      </div>
 
-    <div class="game-controls">
-      <button id="leftBtn">←</button>
-      <button id="rightBtn">→</button>
+      <canvas id="kayakCanvas"></canvas>
+
+      <button id="leftBtn" class="edge-control left-control">◀◀</button>
+      <button id="rightBtn" class="edge-control right-control">▶▶</button>
     </div>
   </section>
 

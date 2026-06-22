@@ -1,5 +1,4 @@
-let canvas;
-let ctx;
+let canvas, ctx;
 
 let kayakX = 200;
 let kayakY = 450;
@@ -9,10 +8,11 @@ let moveRight = false;
 
 let animationId = null;
 let waterOffset = 0;
+
 let kayakImage = new Image();
 let kayakImageLoaded = false;
-let startTime = 0;
 
+let startTime = 0;
 let rocks = [];
 let lives = 4;
 let score = 0;
@@ -31,45 +31,47 @@ kayakImage.onload = function(){
 kayakImage.src = "assets/kayak.svg";
 
 function showScreen(id){
-    document.querySelectorAll('.screen').forEach(screen=>{
-        screen.classList.remove('active');
+    document.querySelectorAll(".screen").forEach(screen=>{
+        screen.classList.remove("active");
     });
-    document.getElementById(id).classList.add('active');
+
+    document.getElementById(id).classList.add("active");
 }
 
 function saveExpedition(){
     localStorage.setItem(
-        'expeditionName',
-        document.getElementById('expeditionName').value
+        "expeditionName",
+        document.getElementById("expeditionName").value
     );
-    showScreen('playersScreen');
+
+    showScreen("playersScreen");
 }
 
 function savePlayers(){
     const players = [
-        document.getElementById('player1').value,
-        document.getElementById('player2').value,
-        document.getElementById('player3').value
+        document.getElementById("player1").value,
+        document.getElementById("player2").value,
+        document.getElementById("player3").value
     ];
 
-    localStorage.setItem('players', JSON.stringify(players));
+    localStorage.setItem("players", JSON.stringify(players));
 
-    document.getElementById('expeditionTitle').innerText =
-        localStorage.getItem('expeditionName');
+    document.getElementById("expeditionTitle").innerText =
+        localStorage.getItem("expeditionName");
 
-    showScreen('mapScreen');
+    showScreen("mapScreen");
 }
 
 function openWalvisBay(){
-    showScreen('walvisScreen');
+    showScreen("walvisScreen");
 }
 
 function startKayakGame(){
-    showScreen('kayakScreen');
+    showScreen("kayakScreen");
 
     setTimeout(()=>{
         initCanvas();
-    },100);
+    },150);
 }
 
 function stopKayakGame(){
@@ -84,14 +86,13 @@ function stopKayakGame(){
 }
 
 function initCanvas(){
-    canvas = document.getElementById('kayakCanvas');
-    ctx = canvas.getContext('2d');
+    canvas = document.getElementById("kayakCanvas");
+    ctx = canvas.getContext("2d");
 
-    const maxWidth = 900;
-    const maxHeight = 520;
+    const rect = canvas.getBoundingClientRect();
 
-    canvas.width = Math.min(window.innerWidth, maxWidth);
-    canvas.height = Math.min(window.innerHeight - 130, maxHeight);
+    canvas.width = rect.width;
+    canvas.height = rect.height;
 
     kayakX = canvas.width / 2;
     kayakY = canvas.height - 115;
@@ -120,8 +121,8 @@ function initCanvas(){
 }
 
 function setupControls(){
-    const leftBtn = document.getElementById('leftBtn');
-    const rightBtn = document.getElementById('rightBtn');
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
 
     leftBtn.onmousedown = ()=> moveLeft = true;
     rightBtn.onmousedown = ()=> moveRight = true;
@@ -132,40 +133,76 @@ function setupControls(){
     leftBtn.onmouseleave = ()=> moveLeft = false;
     rightBtn.onmouseleave = ()=> moveRight = false;
 
-    leftBtn.ontouchstart = (e)=>{
+    leftBtn.ontouchstart = e=>{
         e.preventDefault();
         moveLeft = true;
     };
 
-    leftBtn.ontouchend = ()=>{
+    leftBtn.ontouchend = e=>{
+        e.preventDefault();
         moveLeft = false;
     };
 
-    rightBtn.ontouchstart = (e)=>{
+    rightBtn.ontouchstart = e=>{
         e.preventDefault();
         moveRight = true;
     };
 
-    rightBtn.ontouchend = ()=>{
+    rightBtn.ontouchend = e=>{
+        e.preventDefault();
         moveRight = false;
     };
 
-    document.onkeydown = (e)=>{
+    document.onkeydown = e=>{
         if(e.key === "ArrowLeft") moveLeft = true;
         if(e.key === "ArrowRight") moveRight = true;
     };
 
-    document.onkeyup = (e)=>{
+    document.onkeyup = e=>{
         if(e.key === "ArrowLeft") moveLeft = false;
         if(e.key === "ArrowRight") moveRight = false;
     };
+}
+
+function getElapsed(){
+    return Math.floor((performance.now() - startTime) / 1000);
+}
+
+function getDifficulty(){
+    const elapsed = getElapsed();
+
+    if(elapsed < 20){
+        return 1;
+    }
+
+    if(elapsed < 40){
+        return 2;
+    }
+
+    return 3;
+}
+
+function getWorldSpeed(){
+    const difficulty = getDifficulty();
+
+    if(difficulty === 1) return 2.7;
+    if(difficulty === 2) return 3.2;
+    return 3.7;
+}
+
+function getSpawnDelay(){
+    const difficulty = getDifficulty();
+
+    if(difficulty === 1) return 1250;
+    if(difficulty === 2) return 1050;
+    return 880;
 }
 
 function drawWater(){
     ctx.fillStyle = "#63b7df";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    waterOffset += 1.5;
+    waterOffset += getWorldSpeed() * 0.55;
 
     if(waterOffset > 80){
         waterOffset = 0;
@@ -192,34 +229,37 @@ function drawWater(){
 }
 
 function drawMovementLines(){
-    ctx.strokeStyle = "rgba(255,255,255,0.40)";
+    ctx.strokeStyle = "rgba(255,255,255,0.38)";
     ctx.lineWidth = 3;
 
-    for(let i = 0; i < 6; i++){
-        const x = (canvas.width / 7) * (i + 1);
+    for(let i = 0; i < 7; i++){
+        const x = (canvas.width / 8) * (i + 1);
         const y = (waterOffset * 3 + i * 90) % canvas.height;
 
         ctx.beginPath();
         ctx.moveTo(x, y);
-        ctx.lineTo(x, y + 30);
+        ctx.lineTo(x, y + 32);
         ctx.stroke();
     }
 }
 
 function drawHud(){
     ctx.fillStyle = "rgba(255,255,255,0.88)";
-    ctx.fillRect(10, 10, canvas.width - 20, 46);
+    ctx.fillRect(12, 10, canvas.width - 24, 44);
 
     ctx.fillStyle = "#111";
     ctx.font = "20px Arial";
 
     const hearts = "❤️".repeat(lives);
-    const elapsed = Math.floor((performance.now() - startTime) / 1000);
-    const remaining = Math.max(0, gameSeconds - elapsed);
+    const remaining = Math.max(0, gameSeconds - getElapsed());
+    const level = getDifficulty();
 
-    ctx.fillText(hearts, 25, 40);
-    ctx.fillText("Punkty: " + score, canvas.width / 2 - 60, 40);
-    ctx.fillText("Czas: " + remaining, canvas.width - 130, 40);
+    ctx.fillText(hearts, 28, 39);
+    ctx.fillText("Punkty: " + score, canvas.width / 2 - 60, 39);
+    ctx.fillText("Czas: " + remaining, canvas.width - 145, 39);
+
+    ctx.font = "14px Arial";
+    ctx.fillText("Poziom: " + level, canvas.width / 2 + 85, 38);
 }
 
 function drawKayak(){
@@ -263,94 +303,121 @@ function drawKayak(){
 
 function createRock(x, y, radius){
     return {
-        x: x,
-        y: y,
-        radius: radius,
-        speed: 3
+        x,
+        y,
+        radius
     };
 }
 
 function spawnCluster(now){
-    if(now - lastClusterSpawn < 1050){
+    const delay = getSpawnDelay();
+
+    if(now - lastClusterSpawn < delay){
         return;
     }
 
     lastClusterSpawn = now;
 
     const w = canvas.width;
-    const y = -45;
-    const r = 22;
+    const y = -50;
 
-    const patterns = [
-        // lewy klaster + prawa pojedyncza
-        [
-            createRock(w * 0.18, y, r),
-            createRock(w * 0.28, y - 22, r),
-            createRock(w * 0.72, y - 12, r)
-        ],
+    const difficulty = getDifficulty();
 
-        // prawy klaster + lewa pojedyncza
-        [
-            createRock(w * 0.82, y, r),
-            createRock(w * 0.70, y - 22, r),
-            createRock(w * 0.30, y - 12, r)
-        ],
+    const r =
+        difficulty === 1 ? 20 :
+        difficulty === 2 ? 22 :
+        24;
 
-        // środek zablokowany, przejścia bokami
-        [
-            createRock(w * 0.43, y, r),
-            createRock(w * 0.53, y - 18, r),
-            createRock(w * 0.63, y, r)
-        ],
+    let patterns = [];
 
-        // slalom lewy-środek-prawy
-        [
-            createRock(w * 0.22, y, r),
-            createRock(w * 0.50, y - 70, r),
-            createRock(w * 0.78, y - 140, r)
-        ],
+    if(difficulty === 1){
+        patterns = [
+            [
+                createRock(w * 0.20, y, r),
+                createRock(w * 0.72, y - 10, r)
+            ],
+            [
+                createRock(w * 0.78, y, r),
+                createRock(w * 0.30, y - 10, r)
+            ],
+            [
+                createRock(w * 0.50, y, r),
+                createRock(w * 0.20, y - 80, r)
+            ]
+        ];
+    }
 
-        // slalom prawy-środek-lewy
-        [
-            createRock(w * 0.78, y, r),
-            createRock(w * 0.50, y - 70, r),
-            createRock(w * 0.22, y - 140, r)
-        ],
+    if(difficulty === 2){
+        patterns = [
+            [
+                createRock(w * 0.18, y, r),
+                createRock(w * 0.28, y - 22, r),
+                createRock(w * 0.72, y - 12, r)
+            ],
+            [
+                createRock(w * 0.82, y, r),
+                createRock(w * 0.70, y - 22, r),
+                createRock(w * 0.30, y - 12, r)
+            ],
+            [
+                createRock(w * 0.43, y, r),
+                createRock(w * 0.53, y - 18, r),
+                createRock(w * 0.63, y, r)
+            ],
+            [
+                createRock(w * 0.22, y, r),
+                createRock(w * 0.50, y - 70, r),
+                createRock(w * 0.78, y - 140, r)
+            ]
+        ];
+    }
 
-        // brama przesunięta w lewo
-        [
-            createRock(w * 0.10, y, r),
-            createRock(w * 0.22, y - 8, r),
-            createRock(w * 0.68, y, r),
-            createRock(w * 0.82, y - 8, r)
-        ],
-
-        // brama przesunięta w prawo
-        [
-            createRock(w * 0.18, y, r),
-            createRock(w * 0.32, y - 8, r),
-            createRock(w * 0.78, y, r),
-            createRock(w * 0.90, y - 8, r)
-        ]
-    ];
+    if(difficulty === 3){
+        patterns = [
+            [
+                createRock(w * 0.18, y, r),
+                createRock(w * 0.30, y - 18, r),
+                createRock(w * 0.62, y - 10, r),
+                createRock(w * 0.82, y - 22, r)
+            ],
+            [
+                createRock(w * 0.82, y, r),
+                createRock(w * 0.70, y - 20, r),
+                createRock(w * 0.38, y - 12, r),
+                createRock(w * 0.18, y - 28, r)
+            ],
+            [
+                createRock(w * 0.20, y, r),
+                createRock(w * 0.50, y - 65, r),
+                createRock(w * 0.80, y - 130, r),
+                createRock(w * 0.45, y - 190, r)
+            ],
+            [
+                createRock(w * 0.80, y, r),
+                createRock(w * 0.50, y - 65, r),
+                createRock(w * 0.20, y - 130, r),
+                createRock(w * 0.55, y - 190, r)
+            ]
+        ];
+    }
 
     const chosen =
         patterns[Math.floor(Math.random() * patterns.length)];
 
-    for(let rock of chosen){
+    for(const rock of chosen){
         rocks.push(rock);
     }
 }
 
 function updateRocks(){
-    const worldSpeed = 3;
+    const worldSpeed = getWorldSpeed();
 
     for(let rock of rocks){
         rock.y += worldSpeed;
     }
 
     rocks = rocks.filter(
-        rock => rock.y < canvas.height + 80
+        rock => rock.y < canvas.height + 90
     );
 }
 
@@ -367,7 +434,7 @@ function drawSingleRock(x, y, r){
 }
 
 function drawRocks(){
-    for(let rock of rocks){
+    for(const rock of rocks){
         drawSingleRock(rock.x, rock.y, rock.radius);
     }
 }
@@ -379,7 +446,7 @@ function checkCollisions(){
         return;
     }
 
-    for(let rock of rocks){
+    for(const rock of rocks){
         const dx = kayakX - rock.x;
         const dy = kayakY - rock.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -427,10 +494,9 @@ function update(){
         kayakX = canvas.width - 30;
     }
 
-    const elapsed = Math.floor((performance.now() - startTime) / 1000);
-    score = elapsed * 10;
+    score = getElapsed() * 10;
 
-    if(elapsed >= gameSeconds){
+    if(getElapsed() >= gameSeconds){
         endKayakGame(true);
     }
 }
@@ -510,10 +576,10 @@ function gameLoop(){
 }
 
 window.onload = function(){
-    const savedName = localStorage.getItem('expeditionName');
+    const savedName = localStorage.getItem("expeditionName");
 
     if(savedName){
-        document.getElementById('expeditionTitle').innerText = savedName;
-        showScreen('mapScreen');
+        document.getElementById("expeditionTitle").innerText = savedName;
+        showScreen("mapScreen");
     }
 };
