@@ -607,7 +607,7 @@ button{
 }
 
 .wildlife-screen.binocular-active .wildlife-scene{
-    transform:scale(1.45);
+    transform:none;
 }
 
 .wildlife-waterline{
@@ -626,8 +626,7 @@ button{
         );
 }
 
-.wildlife-decor,
-.wildlife-target{
+.wildlife-decor{
     position:absolute;
 
     transform:translate(-50%, -50%);
@@ -639,67 +638,54 @@ button{
     pointer-events:none;
 }
 
-.wildlife-target{
-    width:64px;
-    height:64px;
-
-    padding:0;
-
-    border:2px solid transparent;
-    border-radius:50%;
-
-    color:transparent;
-    background:transparent;
-
-    pointer-events:none;
-}
-
-.wildlife-target.found{
-    border-color:rgba(255,255,255,0.85);
-    background:rgba(255,255,255,0.12);
-}
-
-.wildlife-target.hint{
-    width:132px;
-    height:132px;
-
-    border-color:#ffe35c;
-    background:rgba(255,227,92,0.12);
-}
-
-.wildlife-screen.binocular-active .wildlife-target{
-    border-color:transparent;
-}
-
 .wildlife-magnifier{
     position:absolute;
 
     left:50%;
-    top:46%;
+    top:50%;
 
     display:none;
 
-    width:120px;
-    height:120px;
+    width:148px;
+    height:148px;
 
     transform:translate(-50%, -50%);
 
-    border:3px solid #ffffff;
+    border:4px solid #ffffff;
     border-radius:50%;
 
-    justify-content:center;
-    align-items:center;
+    background:
+        url("../assets/wildlife/walvis-bay-search-01.png") center / 220% auto no-repeat,
+        rgba(0,0,0,0.18);
 
-    color:#ffffff;
-    background:rgba(0,0,0,0.18);
+    box-shadow:
+        0 0 0 9999px rgba(0,0,0,0.18),
+        0 4px 18px rgba(0,0,0,0.35);
 
-    font-weight:700;
-
+    cursor:grab;
     pointer-events:none;
 }
 
 .wildlife-screen.binocular-active .wildlife-magnifier{
-    display:flex;
+    display:block;
+}
+
+.wildlife-hint-area{
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    transform:translate(-50%, -50%);
+
+    border:3px solid rgba(255,227,92,0.95);
+    border-radius:50%;
+
+    background:rgba(255,227,92,0.10);
+
+    pointer-events:none;
+
+    z-index:18;
 }
 
 .wildlife-message{
@@ -729,6 +715,50 @@ button{
 
 .wildlife-message.visible{
     opacity:1;
+}
+
+.wildlife-chronicle-panel{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    display:none;
+
+    width:min(320px, calc(100% - 32px));
+
+    transform:translate(-50%, -50%);
+
+    padding:16px;
+
+    border-radius:8px;
+
+    color:#111;
+    background:#ffffff;
+
+    text-align:left;
+
+    box-shadow:0 8px 30px rgba(0,0,0,0.28);
+
+    z-index:35;
+}
+
+.wildlife-chronicle-panel.visible{
+    display:block;
+}
+
+.wildlife-chronicle-panel h2{
+    margin-bottom:10px;
+
+    color:#111;
+}
+
+.wildlife-chronicle-panel p{
+    margin:8px 0;
+}
+
+.wildlife-chronicle-panel button{
+    margin-top:10px;
 }
 
 .wildlife-toolbar{

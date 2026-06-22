@@ -50,6 +50,9 @@ let wildlifeBinocularMode = false;
 let wildlifeMessageUntil = 0;
 let wildlifeAnimationId = null;
 let wildlifePhotosFound = 0;
+let wildlifeLensX = 50;
+let wildlifeLensY = 50;
+let wildlifeLensDragging = false;
 
 const flamingoGroups = [
     { id: "flamingo-1", x: 0.14, y: 0.58, discovered: false, identified: false },
@@ -66,21 +69,21 @@ const flamingoSecrets = [
 ];
 
 const wildlifeTargets = [
-    { id: "seal-1", type: "seal", label: "🦭", x: 8, y: 60, radius: 4, difficulty: "medium", found: false },
-    { id: "seal-2", type: "seal", label: "🦭", x: 34, y: 69, radius: 5, difficulty: "easy", found: false },
-    { id: "seal-3", type: "seal", label: "🦭", x: 43, y: 59, radius: 4, difficulty: "hard", found: false },
-    { id: "seal-4", type: "seal", label: "🦭", x: 54, y: 55, radius: 3, difficulty: "very hard", found: false },
-    { id: "seal-5", type: "seal", label: "🦭", x: 83, y: 62, radius: 4, difficulty: "medium", found: false },
-    { id: "flamingo-1", type: "flamingo", label: "🦩", x: 9, y: 43, radius: 4, difficulty: "medium", found: false },
-    { id: "flamingo-2", type: "flamingo", label: "🦩", x: 27, y: 40, radius: 5, difficulty: "easy", found: false },
-    { id: "flamingo-3", type: "flamingo", label: "🦩", x: 47, y: 38, radius: 4, difficulty: "hard", found: false },
-    { id: "flamingo-4", type: "flamingo", label: "🦩", x: 59, y: 47, radius: 3, difficulty: "very hard", found: false },
-    { id: "flamingo-5", type: "flamingo", label: "🦩", x: 69, y: 43, radius: 2.5, difficulty: "extreme", found: false },
-    { id: "pelican-1", type: "pelican", label: "🪿", x: 11, y: 75, radius: 5, difficulty: "easy", found: false },
-    { id: "pelican-2", type: "pelican", label: "🪿", x: 42, y: 84, radius: 4, difficulty: "medium", found: false },
-    { id: "pelican-3", type: "pelican", label: "🪿", x: 62, y: 58, radius: 3.5, difficulty: "hard", found: false },
-    { id: "pelican-4", type: "pelican", label: "🪿", x: 72, y: 75, radius: 4, difficulty: "medium", found: false },
-    { id: "pelican-5", type: "pelican", label: "🪿", x: 70, y: 5, radius: 2.5, difficulty: "extreme", found: false }
+    { id: "seal-1", type: "seal", xPercent: 8, yPercent: 60, radiusPercent: 4, difficulty: "medium", hint: "Foka odpoczywa na ciemnych skałach po lewej stronie laguny.", found: false },
+    { id: "seal-2", type: "seal", xPercent: 34, yPercent: 69, radiusPercent: 5, difficulty: "easy", hint: "Duża foka leży nisko przy brzegu, blisko środka-lewej strony.", found: false },
+    { id: "seal-3", type: "seal", xPercent: 43, yPercent: 59, radiusPercent: 4, difficulty: "hard", hint: "Szukaj foki między niskimi wysepkami w centralnej części.", found: false },
+    { id: "seal-4", type: "seal", xPercent: 54, yPercent: 55, radiusPercent: 3, difficulty: "very hard", hint: "Mała foka chowa się wśród skał nieco powyżej centrum.", found: false },
+    { id: "seal-5", type: "seal", xPercent: 83, yPercent: 62, radiusPercent: 4, difficulty: "medium", hint: "Foka siedzi na prawych skałach niedaleko starej łodzi.", found: false },
+    { id: "flamingo-1", type: "flamingo", xPercent: 9, yPercent: 43, radiusPercent: 4, difficulty: "medium", hint: "Flamingi stoją przy płytkiej wodzie po lewej stronie.", found: false },
+    { id: "flamingo-2", type: "flamingo", xPercent: 27, yPercent: 40, radiusPercent: 5, difficulty: "easy", hint: "Większa grupa flamingów jest w lewym środku laguny.", found: false },
+    { id: "flamingo-3", type: "flamingo", xPercent: 47, yPercent: 38, radiusPercent: 4, difficulty: "hard", hint: "Szukaj flamingów w środkowym pasie płytkiej wody.", found: false },
+    { id: "flamingo-4", type: "flamingo", xPercent: 59, yPercent: 47, radiusPercent: 3, difficulty: "very hard", hint: "Samotny flaming stoi bliżej prawej strony centrum.", found: false },
+    { id: "flamingo-5", type: "flamingo", xPercent: 69, yPercent: 43, radiusPercent: 2.5, difficulty: "extreme", hint: "Mały flaming ukrywa się wśród odbić po prawej stronie laguny.", found: false },
+    { id: "pelican-1", type: "pelican", xPercent: 11, yPercent: 75, radiusPercent: 5, difficulty: "easy", hint: "Duży ptak stoi na brzegu w lewym dolnym rogu.", found: false },
+    { id: "pelican-2", type: "pelican", xPercent: 42, yPercent: 84, radiusPercent: 4, difficulty: "medium", hint: "Jasny ptak siedzi nisko przy piaszczystym brzegu.", found: false },
+    { id: "pelican-3", type: "pelican", xPercent: 62, yPercent: 58, radiusPercent: 3.5, difficulty: "hard", hint: "Szukaj białego ptaka na małej wysepce po prawej od środka.", found: false },
+    { id: "pelican-4", type: "pelican", xPercent: 72, yPercent: 75, radiusPercent: 4, difficulty: "medium", hint: "Duży biały ptak stoi blisko prawego dolnego brzegu.", found: false },
+    { id: "pelican-5", type: "pelican", xPercent: 70, yPercent: 5, radiusPercent: 2.5, difficulty: "extreme", hint: "Wysoko na niebie leci mały ptak.", found: false }
 ];
 
 kayakImage.onload = function(){
@@ -133,6 +136,9 @@ function startWildlifeSearch(){
     wildlifeRunning = true;
     wildlifeBinocularMode = false;
     wildlifeMessageUntil = 0;
+    wildlifeLensX = 50;
+    wildlifeLensY = 50;
+    wildlifeLensDragging = false;
 
     const savedTargets = JSON.parse(localStorage.getItem("wildlifeTargetsFound") || "[]");
 
@@ -141,6 +147,8 @@ function startWildlifeSearch(){
     }
 
     renderWildlifeScene();
+    setupWildlifeLensControls();
+    updateWildlifeLens();
     updateWildlifeProgress();
     updateWildlifeBinocularButton();
     showWildlifeMessage("");
@@ -165,27 +173,53 @@ function renderWildlifeScene(){
     const scene = document.getElementById("wildlifeScene");
 
     scene.dataset.sceneImage = "assets/wildlife/walvis-bay-search-01.png";
-    scene.innerHTML = `
-        <div class="wildlife-waterline"></div>
-        <div class="wildlife-decor" style="left:8%;top:72%;font-size:2rem;">🪨</div>
-        <div class="wildlife-decor" style="left:24%;top:61%;font-size:2rem;">🚤</div>
-        <div class="wildlife-decor" style="left:46%;top:73%;font-size:2rem;">🪨</div>
-        <div class="wildlife-decor" style="left:58%;top:47%;font-size:2.2rem;">⛵</div>
-        <div class="wildlife-decor" style="left:80%;top:70%;font-size:2rem;">🪨</div>
-        <div class="wildlife-decor" style="left:92%;top:48%;font-size:2rem;">🚤</div>
-    `;
+    scene.innerHTML = "";
+}
 
-    for(const target of wildlifeTargets){
-        const el = document.createElement("div");
-        el.className = "wildlife-target";
-        el.dataset.id = target.id;
-        el.dataset.radius = target.radius;
-        el.style.left = target.x + "%";
-        el.style.top = target.y + "%";
-        scene.appendChild(el);
-    }
+function setupWildlifeLensControls(){
+    const viewport = document.getElementById("wildlifeViewport");
 
-    updateWildlifeTargetStyles();
+    viewport.onpointerdown = e=>{
+        if(!wildlifeBinocularMode){
+            return;
+        }
+
+        wildlifeLensDragging = true;
+        viewport.setPointerCapture(e.pointerId);
+        moveWildlifeLens(e);
+    };
+
+    viewport.onpointermove = e=>{
+        if(!wildlifeBinocularMode || !wildlifeLensDragging){
+            return;
+        }
+
+        moveWildlifeLens(e);
+    };
+
+    viewport.onpointerup = e=>{
+        wildlifeLensDragging = false;
+        viewport.releasePointerCapture(e.pointerId);
+    };
+
+    viewport.onpointercancel = ()=>{
+        wildlifeLensDragging = false;
+    };
+}
+
+function moveWildlifeLens(e){
+    const viewport = document.getElementById("wildlifeViewport").getBoundingClientRect();
+    wildlifeLensX = Math.max(4, Math.min(96, ((e.clientX - viewport.left) / viewport.width) * 100));
+    wildlifeLensY = Math.max(6, Math.min(94, ((e.clientY - viewport.top) / viewport.height) * 100));
+    updateWildlifeLens();
+}
+
+function updateWildlifeLens(){
+    const lens = document.getElementById("wildlifeMagnifier");
+
+    lens.style.left = wildlifeLensX + "%";
+    lens.style.top = wildlifeLensY + "%";
+    lens.style.backgroundPosition = wildlifeLensX + "% " + wildlifeLensY + "%";
 }
 
 function toggleWildlifeBinoculars(){
@@ -199,6 +233,7 @@ function updateWildlifeBinocularButton(){
 
     screen.classList.toggle("binocular-active", wildlifeBinocularMode);
     button.classList.toggle("active", wildlifeBinocularMode);
+    updateWildlifeLens();
 }
 
 function takeWildlifePhoto(){
@@ -212,10 +247,6 @@ function takeWildlifePhoto(){
 }
 
 function getCenteredWildlifeTarget(){
-    const viewport = document.getElementById("wildlifeViewport").getBoundingClientRect();
-    const scene = document.getElementById("wildlifeScene").getBoundingClientRect();
-    const centerX = ((viewport.left + viewport.width / 2 - scene.left) / scene.width) * 100;
-    const centerY = ((viewport.top + viewport.height / 2 - scene.top) / scene.height) * 100;
     let bestTarget = null;
     let bestDistance = Infinity;
 
@@ -224,11 +255,11 @@ function getCenteredWildlifeTarget(){
             continue;
         }
 
-        const dx = target.x - centerX;
-        const dy = target.y - centerY;
+        const dx = target.xPercent - wildlifeLensX;
+        const dy = target.yPercent - wildlifeLensY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if(distance <= target.radius && distance < bestDistance){
+        if(distance <= target.radiusPercent && distance < bestDistance){
             bestDistance = distance;
             bestTarget = target;
         }
@@ -264,20 +295,36 @@ function showWildlifeHint(){
     }
 
     const target = remaining[Math.floor(Math.random() * remaining.length)];
-    const el = document.querySelector('[data-id="' + target.id + '"]');
+    const hint = document.createElement("div");
+    hint.className = "wildlife-hint-area";
+    hint.style.left = target.xPercent + "%";
+    hint.style.top = target.yPercent + "%";
+    document.getElementById("wildlifeViewport").appendChild(hint);
+    showWildlifeMessage(target.hint);
 
-    if(el){
-        el.classList.add("hint");
-        showWildlifeMessage("Podpowiedź: sprawdź ten fragment laguny.");
-
-        setTimeout(()=>{
-            el.classList.remove("hint");
-        },1200);
-    }
+    setTimeout(()=>{
+        hint.remove();
+    },1400);
 }
 
 function showWildlifeChronicle(){
-    showWildlifeMessage("Kronika: zapisano " + wildlifePhotosFound + " / 15 zdjęć.");
+    const found = wildlifeTargets.filter(target => target.found);
+    const panel = document.getElementById("wildlifeChroniclePanel");
+    const summary =
+        found.length === 0 ?
+        "Brak zdjęć." :
+        found.map(target => getWildlifeTypeLabel(target.type) + " (" + target.difficulty + ")").join(", ");
+
+    panel.innerHTML =
+        "<h2>Kronika</h2>" +
+        "<p>Zdjęcia: " + wildlifePhotosFound + " / 15</p>" +
+        "<p>" + summary + "</p>" +
+        "<button class=\"small-button\" onclick=\"hideWildlifeChronicle()\">Zamknij</button>";
+    panel.classList.add("visible");
+}
+
+function hideWildlifeChronicle(){
+    document.getElementById("wildlifeChroniclePanel").classList.remove("visible");
 }
 
 function updateWildlifeProgress(){
@@ -304,13 +351,6 @@ function updateWildlifeProgress(){
 }
 
 function updateWildlifeTargetStyles(){
-    for(const target of wildlifeTargets){
-        const el = document.querySelector('[data-id="' + target.id + '"]');
-
-        if(el){
-            el.classList.toggle("found", target.found);
-        }
-    }
 }
 
 function showWildlifeMessage(text){
