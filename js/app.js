@@ -14,6 +14,7 @@ let kayakImageLoaded = false;
 let startTime = 0;
 
 let rocks = [];
+let lastPatternSpawn = 0;
 let lives = 4;
 let score = 0;
 let gameSeconds = 60;
@@ -257,29 +258,90 @@ function drawKayak(){
     ctx.restore();
 }
 
-function spawnRock(now){
-    if(now - lastRockSpawn < 1200){
+function spawnPattern(now){
+
+    if(now - lastPatternSpawn < 2500){
         return;
     }
 
-    lastRockSpawn = now;
+    lastPatternSpawn = now;
 
-    const margin = 55;
+    const margin = 60;
+    const width = canvas.width;
 
-    rocks.push({
-        x: margin + Math.random() * (canvas.width - margin * 2),
-        y: -40,
-        radius: 20 + Math.random() * 12,
-        speed: 2.2 + Math.random() * 1.2
+    const patterns = [
+
+        // BRAMA
+
+        [
+            {x: margin},
+            {x: width - margin}
+        ],
+
+        // LEWA ZAMKNIĘTA
+
+        [
+            {x: margin},
+            {x: margin + 60}
+        ],
+
+        // PRAWA ZAMKNIĘTA
+
+        [
+            {x: width - margin},
+            {x: width - margin - 60}
+        ],
+
+        // SLALOM
+
+        [
+            {x: margin},
+            {x: width / 2},
+            {x: width - margin}
+        ],
+
+        // ŚRODEK ZAMKNIĘTY
+
+        [
+            {x: width / 2}
+        ]
+    ];
+
+    const pattern =
+        patterns[
+            Math.floor(Math.random() * patterns.length)
+        ];
+
+    pattern.forEach((item,index)=>{
+
+        rocks.push({
+
+            x: item.x,
+
+            y: -60 - (index * 80),
+
+            radius: 26,
+
+            speed: 3
+        });
+
     });
 }
 
+
 function updateRocks(){
+
+    const worldSpeed = 3;
+
     for(let rock of rocks){
-        rock.y += rock.speed;
+
+        rock.y += worldSpeed;
+
     }
 
-    rocks = rocks.filter(rock => rock.y < canvas.height + 60);
+    rocks = rocks.filter(
+        rock => rock.y < canvas.height + 80
+    );
 }
 
 function drawRocks(){
@@ -409,7 +471,7 @@ function gameLoop(){
     drawMovementLines();
 
     if(gameRunning){
-        spawnRock(now);
+        spawnPattern(now);
         updateRocks();
         update();
         checkCollisions();
