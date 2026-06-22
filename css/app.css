@@ -610,7 +610,7 @@ button{
     height:auto;
 
     background:
-        url("../assets/wildlife/walvis-bay-search-01.png") center / 100% 100% no-repeat,
+        url("../assets/wildlife/Board 01 Prototype.png") center / 100% 100% no-repeat,
         radial-gradient(circle at 18% 72%, rgba(115,94,62,0.75) 0 5%, transparent 6%),
         radial-gradient(circle at 74% 70%, rgba(120,96,66,0.72) 0 4%, transparent 5%),
         linear-gradient(#9fe8f5 0 32%, #63c2da 32% 72%, #d5bb84 72% 100%);
@@ -668,7 +668,7 @@ button{
     border-radius:50%;
 
     background:
-        url("../assets/wildlife/walvis-bay-search-01.png") 0 0 / auto no-repeat,
+        url("../assets/wildlife/Board 01 Prototype.png") 0 0 / auto no-repeat,
         rgba(0,0,0,0.18);
 
     box-shadow:
@@ -681,6 +681,37 @@ button{
 
 .wildlife-screen.binocular-active .wildlife-magnifier{
     display:block;
+}
+
+.wildlife-debug-hotspot{
+    position:absolute;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    transform:translate(-50%, -50%);
+
+    border:3px solid rgba(255,227,92,0.95);
+    border-radius:50%;
+
+    color:#111;
+    background:rgba(255,227,92,0.14);
+
+    font-size:0.78rem;
+    font-weight:800;
+
+    pointer-events:none;
+    z-index:7;
+}
+
+.wildlife-debug-hotspot span{
+    padding:3px 7px;
+
+    border-radius:6px;
+
+    background:#ffffff;
+    box-shadow:0 1px 5px rgba(0,0,0,0.28);
 }
 
 .wildlife-hint-area{

@@ -60,7 +60,9 @@ let wildlifePanStartY = 0;
 let wildlifeDragStartX = 0;
 let wildlifeDragStartY = 0;
 let wildlifeDragMode = null;
-const wildlifeImageAspect = 1672 / 941;
+const DEBUG_HOTSPOTS = true;
+const wildlifeSceneImage = "assets/wildlife/Board 01 Prototype.png";
+const wildlifeImageAspect = 1619 / 972;
 const wildlifeLensZoom = 2.2;
 
 const flamingoGroups = [
@@ -78,21 +80,12 @@ const flamingoSecrets = [
 ];
 
 const wildlifeTargets = [
-    { id: "seal_01", type: "seal", xPercent: 39.0, yPercent: 70.8, radiusPercent: 3.0, difficulty: "easy", hint: "Szukaj dużej foki nisko, trochę na lewo od środka zdjęcia.", found: false },
-    { id: "seal_02", type: "seal", xPercent: 52.0, yPercent: 69.6, radiusPercent: 2.6, difficulty: "medium", hint: "Szukaj foki pływającej w wodzie, trochę na prawo od środka.", found: false },
-    { id: "seal_03", type: "seal", xPercent: 84.0, yPercent: 64.0, radiusPercent: 3.0, difficulty: "medium", hint: "Szukaj foki przy prawym brzegu, obok jasnych skał i łodzi.", found: false },
-    { id: "seal_04", type: "seal", xPercent: 5.4, yPercent: 26.5, radiusPercent: 2.0, difficulty: "very hard", hint: "Szukaj ciemnej sylwetki na skalistej wysepce po lewej stronie.", found: false },
-    { id: "seal_05", type: "seal", xPercent: 31.5, yPercent: 57.5, radiusPercent: 2.0, difficulty: "very hard", hint: "Szukaj małej szarej sylwetki przy skałach po lewej stronie środka.", found: false },
-    { id: "flamingo_01", type: "flamingo", xPercent: 8.1, yPercent: 34.6, radiusPercent: 2.3, difficulty: "easy", hint: "Szukaj samotnego flaminga przy lewym brzegu obrazu.", found: false },
-    { id: "flamingo_02", type: "flamingo", xPercent: 27.7, yPercent: 38.5, radiusPercent: 2.6, difficulty: "easy", hint: "Szukaj flaminga stojącego na niskiej wysepce po lewej stronie środka.", found: false },
-    { id: "flamingo_03", type: "flamingo", xPercent: 47.0, yPercent: 36.8, radiusPercent: 2.2, difficulty: "medium", hint: "Szukaj różowego ptaka w środkowym pasie płytkiej wody.", found: false },
-    { id: "flamingo_04", type: "flamingo", xPercent: 56.4, yPercent: 46.0, radiusPercent: 2.3, difficulty: "medium", hint: "Szukaj dużego flaminga z wygiętą szyją w centralnej części wody.", found: false },
-    { id: "flamingo_05", type: "flamingo", xPercent: 67.7, yPercent: 50.0, radiusPercent: 2.4, difficulty: "hard", hint: "Szukaj jasnoróżowego flaminga po prawej stronie laguny.", found: false },
-    { id: "pelican_01", type: "pelican", xPercent: 11.4, yPercent: 76.0, radiusPercent: 3.4, difficulty: "easy", hint: "Szukaj dużego pelikana nisko po lewej stronie.", found: false },
-    { id: "pelican_02", type: "pelican", xPercent: 44.0, yPercent: 52.0, radiusPercent: 3.0, difficulty: "easy", hint: "Szukaj dużego pelikana stojącego na środkowej wysepce.", found: false },
-    { id: "pelican_03", type: "pelican", xPercent: 81.8, yPercent: 78.8, radiusPercent: 3.3, difficulty: "easy", hint: "Szukaj dużego pelikana nisko po prawej stronie.", found: false },
-    { id: "pelican_04", type: "pelican", xPercent: 54.0, yPercent: 35.7, radiusPercent: 2.0, difficulty: "medium", hint: "Szukaj jasnego ptaka stojącego na wodzie bliżej pomostu.", found: false },
-    { id: "pelican_05", type: "pelican", xPercent: 63.2, yPercent: 7.0, radiusPercent: 2.0, difficulty: "hard", hint: "Szukaj dużego ptaka lecącego wysoko nad górami.", found: false }
+    { id: "seal_a", type: "seal", label: "Foka A", xPercent: 80.5, yPercent: 77.0, radiusPercent: 9.5, difficulty: "easy", hint: "Szukaj dużej foki w prawej dolnej części planszy.", found: false },
+    { id: "seal_b", type: "seal", label: "Foka B", xPercent: 50.0, yPercent: 55.2, radiusPercent: 5.0, difficulty: "medium", hint: "Szukaj foki wynurzającej się w wodzie blisko środka planszy.", found: false },
+    { id: "flamingo_a", type: "flamingo", label: "Flaming A", xPercent: 20.6, yPercent: 51.4, radiusPercent: 6.4, difficulty: "easy", hint: "Szukaj wysokiego flaminga w lewej części laguny.", found: false },
+    { id: "flamingo_b", type: "flamingo", label: "Flaming B", xPercent: 79.5, yPercent: 56.6, radiusPercent: 5.0, difficulty: "medium", hint: "Szukaj flaminga w trzcinach po prawej stronie planszy.", found: false },
+    { id: "pelican_a", type: "pelican", label: "Pelikan A", xPercent: 13.2, yPercent: 73.4, radiusPercent: 8.0, difficulty: "easy", hint: "Szukaj dużego pelikana nisko po lewej stronie.", found: false },
+    { id: "pelican_b", type: "pelican", label: "Pelikan B", xPercent: 88.9, yPercent: 47.2, radiusPercent: 5.4, difficulty: "medium", hint: "Szukaj pelikana na skałach w prawej części obrazu.", found: false }
 ];
 
 kayakImage.onload = function(){
@@ -184,8 +177,23 @@ function stopWildlifeSearch(){
 function renderWildlifeScene(){
     const scene = document.getElementById("wildlifeScene");
 
-    scene.dataset.sceneImage = "assets/wildlife/walvis-bay-search-01.png";
+    scene.dataset.sceneImage = wildlifeSceneImage;
     scene.innerHTML = "";
+
+    if(!DEBUG_HOTSPOTS){
+        return;
+    }
+
+    for(const target of wildlifeTargets){
+        const marker = document.createElement("div");
+        marker.className = "wildlife-debug-hotspot";
+        marker.style.left = target.xPercent + "%";
+        marker.style.top = target.yPercent + "%";
+        marker.style.width = target.radiusPercent * 2 + "%";
+        marker.style.height = target.radiusPercent * 2 + "%";
+        marker.innerHTML = "<span>" + target.label + "</span>";
+        scene.appendChild(marker);
+    }
 }
 
 function setupWildlifeLensControls(){
@@ -395,6 +403,7 @@ function showWildlifeHint(){
 function showWildlifeChronicle(){
     const found = wildlifeTargets.filter(target => target.found);
     const panel = document.getElementById("wildlifeChroniclePanel");
+    const total = wildlifeTargets.length;
     const summary =
         found.length === 0 ?
         "Brak zdjęć." :
@@ -402,7 +411,7 @@ function showWildlifeChronicle(){
 
     panel.innerHTML =
         "<h2>Kronika</h2>" +
-        "<p>Zdjęcia: " + wildlifePhotosFound + " / 15</p>" +
+        "<p>Zdjęcia: " + wildlifePhotosFound + " / " + total + "</p>" +
         "<p>" + summary + "</p>" +
         "<button class=\"small-button\" onclick=\"hideWildlifeChronicle()\">Zamknij</button>";
     panel.classList.add("visible");
@@ -418,17 +427,21 @@ function updateWildlifeProgress(){
     const seals = wildlifeTargets.filter(target => target.type === "seal" && target.found).length;
     const flamingos = wildlifeTargets.filter(target => target.type === "flamingo" && target.found).length;
     const pelicans = wildlifeTargets.filter(target => target.type === "pelican" && target.found).length;
+    const total = wildlifeTargets.length;
+    const sealTotal = wildlifeTargets.filter(target => target.type === "seal").length;
+    const flamingoTotal = wildlifeTargets.filter(target => target.type === "flamingo").length;
+    const pelicanTotal = wildlifeTargets.filter(target => target.type === "pelican").length;
     const foundIds = wildlifeTargets.filter(target => target.found).map(target => target.id);
 
-    document.getElementById("wildlifePhotoProgress").innerText = "Zdjęcia " + wildlifePhotosFound + "/15";
-    document.getElementById("sealObjective").innerText = "Foka " + seals + "/5";
-    document.getElementById("flamingoObjective").innerText = "Flaming " + flamingos + "/5";
-    document.getElementById("pelicanObjective").innerText = "Pelikan " + pelicans + "/5";
+    document.getElementById("wildlifePhotoProgress").innerText = "Zdjęcia " + wildlifePhotosFound + "/" + total;
+    document.getElementById("sealObjective").innerText = "Foka " + seals + "/" + sealTotal;
+    document.getElementById("flamingoObjective").innerText = "Flaming " + flamingos + "/" + flamingoTotal;
+    document.getElementById("pelicanObjective").innerText = "Pelikan " + pelicans + "/" + pelicanTotal;
 
     localStorage.setItem("wildlifePhotosFound", String(wildlifePhotosFound));
     localStorage.setItem("wildlifeTargetsFound", JSON.stringify(foundIds));
 
-    if(wildlifePhotosFound === 15){
+    if(wildlifePhotosFound === total){
         localStorage.setItem("wildlifeSearchCompleted", "true");
         stopWildlifeSearch();
         showScreen("wildlifeCompleteScreen");
