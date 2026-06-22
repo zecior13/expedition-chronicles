@@ -21,6 +21,8 @@ let gameSeconds = 60;
 let gameRunning = false;
 let invincibleUntil = 0;
 let lastRockSpawn = 0;
+let driftDirection = 1;
+let lastDriftChange = 0;
 
 kayakImage.onload = function(){
     kayakImageLoaded = true;
@@ -106,6 +108,8 @@ function initCanvas(){
     gameRunning = true;
     invincibleUntil = 0;
     lastRockSpawn = 0;
+    driftDirection = 1;
+lastDriftChange = performance.now();
 
     setupControls();
 
@@ -386,6 +390,16 @@ function checkCollisions(){
 }
 
 function update(){
+    const now = performance.now();
+
+if(now - lastDriftChange > 4000){
+
+    driftDirection *= -1;
+
+    lastDriftChange = now;
+}
+
+kayakX += driftDirection * 0.35;
     const speed = 4.2;
 
     if(moveLeft){
