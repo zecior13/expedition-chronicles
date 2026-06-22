@@ -15,6 +15,7 @@ let kayakImageLoaded = false;
 let startTime = 0;
 let rocks = [];
 let seals = [];
+let fish = [];
 let lives = 3;
 let score = 0;
 let bonusScore = 0;
@@ -29,6 +30,8 @@ let lastDriftChange = 0;
 let lastClusterSpawn = 0;
 let lastSealSpawn = 0;
 let nextSealDelay = 15000;
+let lastFishSpawn = 0;
+let nextFishDelay = 4000;
 
 kayakImage.onload = function(){
     kayakImageLoaded = true;
@@ -108,6 +111,7 @@ function initCanvas(){
 
     rocks = [];
     seals = [];
+    fish = [];
     lives = 3;
     score = 0;
     bonusScore = 0;
@@ -119,6 +123,8 @@ function initCanvas(){
     lastClusterSpawn = 0;
     lastSealSpawn = performance.now();
     nextSealDelay = 15000 + Math.random() * 5000;
+    lastFishSpawn = performance.now();
+    nextFishDelay = 2500 + Math.random() * 2500;
 
     driftDirection = 1;
     lastDriftChange = performance.now();
@@ -172,6 +178,11 @@ function resizeCanvas(preserveState){
         for(const seal of seals){
             seal.x *= scaleX;
             seal.y *= scaleY;
+        }
+
+        for(const singleFish of fish){
+            singleFish.x *= scaleX;
+            singleFish.y *= scaleY;
         }
     }
 
@@ -802,6 +813,72 @@ function drawSealMessage(){
     ctx.restore();
 }
 
+function spawnFish(now){
+    if(now - lastFishSpawn < nextFishDelay){
+        return;
+    }
+
+    lastFishSpawn = now;
+    nextFishDelay = 2500 + Math.random() * 2500;
+
+    let x = canvas.width * (0.16 + Math.random() * 0.68);
+    let y = -35;
+
+    if(rocks.length > 0 && Math.random() < 0.35){
+        const rock = rocks[Math.floor(Math.random() * rocks.length)];
+        x = Math.max(28, Math.min(canvas.width - 28, rock.x + (Math.random() < 0.5 ? -54 : 54)));
+        y = Math.min(-25, rock.y - 60);
+    }
+
+    fish.push({
+        x,
+        y,
+        radius: 18,
+        collected: false
+    });
+}
+
+function updateFish(){
+    const worldSpeed = getWorldSpeed();
+
+    for(const singleFish of fish){
+        singleFish.y += worldSpeed;
+        singleFish.x += Math.sin((singleFish.y + waterOffset) * 0.03) * 0.28;
+    }
+
+    fish = fish.filter(
+        singleFish => singleFish.y < canvas.height + 55 && !singleFish.collected
+    );
+}
+
+function drawFish(){
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "24px Arial";
+
+    for(const singleFish of fish){
+        ctx.fillText("🐟", singleFish.x, singleFish.y);
+    }
+
+    ctx.restore();
+}
+
+function checkFishEncounters(){
+    const collectRadius = 34;
+
+    for(const singleFish of fish){
+        const dx = kayakX - singleFish.x;
+        const dy = kayakY - singleFish.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < collectRadius){
+            singleFish.collected = true;
+            bonusScore += 25;
+        }
+    }
+}
+
 function checkCollisions(){
     const now = performance.now();
 
@@ -906,6 +983,7 @@ function endKayakGame(won){
     drawWater();
     drawMovementLines();
     drawRocks();
+    drawFish();
     drawSeals();
     drawKayak();
     drawHud();
@@ -929,14 +1007,18 @@ function gameLoop(){
     if(gameRunning){
         spawnCluster(now);
         spawnSeal(now);
+        spawnFish(now);
         updateRocks();
         updateSeals();
+        updateFish();
         update();
         checkCollisions();
         checkSealEncounters();
+        checkFishEncounters();
     }
 
     drawRocks();
+    drawFish();
     drawSeals();
     drawKayak();
     drawHud();
