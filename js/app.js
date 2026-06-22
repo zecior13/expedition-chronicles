@@ -66,21 +66,21 @@ const flamingoSecrets = [
 ];
 
 const wildlifeTargets = [
-    { id: "seal-1", type: "seal", label: "🦭", x: 8, y: 60, difficulty: "medium", found: false },
-    { id: "seal-2", type: "seal", label: "🦭", x: 34, y: 69, difficulty: "easy", found: false },
-    { id: "seal-3", type: "seal", label: "🦭", x: 43, y: 59, difficulty: "hard", found: false },
-    { id: "seal-4", type: "seal", label: "🦭", x: 54, y: 55, difficulty: "very hard", found: false },
-    { id: "seal-5", type: "seal", label: "🦭", x: 83, y: 62, difficulty: "medium", found: false },
-    { id: "flamingo-1", type: "flamingo", label: "🦩", x: 9, y: 43, difficulty: "medium", found: false },
-    { id: "flamingo-2", type: "flamingo", label: "🦩", x: 27, y: 40, difficulty: "easy", found: false },
-    { id: "flamingo-3", type: "flamingo", label: "🦩", x: 47, y: 38, difficulty: "hard", found: false },
-    { id: "flamingo-4", type: "flamingo", label: "🦩", x: 59, y: 47, difficulty: "very hard", found: false },
-    { id: "flamingo-5", type: "flamingo", label: "🦩", x: 69, y: 43, difficulty: "extreme", found: false },
-    { id: "pelican-1", type: "pelican", label: "🪿", x: 11, y: 75, difficulty: "easy", found: false },
-    { id: "pelican-2", type: "pelican", label: "🪿", x: 42, y: 84, difficulty: "medium", found: false },
-    { id: "pelican-3", type: "pelican", label: "🪿", x: 62, y: 58, difficulty: "hard", found: false },
-    { id: "pelican-4", type: "pelican", label: "🪿", x: 72, y: 75, difficulty: "medium", found: false },
-    { id: "pelican-5", type: "pelican", label: "🪿", x: 70, y: 5, difficulty: "extreme", found: false }
+    { id: "seal-1", type: "seal", label: "🦭", x: 8, y: 60, radius: 4, difficulty: "medium", found: false },
+    { id: "seal-2", type: "seal", label: "🦭", x: 34, y: 69, radius: 5, difficulty: "easy", found: false },
+    { id: "seal-3", type: "seal", label: "🦭", x: 43, y: 59, radius: 4, difficulty: "hard", found: false },
+    { id: "seal-4", type: "seal", label: "🦭", x: 54, y: 55, radius: 3, difficulty: "very hard", found: false },
+    { id: "seal-5", type: "seal", label: "🦭", x: 83, y: 62, radius: 4, difficulty: "medium", found: false },
+    { id: "flamingo-1", type: "flamingo", label: "🦩", x: 9, y: 43, radius: 4, difficulty: "medium", found: false },
+    { id: "flamingo-2", type: "flamingo", label: "🦩", x: 27, y: 40, radius: 5, difficulty: "easy", found: false },
+    { id: "flamingo-3", type: "flamingo", label: "🦩", x: 47, y: 38, radius: 4, difficulty: "hard", found: false },
+    { id: "flamingo-4", type: "flamingo", label: "🦩", x: 59, y: 47, radius: 3, difficulty: "very hard", found: false },
+    { id: "flamingo-5", type: "flamingo", label: "🦩", x: 69, y: 43, radius: 2.5, difficulty: "extreme", found: false },
+    { id: "pelican-1", type: "pelican", label: "🪿", x: 11, y: 75, radius: 5, difficulty: "easy", found: false },
+    { id: "pelican-2", type: "pelican", label: "🪿", x: 42, y: 84, radius: 4, difficulty: "medium", found: false },
+    { id: "pelican-3", type: "pelican", label: "🪿", x: 62, y: 58, radius: 3.5, difficulty: "hard", found: false },
+    { id: "pelican-4", type: "pelican", label: "🪿", x: 72, y: 75, radius: 4, difficulty: "medium", found: false },
+    { id: "pelican-5", type: "pelican", label: "🪿", x: 70, y: 5, radius: 2.5, difficulty: "extreme", found: false }
 ];
 
 kayakImage.onload = function(){
@@ -176,13 +176,12 @@ function renderWildlifeScene(){
     `;
 
     for(const target of wildlifeTargets){
-        const el = document.createElement("button");
+        const el = document.createElement("div");
         el.className = "wildlife-target";
         el.dataset.id = target.id;
+        el.dataset.radius = target.radius;
         el.style.left = target.x + "%";
         el.style.top = target.y + "%";
-        el.textContent = target.label;
-        el.onclick = ()=> markWildlifeTargetFound(target.id);
         scene.appendChild(el);
     }
 
@@ -208,14 +207,15 @@ function takeWildlifePhoto(){
     if(target){
         markWildlifeTargetFound(target.id);
     }else{
-        showWildlifeMessage(wildlifeBinocularMode ? "Przesuń kadr bliżej zwierzęcia." : "Włącz lornetkę i znajdź cel.");
+        showWildlifeMessage("Nic tu nie znaleziono.");
     }
 }
 
 function getCenteredWildlifeTarget(){
     const viewport = document.getElementById("wildlifeViewport").getBoundingClientRect();
-    const centerX = viewport.left + viewport.width / 2;
-    const centerY = viewport.top + viewport.height / 2;
+    const scene = document.getElementById("wildlifeScene").getBoundingClientRect();
+    const centerX = ((viewport.left + viewport.width / 2 - scene.left) / scene.width) * 100;
+    const centerY = ((viewport.top + viewport.height / 2 - scene.top) / scene.height) * 100;
     let bestTarget = null;
     let bestDistance = Infinity;
 
@@ -224,23 +224,17 @@ function getCenteredWildlifeTarget(){
             continue;
         }
 
-        const el = document.querySelector('[data-id="' + target.id + '"]');
-        const rect = el.getBoundingClientRect();
-        const dx = rect.left + rect.width / 2 - centerX;
-        const dy = rect.top + rect.height / 2 - centerY;
+        const dx = target.x - centerX;
+        const dy = target.y - centerY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if(distance < bestDistance){
+        if(distance <= target.radius && distance < bestDistance){
             bestDistance = distance;
             bestTarget = target;
         }
     }
 
-    if(bestDistance < (wildlifeBinocularMode ? 130 : 70)){
-        return bestTarget;
-    }
-
-    return null;
+    return bestTarget;
 }
 
 function markWildlifeTargetFound(id){
@@ -251,7 +245,7 @@ function markWildlifeTargetFound(id){
     }
 
     target.found = true;
-    showWildlifeMessage("📸 Zdjęcie zapisane: " + getWildlifeTypeLabel(target.type));
+    showWildlifeMessage("Zdjęcie zaliczone!");
     updateWildlifeProgress();
     updateWildlifeTargetStyles();
 }
@@ -274,7 +268,7 @@ function showWildlifeHint(){
 
     if(el){
         el.classList.add("hint");
-        showWildlifeMessage("Podpowiedź: szukaj " + getWildlifeTypeLabel(target.type).toLowerCase() + ".");
+        showWildlifeMessage("Podpowiedź: sprawdź ten fragment laguny.");
 
         setTimeout(()=>{
             el.classList.remove("hint");
