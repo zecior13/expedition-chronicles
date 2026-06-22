@@ -126,27 +126,23 @@ button{
 
 .game-screen{
     padding:0;
-
-    background:#2d85ae;
 }
 
 .game-area{
     position:relative;
 
-    display:flex;
-    flex-direction:column;
-
     width:100%;
     height:100%;
-    max-width:100%;
 
     background:#63b7df;
-
-    overflow:hidden;
 }
 
 .game-header{
-    flex:0 0 52px;
+    position:absolute;
+
+    top:0;
+    left:0;
+    right:0;
 
     height:52px;
 
@@ -154,7 +150,6 @@ button{
 
     justify-content:space-between;
     align-items:center;
-    gap:10px;
 
     padding:0 12px;
 
@@ -163,29 +158,13 @@ button{
     z-index:20;
 }
 
-.game-header span{
-    min-width:0;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-    white-space:nowrap;
-}
-
 .small-button{
     padding:8px 12px;
-
-    flex:0 0 auto;
 }
 
 #kayakCanvas{
-    display:block;
-    flex:1 1 auto;
-    min-height:0;
-
     width:100%;
-
-    touch-action:none;
+    height:100%;
 }
 
 .edge-control{
@@ -207,29 +186,50 @@ button{
     backdrop-filter:blur(4px);
 
     z-index:30;
-
-    touch-action:none;
 }
 
 .left-control{
-    left:max(14px, env(safe-area-inset-left));
+    left:24px;
 }
 
 .right-control{
-    right:max(14px, env(safe-area-inset-right));
+    right:24px;
 }
 
-@media (min-width:900px) and (hover:hover){
+.rotate-notice{
+    display:none;
+
+    width:100%;
+    height:100%;
+
+    justify-content:center;
+    align-items:center;
+
+    flex-direction:column;
+
+    gap:16px;
+
+    text-align:center;
+}
+
+@media (orientation:portrait){
+
     .game-area{
-        max-width:620px;
+        display:none;
+    }
+
+    .rotate-notice{
+        display:flex;
     }
 }
 
-@media (orientation:portrait) and (max-width:899px){
-    .edge-control{
-        bottom:calc(18px + env(safe-area-inset-bottom));
+@media (orientation:landscape){
 
-        width:84px;
-        height:84px;
+    .rotate-notice{
+        display:none;
+    }
+
+    .game-area{
+        display:block;
     }
 }
