@@ -220,3 +220,286 @@ button{
         max-width:620px;
     }
 }
+
+.flamingo-screen{
+    position:relative;
+
+    padding:0;
+
+    background:#cdeefa;
+}
+
+.flamingo-screen.active{
+    justify-content:flex-start;
+    align-items:stretch;
+    gap:0;
+}
+
+.flamingo-header{
+    flex:0 0 52px;
+
+    width:100%;
+    height:52px;
+
+    display:flex;
+
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+
+    padding:0 12px;
+
+    background:#ffffff;
+
+    z-index:20;
+}
+
+.flamingo-header span{
+    min-width:0;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.flamingo-viewport{
+    position:relative;
+
+    width:100%;
+    flex:1 1 auto;
+    min-height:0;
+
+    overflow:hidden;
+
+    cursor:grab;
+    touch-action:none;
+
+    background:linear-gradient(#b8efff 0 34%, #80d4e8 34% 72%, #d9c79f 72% 100%);
+}
+
+.flamingo-viewport.dragging{
+    cursor:grabbing;
+}
+
+.flamingo-panorama{
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:400vw;
+    height:100%;
+
+    transform:translateX(0);
+
+    will-change:transform;
+}
+
+.lagoon-band{
+    position:absolute;
+
+    left:0;
+    right:0;
+
+    pointer-events:none;
+}
+
+.lagoon-water{
+    top:34%;
+    height:38%;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.25) 0 2px,
+            transparent 2px 28px
+        );
+
+    animation:water-glide 6s linear infinite;
+}
+
+.lagoon-shore{
+    bottom:0;
+    height:28%;
+
+    background:linear-gradient(#d7c193, #c9a977);
+}
+
+.flamingo-object{
+    position:absolute;
+
+    transform:translate(-50%, -50%);
+
+    user-select:none;
+    pointer-events:none;
+}
+
+.flamingo-group{
+    padding:8px 12px;
+
+    border-radius:999px;
+
+    color:rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.05);
+
+    font-size:1.3rem;
+    letter-spacing:2px;
+}
+
+.flamingo-screen.binocular-active .flamingo-group{
+    color:#ff6fa8;
+    background:rgba(255,255,255,0.78);
+}
+
+.flamingo-group.identified{
+    color:#ff4f9a;
+    outline:2px solid rgba(255,255,255,0.9);
+}
+
+.flamingo-group.discovered{
+    color:#d83d86;
+    background:#ffffff;
+}
+
+.flamingo-head{
+    display:inline-block;
+
+    animation:flamingo-nod 4.5s ease-in-out infinite;
+}
+
+.lagoon-boat{
+    font-size:2.2rem;
+
+    animation:boat-drift 5s ease-in-out infinite;
+}
+
+.lagoon-small{
+    font-size:1.8rem;
+}
+
+.lagoon-bird{
+    font-size:1.4rem;
+}
+
+.binocular-reticle{
+    position:absolute;
+
+    left:50%;
+    top:45%;
+
+    display:none;
+
+    width:92px;
+    height:92px;
+
+    transform:translate(-50%, -50%);
+
+    border:3px solid rgba(255,255,255,0.95);
+    border-radius:50%;
+
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(0,0,0,0.12);
+
+    font-size:2rem;
+
+    pointer-events:none;
+}
+
+.flamingo-screen.binocular-active .binocular-reticle{
+    display:flex;
+}
+
+.flamingo-message{
+    position:absolute;
+
+    left:50%;
+    bottom:92px;
+
+    min-width:220px;
+
+    transform:translateX(-50%);
+
+    padding:10px 14px;
+
+    border-radius:8px;
+
+    color:#111;
+    background:#ffffff;
+
+    font-weight:700;
+
+    opacity:0;
+    transition:opacity 0.2s;
+
+    pointer-events:none;
+}
+
+.flamingo-message.visible{
+    opacity:1;
+}
+
+.flamingo-toolbar{
+    position:absolute;
+
+    left:0;
+    right:0;
+    bottom:18px;
+
+    display:flex;
+
+    justify-content:center;
+    gap:14px;
+
+    z-index:25;
+}
+
+.flamingo-toolbar .small-button{
+    width:64px;
+    height:64px;
+
+    padding:0;
+
+    border-radius:50%;
+
+    font-size:1.8rem;
+}
+
+.flamingo-toolbar .active{
+    background:#c23b7a;
+}
+
+@keyframes water-glide{
+    from{
+        background-position-y:0;
+    }
+
+    to{
+        background-position-y:28px;
+    }
+}
+
+@keyframes flamingo-nod{
+    0%,
+    82%,
+    100%{
+        transform:rotate(0);
+    }
+
+    88%{
+        transform:rotate(12deg);
+    }
+}
+
+@keyframes boat-drift{
+    0%,
+    100%{
+        transform:translate(-50%, -50%);
+    }
+
+    50%{
+        transform:translate(calc(-50% + 8px), calc(-50% + 2px));
+    }
+}

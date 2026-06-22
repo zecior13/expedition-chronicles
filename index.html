@@ -53,6 +53,7 @@
     </div>
 
     <button onclick="showScreen('guardianScreen')">Rozpocznij dzień</button>
+    <button onclick="startFlamingoObserver()">Obserwuj flamingi</button>
     <button class="secondary" onclick="showScreen('mapScreen')">Wróć na mapę</button>
   </section>
 
@@ -85,6 +86,34 @@
       <button id="leftBtn" class="edge-control left-control">◀◀</button>
       <button id="rightBtn" class="edge-control right-control">▶▶</button>
     </div>
+  </section>
+
+  <section id="flamingoScreen" class="screen flamingo-screen">
+    <div class="flamingo-header">
+      <button class="small-button" onclick="stopFlamingoObserver(); showScreen('walvisScreen')">← Wróć</button>
+      <span>Flamingo Observer — Build 0.07B</span>
+      <strong id="flamingoProgress">🦩 0 / 5</strong>
+    </div>
+
+    <div id="flamingoViewport" class="flamingo-viewport">
+      <div id="flamingoPanorama" class="flamingo-panorama"></div>
+      <div id="binocularReticle" class="binocular-reticle">🔭</div>
+      <div id="flamingoMessage" class="flamingo-message"></div>
+    </div>
+
+    <div class="flamingo-toolbar">
+      <button id="binocularBtn" class="small-button secondary" onclick="toggleBinocularMode()">🔭</button>
+      <button class="small-button" onclick="takeFlamingoPhoto()">📸</button>
+    </div>
+  </section>
+
+  <section id="flamingoCompleteScreen" class="screen">
+    <h1>Best Photo of the Day</h1>
+    <div class="guardian">🦩</div>
+    <div class="quote">
+      During the lagoon observation you documented five flamingo groups in Walvis Bay.
+    </div>
+    <button onclick="addFlamingoToChronicle()">Add to Chronicle</button>
   </section>
 
 </div>

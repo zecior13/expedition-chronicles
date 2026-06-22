@@ -33,6 +33,33 @@ let nextSealDelay = 15000;
 let lastFishSpawn = 0;
 let nextFishDelay = 4000;
 
+let flamingoRunning = false;
+let flamingoOffset = 0;
+let flamingoSceneWidth = 0;
+let flamingoViewportWidth = 0;
+let flamingoDragging = false;
+let flamingoDragStartX = 0;
+let flamingoDragStartOffset = 0;
+let binocularMode = false;
+let flamingoMessageUntil = 0;
+let flamingoAnimationId = null;
+let flamingosFound = 0;
+let secretsFound = [];
+
+const flamingoGroups = [
+    { id: "flamingo-1", x: 0.14, y: 0.58, discovered: false, identified: false },
+    { id: "flamingo-2", x: 0.31, y: 0.48, discovered: false, identified: false },
+    { id: "flamingo-3", x: 0.49, y: 0.62, discovered: false, identified: false },
+    { id: "flamingo-4", x: 0.68, y: 0.50, discovered: false, identified: false },
+    { id: "flamingo-5", x: 0.87, y: 0.60, discovered: false, identified: false }
+];
+
+const flamingoSecrets = [
+    { id: "seal", label: "🦭", x: 0.23, y: 0.68 },
+    { id: "pelican", label: "🪿", x: 0.57, y: 0.30 },
+    { id: "wreck", label: "⛵", x: 0.78, y: 0.72 }
+];
+
 kayakImage.onload = function(){
     kayakImageLoaded = true;
 };
@@ -72,6 +99,275 @@ function savePlayers(){
 }
 
 function openWalvisBay(){
+    showScreen("walvisScreen");
+}
+
+function startFlamingoObserver(){
+    stopKayakGame();
+    showScreen("flamingoScreen");
+
+    flamingoRunning = true;
+    flamingoOffset = 0;
+    binocularMode = false;
+    flamingoMessageUntil = 0;
+    secretsFound = JSON.parse(localStorage.getItem("secretsFound") || "[]");
+
+    for(const group of flamingoGroups){
+        group.discovered = false;
+        group.identified = false;
+    }
+
+    renderFlamingoScene();
+    setupFlamingoControls();
+    updateFlamingoLayout();
+    updateFlamingoProgress();
+    updateBinocularButton();
+    showFlamingoMessage("");
+
+    if(flamingoAnimationId){
+        cancelAnimationFrame(flamingoAnimationId);
+    }
+
+    flamingoLoop();
+}
+
+function stopFlamingoObserver(){
+    flamingoRunning = false;
+
+    if(flamingoAnimationId){
+        cancelAnimationFrame(flamingoAnimationId);
+        flamingoAnimationId = null;
+    }
+}
+
+function renderFlamingoScene(){
+    const panorama = document.getElementById("flamingoPanorama");
+
+    panorama.innerHTML = `
+        <div class="lagoon-band lagoon-water"></div>
+        <div class="lagoon-band lagoon-shore"></div>
+    `;
+
+    const scenery = [
+        { label: "🪨", x: 0.08, y: 0.72, className: "lagoon-small" },
+        { label: "🚤", x: 0.18, y: 0.47, className: "lagoon-boat" },
+        { label: "🪨", x: 0.29, y: 0.70, className: "lagoon-small" },
+        { label: "⛵", x: 0.40, y: 0.44, className: "lagoon-boat" },
+        { label: "🪨", x: 0.52, y: 0.76, className: "lagoon-small" },
+        { label: "🚤", x: 0.63, y: 0.52, className: "lagoon-boat" },
+        { label: "🪨", x: 0.73, y: 0.69, className: "lagoon-small" },
+        { label: "⛵", x: 0.91, y: 0.48, className: "lagoon-boat" },
+        { label: "𓅃", x: 0.12, y: 0.24, className: "lagoon-bird" },
+        { label: "𓅃", x: 0.46, y: 0.20, className: "lagoon-bird" },
+        { label: "𓅃", x: 0.83, y: 0.26, className: "lagoon-bird" }
+    ];
+
+    for(const item of scenery){
+        addFlamingoObject(panorama, item.label, item.x, item.y, item.className);
+    }
+
+    for(const secret of flamingoSecrets){
+        addFlamingoObject(
+            panorama,
+            secret.label,
+            secret.x,
+            secret.y,
+            "lagoon-small secret-" + secret.id
+        );
+    }
+
+    for(const group of flamingoGroups){
+        const el = document.createElement("div");
+        el.className = "flamingo-object flamingo-group";
+        el.dataset.id = group.id;
+        el.style.left = group.x * 100 + "%";
+        el.style.top = group.y * 100 + "%";
+        el.innerHTML = `<span class="flamingo-head">🦩</span> 🦩 🦩`;
+        panorama.appendChild(el);
+    }
+}
+
+function addFlamingoObject(parent, label, x, y, className){
+    const el = document.createElement("div");
+    el.className = "flamingo-object " + className;
+    el.style.left = x * 100 + "%";
+    el.style.top = y * 100 + "%";
+    el.textContent = label;
+    parent.appendChild(el);
+}
+
+function setupFlamingoControls(){
+    const viewport = document.getElementById("flamingoViewport");
+
+    viewport.onpointerdown = e=>{
+        flamingoDragging = true;
+        flamingoDragStartX = e.clientX;
+        flamingoDragStartOffset = flamingoOffset;
+        viewport.classList.add("dragging");
+        viewport.setPointerCapture(e.pointerId);
+    };
+
+    viewport.onpointermove = e=>{
+        if(!flamingoDragging){
+            return;
+        }
+
+        flamingoOffset = clampFlamingoOffset(
+            flamingoDragStartOffset - (e.clientX - flamingoDragStartX)
+        );
+        updateFlamingoView();
+    };
+
+    viewport.onpointerup = e=>{
+        flamingoDragging = false;
+        viewport.classList.remove("dragging");
+        viewport.releasePointerCapture(e.pointerId);
+    };
+
+    viewport.onpointercancel = ()=>{
+        flamingoDragging = false;
+        viewport.classList.remove("dragging");
+    };
+}
+
+function updateFlamingoLayout(){
+    const viewport = document.getElementById("flamingoViewport");
+    const panorama = document.getElementById("flamingoPanorama");
+
+    flamingoViewportWidth = viewport.getBoundingClientRect().width;
+    flamingoSceneWidth = panorama.getBoundingClientRect().width;
+    flamingoOffset = clampFlamingoOffset(flamingoOffset);
+    updateFlamingoView();
+}
+
+function clampFlamingoOffset(value){
+    return Math.max(0, Math.min(value, Math.max(0, flamingoSceneWidth - flamingoViewportWidth)));
+}
+
+function updateFlamingoView(){
+    const panorama = document.getElementById("flamingoPanorama");
+    panorama.style.transform = "translateX(" + -flamingoOffset + "px)";
+    updateVisibleFlamingos();
+}
+
+function toggleBinocularMode(){
+    binocularMode = !binocularMode;
+    updateBinocularButton();
+    updateVisibleFlamingos();
+}
+
+function updateBinocularButton(){
+    const screen = document.getElementById("flamingoScreen");
+    const button = document.getElementById("binocularBtn");
+
+    screen.classList.toggle("binocular-active", binocularMode);
+    button.classList.toggle("active", binocularMode);
+}
+
+function updateVisibleFlamingos(){
+    const centerX = flamingoOffset + flamingoViewportWidth / 2;
+    const identifyRange = flamingoViewportWidth * 0.34;
+
+    for(const group of flamingoGroups){
+        const groupX = group.x * flamingoSceneWidth;
+
+        if(binocularMode && Math.abs(groupX - centerX) < identifyRange){
+            group.identified = true;
+        }
+
+        const el = document.querySelector('[data-id="' + group.id + '"]');
+
+        if(el){
+            el.classList.toggle("identified", group.identified && !group.discovered);
+            el.classList.toggle("discovered", group.discovered);
+        }
+    }
+
+    if(binocularMode){
+        checkVisibleSecrets(centerX);
+    }
+}
+
+function checkVisibleSecrets(centerX){
+    const secretRange = flamingoViewportWidth * 0.24;
+
+    for(const secret of flamingoSecrets){
+        const secretX = secret.x * flamingoSceneWidth;
+
+        if(Math.abs(secretX - centerX) < secretRange && !secretsFound.includes(secret.id)){
+            secretsFound.push(secret.id);
+            localStorage.setItem("secretsFound", JSON.stringify(secretsFound));
+            showFlamingoMessage("Sekret odkryty: " + secret.label);
+        }
+    }
+}
+
+function takeFlamingoPhoto(){
+    const centerX = flamingoOffset + flamingoViewportWidth / 2;
+    const photoRange = flamingoViewportWidth * 0.36;
+    let photographed = false;
+
+    for(const group of flamingoGroups){
+        const groupX = group.x * flamingoSceneWidth;
+
+        if(group.identified && !group.discovered && Math.abs(groupX - centerX) < photoRange){
+            group.discovered = true;
+            photographed = true;
+            showFlamingoMessage("📸 Flamingi udokumentowane!");
+            break;
+        }
+    }
+
+    if(!photographed){
+        showFlamingoMessage(binocularMode ? "Ustaw kadr bliżej flamingów." : "Użyj lornetki, aby rozpoznać grupę.");
+    }
+
+    updateFlamingoProgress();
+    updateVisibleFlamingos();
+}
+
+function updateFlamingoProgress(){
+    flamingosFound = flamingoGroups.filter(group => group.discovered).length;
+    document.getElementById("flamingoProgress").innerText = "🦩 " + flamingosFound + " / 5";
+    localStorage.setItem("flamingosFound", String(flamingosFound));
+    localStorage.setItem("secretsFound", JSON.stringify(secretsFound));
+
+    if(flamingosFound === 5){
+        localStorage.setItem("flamingoObserverCompleted", "true");
+        localStorage.setItem("bestPhotoUnlocked", "true");
+        stopFlamingoObserver();
+        showScreen("flamingoCompleteScreen");
+    }
+}
+
+function showFlamingoMessage(text){
+    const message = document.getElementById("flamingoMessage");
+
+    if(!text){
+        message.classList.remove("visible");
+        message.innerText = "";
+        return;
+    }
+
+    message.innerText = text;
+    message.classList.add("visible");
+    flamingoMessageUntil = performance.now() + 1800;
+}
+
+function flamingoLoop(){
+    if(!flamingoRunning){
+        return;
+    }
+
+    if(performance.now() > flamingoMessageUntil){
+        showFlamingoMessage("");
+    }
+
+    updateFlamingoLayout();
+    flamingoAnimationId = requestAnimationFrame(flamingoLoop);
+}
+
+function addFlamingoToChronicle(){
     showScreen("walvisScreen");
 }
 
