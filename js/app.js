@@ -13,6 +13,14 @@ let kayakImage = new Image();
 let kayakImageLoaded = false;
 let startTime = 0;
 
+let rocks = [];
+let lives = 4;
+let score = 0;
+let gameSeconds = 60;
+let gameRunning = false;
+let invincibleUntil = 0;
+let lastRockSpawn = 0;
+
 kayakImage.onload = function(){
     kayakImageLoaded = true;
 };
@@ -20,19 +28,14 @@ kayakImage.onload = function(){
 kayakImage.src = "assets/kayak.svg";
 
 function showScreen(id){
-
-    document.querySelectorAll('.screen')
-    .forEach(screen=>{
+    document.querySelectorAll('.screen').forEach(screen=>{
         screen.classList.remove('active');
     });
 
-    document
-        .getElementById(id)
-        .classList.add('active');
+    document.getElementById(id).classList.add('active');
 }
 
 function saveExpedition(){
-
     localStorage.setItem(
         'expeditionName',
         document.getElementById('expeditionName').value
@@ -42,21 +45,15 @@ function saveExpedition(){
 }
 
 function savePlayers(){
-
     const players = [
         document.getElementById('player1').value,
         document.getElementById('player2').value,
         document.getElementById('player3').value
     ];
 
-    localStorage.setItem(
-        'players',
-        JSON.stringify(players)
-    );
+    localStorage.setItem('players', JSON.stringify(players));
 
-    document.getElementById(
-        'expeditionTitle'
-    ).innerText =
+    document.getElementById('expeditionTitle').innerText =
         localStorage.getItem('expeditionName');
 
     showScreen('mapScreen');
@@ -67,7 +64,6 @@ function openWalvisBay(){
 }
 
 function startKayakGame(){
-
     showScreen('kayakScreen');
 
     setTimeout(()=>{
@@ -76,18 +72,17 @@ function startKayakGame(){
 }
 
 function stopKayakGame(){
-
     if(animationId){
         cancelAnimationFrame(animationId);
         animationId = null;
     }
 
+    gameRunning = false;
     moveLeft = false;
     moveRight = false;
 }
 
 function initCanvas(){
-
     canvas = document.getElementById('kayakCanvas');
     ctx = canvas.getContext('2d');
 
@@ -103,6 +98,14 @@ function initCanvas(){
     waterOffset = 0;
     startTime = performance.now();
 
+    rocks = [];
+    lives = 4;
+    score = 0;
+    gameSeconds = 60;
+    gameRunning = true;
+    invincibleUntil = 0;
+    lastRockSpawn = 0;
+
     setupControls();
 
     if(animationId){
@@ -113,7 +116,6 @@ function initCanvas(){
 }
 
 function setupControls(){
-
     const leftBtn = document.getElementById('leftBtn');
     const rightBtn = document.getElementById('rightBtn');
 
@@ -145,38 +147,19 @@ function setupControls(){
     };
 
     document.onkeydown = (e)=>{
-
-        if(e.key === "ArrowLeft"){
-            moveLeft = true;
-        }
-
-        if(e.key === "ArrowRight"){
-            moveRight = true;
-        }
+        if(e.key === "ArrowLeft") moveLeft = true;
+        if(e.key === "ArrowRight") moveRight = true;
     };
 
     document.onkeyup = (e)=>{
-
-        if(e.key === "ArrowLeft"){
-            moveLeft = false;
-        }
-
-        if(e.key === "ArrowRight"){
-            moveRight = false;
-        }
+        if(e.key === "ArrowLeft") moveLeft = false;
+        if(e.key === "ArrowRight") moveRight = false;
     };
 }
 
 function drawWater(){
-
     ctx.fillStyle = "#63b7df";
-
-    ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     waterOffset += 1.5;
 
@@ -188,13 +171,10 @@ function drawWater(){
     ctx.lineWidth = 2;
 
     for(let y = -80 + waterOffset; y < canvas.height + 80; y += 80){
-
         ctx.beginPath();
 
         for(let x = 0; x <= canvas.width; x += 40){
-
-            const wave =
-                Math.sin((x + y) * 0.02) * 8;
+            const wave = Math.sin((x + y) * 0.02) * 8;
 
             if(x === 0){
                 ctx.moveTo(x, y + wave);
@@ -208,42 +188,53 @@ function drawWater(){
 }
 
 function drawMovementLines(){
-
     ctx.strokeStyle = "rgba(255,255,255,0.45)";
     ctx.lineWidth = 3;
 
     for(let i = 0; i < 6; i++){
-
-        const x =
-            (canvas.width / 7) * (i + 1);
-
-        const y =
-            (waterOffset * 3 + i * 90) % canvas.height;
+        const x = (canvas.width / 7) * (i + 1);
+        const y = (waterOffset * 3 + i * 90) % canvas.height;
 
         ctx.beginPath();
-
         ctx.moveTo(x, y);
         ctx.lineTo(x, y + 35);
-
         ctx.stroke();
     }
 }
 
+function drawHud(){
+    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.fillRect(10, 10, canvas.width - 20, 46);
+
+    ctx.fillStyle = "#111";
+    ctx.font = "20px Arial";
+
+    const hearts = "❤️".repeat(lives);
+    const elapsed = Math.floor((performance.now() - startTime) / 1000);
+    const remaining = Math.max(0, gameSeconds - elapsed);
+
+    ctx.fillText(hearts, 25, 40);
+    ctx.fillText("Punkty: " + score, canvas.width / 2 - 60, 40);
+    ctx.fillText("Czas: " + remaining, canvas.width - 130, 40);
+}
+
 function drawKayak(){
-
-    const elapsed =
-        (performance.now() - startTime) / 1000;
-
-    const sway =
-        Math.sin(elapsed * 3) * 0.04;
+    const elapsed = (performance.now() - startTime) / 1000;
+    const sway = Math.sin(elapsed * 3) * 0.04;
 
     const width = 44;
     const height = 88;
 
-    ctx.save();
+    const now = performance.now();
+    const isInvincible = now < invincibleUntil;
 
+    ctx.save();
     ctx.translate(kayakX, kayakY);
     ctx.rotate(sway);
+
+    if(isInvincible){
+        ctx.globalAlpha = 0.45 + Math.sin(now * 0.03) * 0.25;
+    }
 
     if(kayakImageLoaded){
         ctx.drawImage(
@@ -266,8 +257,73 @@ function drawKayak(){
     ctx.restore();
 }
 
-function update(){
+function spawnRock(now){
+    if(now - lastRockSpawn < 1200){
+        return;
+    }
 
+    lastRockSpawn = now;
+
+    const margin = 55;
+
+    rocks.push({
+        x: margin + Math.random() * (canvas.width - margin * 2),
+        y: -40,
+        radius: 20 + Math.random() * 12,
+        speed: 2.2 + Math.random() * 1.2
+    });
+}
+
+function updateRocks(){
+    for(let rock of rocks){
+        rock.y += rock.speed;
+    }
+
+    rocks = rocks.filter(rock => rock.y < canvas.height + 60);
+}
+
+function drawRocks(){
+    for(let rock of rocks){
+        ctx.fillStyle = "#6b6258";
+        ctx.beginPath();
+        ctx.arc(rock.x, rock.y, rock.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(255,255,255,0.25)";
+        ctx.beginPath();
+        ctx.arc(rock.x - 6, rock.y - 6, rock.radius * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function checkCollisions(){
+    const now = performance.now();
+
+    if(now < invincibleUntil){
+        return;
+    }
+
+    for(let rock of rocks){
+        const dx = kayakX - rock.x;
+        const dy = kayakY - rock.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < rock.radius + 26){
+            lives -= 1;
+            invincibleUntil = now + 1000;
+
+            rock.y = canvas.height + 100;
+
+            if(lives <= 0){
+                endKayakGame(false);
+            }
+
+            return;
+        }
+    }
+}
+
+function update(){
     const speed = 4.2;
 
     if(moveLeft){
@@ -285,33 +341,94 @@ function update(){
     if(kayakX > canvas.width - 35){
         kayakX = canvas.width - 35;
     }
+
+    const elapsed = Math.floor((performance.now() - startTime) / 1000);
+    score = elapsed * 10;
+
+    if(elapsed >= gameSeconds){
+        endKayakGame(true);
+    }
+}
+
+function drawEndScreen(won){
+    ctx.fillStyle = "rgba(0,0,0,0.65)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+
+    ctx.font = "34px Arial";
+    ctx.fillText(
+        won ? "🏁 META!" : "💀 KONIEC WYPRAWY",
+        canvas.width / 2,
+        canvas.height / 2 - 50
+    );
+
+    ctx.font = "21px Arial";
+    ctx.fillText(
+        won ? "Dotarłeś do końca laguny." : "Kajak wymaga naprawy.",
+        canvas.width / 2,
+        canvas.height / 2
+    );
+
+    ctx.fillText(
+        "Wynik: " + score,
+        canvas.width / 2,
+        canvas.height / 2 + 40
+    );
+
+    ctx.fillText(
+        "Kliknij Wróć i spróbuj ponownie.",
+        canvas.width / 2,
+        canvas.height / 2 + 85
+    );
+
+    ctx.textAlign = "start";
+}
+
+function endKayakGame(won){
+    gameRunning = false;
+
+    drawWater();
+    drawMovementLines();
+    drawRocks();
+    drawKayak();
+    drawHud();
+    drawEndScreen(won);
+
+    if(animationId){
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
 }
 
 function gameLoop(){
+    const now = performance.now();
 
     drawWater();
-
     drawMovementLines();
 
-    update();
+    if(gameRunning){
+        spawnRock(now);
+        updateRocks();
+        update();
+        checkCollisions();
+    }
 
+    drawRocks();
     drawKayak();
+    drawHud();
 
-    animationId =
-        requestAnimationFrame(gameLoop);
+    if(gameRunning){
+        animationId = requestAnimationFrame(gameLoop);
+    }
 }
 
 window.onload = function(){
-
-    const savedName =
-        localStorage.getItem('expeditionName');
+    const savedName = localStorage.getItem('expeditionName');
 
     if(savedName){
-
-        document.getElementById(
-            'expeditionTitle'
-        ).innerText = savedName;
-
+        document.getElementById('expeditionTitle').innerText = savedName;
         showScreen('mapScreen');
     }
 };
