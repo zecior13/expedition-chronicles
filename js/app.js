@@ -53,6 +53,15 @@ let wildlifePhotosFound = 0;
 let wildlifeLensX = 50;
 let wildlifeLensY = 50;
 let wildlifeLensDragging = false;
+let wildlifePanX = 0;
+let wildlifePanY = 0;
+let wildlifePanStartX = 0;
+let wildlifePanStartY = 0;
+let wildlifeDragStartX = 0;
+let wildlifeDragStartY = 0;
+let wildlifeDragMode = null;
+const wildlifeImageAspect = 1672 / 941;
+const wildlifeLensZoom = 2.2;
 
 const flamingoGroups = [
     { id: "flamingo-1", x: 0.14, y: 0.58, discovered: false, identified: false },
@@ -139,6 +148,9 @@ function startWildlifeSearch(){
     wildlifeLensX = 50;
     wildlifeLensY = 50;
     wildlifeLensDragging = false;
+    wildlifePanX = 0;
+    wildlifePanY = 0;
+    wildlifeDragMode = null;
 
     const savedTargets = JSON.parse(localStorage.getItem("wildlifeTargetsFound") || "[]");
 
@@ -148,7 +160,7 @@ function startWildlifeSearch(){
 
     renderWildlifeScene();
     setupWildlifeLensControls();
-    updateWildlifeLens();
+    updateWildlifeSceneLayout();
     updateWildlifeProgress();
     updateWildlifeBinocularButton();
     showWildlifeMessage("");
@@ -180,30 +192,49 @@ function setupWildlifeLensControls(){
     const viewport = document.getElementById("wildlifeViewport");
 
     viewport.onpointerdown = e=>{
-        if(!wildlifeBinocularMode){
-            return;
-        }
+        const viewportRect = viewport.getBoundingClientRect();
+        const lensX = viewportRect.left + viewportRect.width * wildlifeLensX / 100;
+        const lensY = viewportRect.top + viewportRect.height * wildlifeLensY / 100;
+        const distanceFromLens = Math.sqrt((e.clientX - lensX) ** 2 + (e.clientY - lensY) ** 2);
 
-        wildlifeLensDragging = true;
+        wildlifeDragMode =
+            wildlifeBinocularMode && distanceFromLens < 90 ? "lens" :
+            "pan";
+        wildlifeLensDragging = wildlifeDragMode === "lens";
+        wildlifeDragStartX = e.clientX;
+        wildlifeDragStartY = e.clientY;
+        wildlifePanStartX = wildlifePanX;
+        wildlifePanStartY = wildlifePanY;
         viewport.setPointerCapture(e.pointerId);
-        moveWildlifeLens(e);
+
+        if(wildlifeDragMode === "lens"){
+            moveWildlifeLens(e);
+        }
     };
 
     viewport.onpointermove = e=>{
-        if(!wildlifeBinocularMode || !wildlifeLensDragging){
+        if(!wildlifeDragMode){
             return;
         }
 
-        moveWildlifeLens(e);
+        if(wildlifeDragMode === "lens"){
+            moveWildlifeLens(e);
+        }else{
+            wildlifePanX = wildlifePanStartX + e.clientX - wildlifeDragStartX;
+            wildlifePanY = wildlifePanStartY + e.clientY - wildlifeDragStartY;
+            updateWildlifeSceneLayout();
+        }
     };
 
     viewport.onpointerup = e=>{
         wildlifeLensDragging = false;
+        wildlifeDragMode = null;
         viewport.releasePointerCapture(e.pointerId);
     };
 
     viewport.onpointercancel = ()=>{
         wildlifeLensDragging = false;
+        wildlifeDragMode = null;
     };
 }
 
@@ -214,12 +245,56 @@ function moveWildlifeLens(e){
     updateWildlifeLens();
 }
 
+function updateWildlifeSceneLayout(){
+    const viewport = document.getElementById("wildlifeViewport");
+    const scene = document.getElementById("wildlifeScene");
+    const viewportRect = viewport.getBoundingClientRect();
+
+    if(viewportRect.width <= 0 || viewportRect.height <= 0){
+        return;
+    }
+
+    let sceneWidth = viewportRect.width;
+    let sceneHeight = sceneWidth / wildlifeImageAspect;
+
+    if(sceneHeight < viewportRect.height){
+        sceneHeight = viewportRect.height;
+        sceneWidth = sceneHeight * wildlifeImageAspect;
+    }
+
+    const minX = viewportRect.width - sceneWidth;
+    const minY = viewportRect.height - sceneHeight;
+
+    wildlifePanX = Math.min(0, Math.max(minX, wildlifePanX));
+    wildlifePanY = Math.min(0, Math.max(minY, wildlifePanY));
+
+    scene.style.width = sceneWidth + "px";
+    scene.style.height = sceneHeight + "px";
+    scene.style.transform = "translate(" + wildlifePanX + "px, " + wildlifePanY + "px)";
+
+    updateWildlifeLens();
+}
+
 function updateWildlifeLens(){
     const lens = document.getElementById("wildlifeMagnifier");
+    const viewport = document.getElementById("wildlifeViewport");
+    const scene = document.getElementById("wildlifeScene");
+    const viewportRect = viewport.getBoundingClientRect();
+    const sceneRect = scene.getBoundingClientRect();
+    const lensSize = lens.getBoundingClientRect().width || 148;
+    const lensCenterX = viewportRect.width * wildlifeLensX / 100;
+    const lensCenterY = viewportRect.height * wildlifeLensY / 100;
+    const imageX = lensCenterX - wildlifePanX;
+    const imageY = lensCenterY - wildlifePanY;
+    const backgroundWidth = sceneRect.width * wildlifeLensZoom;
+    const backgroundHeight = sceneRect.height * wildlifeLensZoom;
+    const backgroundX = lensSize / 2 - imageX * wildlifeLensZoom;
+    const backgroundY = lensSize / 2 - imageY * wildlifeLensZoom;
 
     lens.style.left = wildlifeLensX + "%";
     lens.style.top = wildlifeLensY + "%";
-    lens.style.backgroundPosition = wildlifeLensX + "% " + wildlifeLensY + "%";
+    lens.style.backgroundSize = backgroundWidth + "px " + backgroundHeight + "px";
+    lens.style.backgroundPosition = backgroundX + "px " + backgroundY + "px";
 }
 
 function toggleWildlifeBinoculars(){
@@ -247,6 +322,12 @@ function takeWildlifePhoto(){
 }
 
 function getCenteredWildlifeTarget(){
+    const viewport = document.getElementById("wildlifeViewport").getBoundingClientRect();
+    const scene = document.getElementById("wildlifeScene").getBoundingClientRect();
+    const lensViewportX = viewport.width * wildlifeLensX / 100;
+    const lensViewportY = viewport.height * wildlifeLensY / 100;
+    const lensImageX = ((lensViewportX - wildlifePanX) / scene.width) * 100;
+    const lensImageY = ((lensViewportY - wildlifePanY) / scene.height) * 100;
     let bestTarget = null;
     let bestDistance = Infinity;
 
@@ -255,8 +336,8 @@ function getCenteredWildlifeTarget(){
             continue;
         }
 
-        const dx = target.xPercent - wildlifeLensX;
-        const dy = target.yPercent - wildlifeLensY;
+        const dx = target.xPercent - lensImageX;
+        const dy = target.yPercent - lensImageY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if(distance <= target.radiusPercent && distance < bestDistance){
@@ -297,8 +378,12 @@ function showWildlifeHint(){
     const target = remaining[Math.floor(Math.random() * remaining.length)];
     const hint = document.createElement("div");
     hint.className = "wildlife-hint-area";
-    hint.style.left = target.xPercent + "%";
-    hint.style.top = target.yPercent + "%";
+    const scene = document.getElementById("wildlifeScene").getBoundingClientRect();
+    const viewport = document.getElementById("wildlifeViewport").getBoundingClientRect();
+    const hintX = wildlifePanX + scene.width * target.xPercent / 100;
+    const hintY = wildlifePanY + scene.height * target.yPercent / 100;
+    hint.style.left = hintX + "px";
+    hint.style.top = hintY + "px";
     document.getElementById("wildlifeViewport").appendChild(hint);
     showWildlifeMessage(target.hint);
 
@@ -376,6 +461,7 @@ function wildlifeLoop(){
         showWildlifeMessage("");
     }
 
+    updateWildlifeSceneLayout();
     wildlifeAnimationId = requestAnimationFrame(wildlifeLoop);
 }
 

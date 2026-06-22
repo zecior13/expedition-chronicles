@@ -514,7 +514,7 @@ button{
 
 .wildlife-screen.active{
     justify-content:flex-start;
-    align-items:stretch;
+    align-items:center;
     gap:0;
 }
 
@@ -522,6 +522,7 @@ button{
     flex:0 0 52px;
 
     width:100%;
+    max-width:430px;
     height:52px;
 
     display:flex;
@@ -551,14 +552,21 @@ button{
     min-height:0;
 
     display:flex;
+    flex-direction:column;
 
     width:100%;
+    max-width:430px;
 }
 
 .wildlife-objectives{
-    width:142px;
+    width:100%;
 
-    padding:14px 12px;
+    display:flex;
+
+    justify-content:space-around;
+    gap:8px;
+
+    padding:8px;
 
     color:#111;
     background:#ffffff;
@@ -568,10 +576,15 @@ button{
     z-index:15;
 }
 
+.wildlife-objectives strong{
+    display:none;
+}
+
 .wildlife-objectives p{
-    margin-top:12px;
+    margin:0;
 
     font-weight:700;
+    font-size:0.9rem;
 }
 
 .wildlife-viewport{
@@ -593,17 +606,17 @@ button{
     left:0;
     top:0;
 
-    width:100%;
-    height:100%;
+    width:auto;
+    height:auto;
 
     background:
-        url("../assets/wildlife/walvis-bay-search-01.png") center / cover no-repeat,
+        url("../assets/wildlife/walvis-bay-search-01.png") center / 100% 100% no-repeat,
         radial-gradient(circle at 18% 72%, rgba(115,94,62,0.75) 0 5%, transparent 6%),
         radial-gradient(circle at 74% 70%, rgba(120,96,66,0.72) 0 4%, transparent 5%),
         linear-gradient(#9fe8f5 0 32%, #63c2da 32% 72%, #d5bb84 72% 100%);
 
     transform-origin:center center;
-    transition:transform 0.2s;
+    will-change:transform;
 }
 
 .wildlife-screen.binocular-active .wildlife-scene{
@@ -655,7 +668,7 @@ button{
     border-radius:50%;
 
     background:
-        url("../assets/wildlife/walvis-bay-search-01.png") center / 220% auto no-repeat,
+        url("../assets/wildlife/walvis-bay-search-01.png") 0 0 / auto no-repeat,
         rgba(0,0,0,0.18);
 
     box-shadow:
@@ -764,61 +777,40 @@ button{
 .wildlife-toolbar{
     position:absolute;
 
-    left:154px;
+    left:50%;
     right:0;
     bottom:14px;
 
+    width:min(430px, 100%);
+
     display:flex;
+    flex-wrap:wrap;
 
     justify-content:center;
     gap:10px;
+
+    transform:translateX(-50%);
 
     z-index:25;
 }
 
 .wildlife-toolbar .small-button{
-    padding:10px 12px;
+    padding:9px 10px;
+
+    font-size:0.9rem;
 }
 
 .wildlife-toolbar .active{
     background:#c23b7a;
 }
 
-@media (max-width:640px){
+@media (min-width:700px){
+    .wildlife-screen{
+        background:#b7d9e3;
+    }
+
+    .wildlife-header,
     .wildlife-main{
-        flex-direction:column;
-    }
-
-    .wildlife-objectives{
-        width:100%;
-
-        display:flex;
-
-        justify-content:space-around;
-        gap:8px;
-
-        padding:8px;
-    }
-
-    .wildlife-objectives strong{
-        display:none;
-    }
-
-    .wildlife-objectives p{
-        margin:0;
-
-        font-size:0.9rem;
-    }
-
-    .wildlife-toolbar{
-        left:0;
-
-        flex-wrap:wrap;
-    }
-
-    .wildlife-toolbar .small-button{
-        padding:9px 10px;
-
-        font-size:0.9rem;
+        box-shadow:0 0 24px rgba(0,0,0,0.12);
     }
 }
