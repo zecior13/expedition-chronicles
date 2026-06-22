@@ -66,21 +66,21 @@ const flamingoSecrets = [
 ];
 
 const wildlifeTargets = [
-    { id: "seal-1", type: "seal", label: "🦭", x: 12, y: 68, difficulty: 1, found: false },
-    { id: "seal-2", type: "seal", label: "🦭", x: 28, y: 74, difficulty: 2, found: false },
-    { id: "seal-3", type: "seal", label: "🦭", x: 48, y: 64, difficulty: 2, found: false },
-    { id: "seal-4", type: "seal", label: "🦭", x: 72, y: 76, difficulty: 3, found: false },
-    { id: "seal-5", type: "seal", label: "🦭", x: 88, y: 66, difficulty: 2, found: false },
-    { id: "flamingo-1", type: "flamingo", label: "🦩", x: 16, y: 54, difficulty: 2, found: false },
-    { id: "flamingo-2", type: "flamingo", label: "🦩", x: 34, y: 47, difficulty: 1, found: false },
-    { id: "flamingo-3", type: "flamingo", label: "🦩", x: 52, y: 56, difficulty: 2, found: false },
-    { id: "flamingo-4", type: "flamingo", label: "🦩", x: 67, y: 44, difficulty: 3, found: false },
-    { id: "flamingo-5", type: "flamingo", label: "🦩", x: 83, y: 53, difficulty: 2, found: false },
-    { id: "pelican-1", type: "pelican", label: "🪿", x: 20, y: 30, difficulty: 3, found: false },
-    { id: "pelican-2", type: "pelican", label: "🪿", x: 41, y: 36, difficulty: 2, found: false },
-    { id: "pelican-3", type: "pelican", label: "🪿", x: 61, y: 27, difficulty: 3, found: false },
-    { id: "pelican-4", type: "pelican", label: "🪿", x: 76, y: 34, difficulty: 2, found: false },
-    { id: "pelican-5", type: "pelican", label: "🪿", x: 91, y: 40, difficulty: 3, found: false }
+    { id: "seal-1", type: "seal", label: "🦭", x: 8, y: 60, difficulty: "medium", found: false },
+    { id: "seal-2", type: "seal", label: "🦭", x: 34, y: 69, difficulty: "easy", found: false },
+    { id: "seal-3", type: "seal", label: "🦭", x: 43, y: 59, difficulty: "hard", found: false },
+    { id: "seal-4", type: "seal", label: "🦭", x: 54, y: 55, difficulty: "very hard", found: false },
+    { id: "seal-5", type: "seal", label: "🦭", x: 83, y: 62, difficulty: "medium", found: false },
+    { id: "flamingo-1", type: "flamingo", label: "🦩", x: 9, y: 43, difficulty: "medium", found: false },
+    { id: "flamingo-2", type: "flamingo", label: "🦩", x: 27, y: 40, difficulty: "easy", found: false },
+    { id: "flamingo-3", type: "flamingo", label: "🦩", x: 47, y: 38, difficulty: "hard", found: false },
+    { id: "flamingo-4", type: "flamingo", label: "🦩", x: 59, y: 47, difficulty: "very hard", found: false },
+    { id: "flamingo-5", type: "flamingo", label: "🦩", x: 69, y: 43, difficulty: "extreme", found: false },
+    { id: "pelican-1", type: "pelican", label: "🪿", x: 11, y: 75, difficulty: "easy", found: false },
+    { id: "pelican-2", type: "pelican", label: "🪿", x: 42, y: 84, difficulty: "medium", found: false },
+    { id: "pelican-3", type: "pelican", label: "🪿", x: 62, y: 58, difficulty: "hard", found: false },
+    { id: "pelican-4", type: "pelican", label: "🪿", x: 72, y: 75, difficulty: "medium", found: false },
+    { id: "pelican-5", type: "pelican", label: "🪿", x: 70, y: 5, difficulty: "extreme", found: false }
 ];
 
 kayakImage.onload = function(){
