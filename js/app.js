@@ -14,7 +14,7 @@ let kayakImageLoaded = false;
 
 let startTime = 0;
 let rocks = [];
-let lives = 4;
+let lives = 3;
 let score = 0;
 let gameSeconds = 60;
 let gameRunning = false;
@@ -101,7 +101,7 @@ function initCanvas(){
     startTime = performance.now();
 
     rocks = [];
-    lives = 4;
+    lives = 3;
     score = 0;
     gameSeconds = 60;
     gameRunning = true;
@@ -606,8 +606,74 @@ function spawnCluster(now){
         ];
     }
 
+    let maneuverPatterns = [];
+
+    if(isNarrow){
+        maneuverPatterns = [
+            [
+                createRock(w * 0.18, y, r),
+                createRock(w * 0.48, y - 95, r),
+                createRock(w * 0.78, y - 190, r)
+            ],
+            [
+                createRock(w * 0.82, y, r),
+                createRock(w * 0.52, y - 95, r),
+                createRock(w * 0.22, y - 190, r)
+            ],
+            [
+                createRock(w * 0.16, y, r),
+                createRock(w * 0.66, y - 75, r),
+                createRock(w * 0.34, y - 170, r)
+            ],
+            [
+                createRock(w * 0.84, y, r),
+                createRock(w * 0.34, y - 75, r),
+                createRock(w * 0.66, y - 170, r)
+            ],
+            [
+                createRock(w * 0.30, y, r),
+                createRock(w * 0.70, y - 80, r),
+                createRock(w * 0.50, y - 165, r)
+            ]
+        ];
+    }else{
+        maneuverPatterns = [
+            [
+                createRock(w * 0.16, y, r),
+                createRock(w * 0.38, y - 80, r),
+                createRock(w * 0.68, y - 165, r),
+                createRock(w * 0.84, y - 245, r)
+            ],
+            [
+                createRock(w * 0.84, y, r),
+                createRock(w * 0.62, y - 80, r),
+                createRock(w * 0.32, y - 165, r),
+                createRock(w * 0.16, y - 245, r)
+            ],
+            [
+                createRock(w * 0.18, y, r),
+                createRock(w * 0.68, y - 70, r),
+                createRock(w * 0.36, y - 155, r),
+                createRock(w * 0.78, y - 240, r)
+            ],
+            [
+                createRock(w * 0.82, y, r),
+                createRock(w * 0.32, y - 70, r),
+                createRock(w * 0.64, y - 155, r),
+                createRock(w * 0.22, y - 240, r)
+            ],
+            [
+                createRock(w * 0.30, y, r),
+                createRock(w * 0.70, y, r),
+                createRock(w * 0.50, y - 125, r)
+            ]
+        ];
+    }
+
+    const useManeuverCluster = Math.random() < 0.12;
+    const activePatterns = useManeuverCluster ? maneuverPatterns : patterns;
     const chosen =
-        patterns[Math.floor(Math.random() * patterns.length)];
+        activePatterns[Math.floor(Math.random() * activePatterns.length)];
 
     for(const rock of chosen){
         rocks.push(rock);
