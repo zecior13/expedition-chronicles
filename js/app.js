@@ -164,6 +164,7 @@ function stopWildlifeSearch(){
 function renderWildlifeScene(){
     const scene = document.getElementById("wildlifeScene");
 
+    scene.dataset.sceneImage = "assets/wildlife/walvis-bay-search-01.png";
     scene.innerHTML = `
         <div class="wildlife-waterline"></div>
         <div class="wildlife-decor" style="left:8%;top:72%;font-size:2rem;">🪨</div>
