@@ -365,15 +365,82 @@ function spawnCluster(now){
     const y = -50;
 
     const difficulty = getDifficulty();
+    const isNarrow = canvas.width < 520;
 
     const r =
+        isNarrow && difficulty === 1 ? 18 :
+        isNarrow && difficulty === 2 ? 19 :
+        isNarrow && difficulty === 3 ? 20 :
         difficulty === 1 ? 20 :
         difficulty === 2 ? 22 :
         24;
 
     let patterns = [];
 
-    if(difficulty === 1){
+    if(isNarrow && difficulty === 1){
+        patterns = [
+            [
+                createRock(w * 0.30, y, r)
+            ],
+            [
+                createRock(w * 0.70, y, r)
+            ],
+            [
+                createRock(w * 0.24, y, r),
+                createRock(w * 0.66, y - 95, r)
+            ],
+            [
+                createRock(w * 0.76, y, r),
+                createRock(w * 0.34, y - 95, r)
+            ]
+        ];
+    }
+
+    if(isNarrow && difficulty === 2){
+        patterns = [
+            [
+                createRock(w * 0.28, y, r),
+                createRock(w * 0.68, y - 110, r)
+            ],
+            [
+                createRock(w * 0.72, y, r),
+                createRock(w * 0.32, y - 110, r)
+            ],
+            [
+                createRock(w * 0.40, y, r),
+                createRock(w * 0.76, y - 120, r)
+            ],
+            [
+                createRock(w * 0.60, y, r),
+                createRock(w * 0.24, y - 120, r)
+            ]
+        ];
+    }
+
+    if(isNarrow && difficulty === 3){
+        patterns = [
+            [
+                createRock(w * 0.24, y, r),
+                createRock(w * 0.58, y - 105, r),
+                createRock(w * 0.76, y - 210, r)
+            ],
+            [
+                createRock(w * 0.76, y, r),
+                createRock(w * 0.42, y - 105, r),
+                createRock(w * 0.24, y - 210, r)
+            ],
+            [
+                createRock(w * 0.36, y, r),
+                createRock(w * 0.72, y - 120, r)
+            ],
+            [
+                createRock(w * 0.64, y, r),
+                createRock(w * 0.28, y - 120, r)
+            ]
+        ];
+    }
+
+    if(!isNarrow && difficulty === 1){
         patterns = [
             [
                 createRock(w * 0.20, y, r),
@@ -390,7 +457,7 @@ function spawnCluster(now){
         ];
     }
 
-    if(difficulty === 2){
+    if(!isNarrow && difficulty === 2){
         patterns = [
             [
                 createRock(w * 0.18, y, r),
@@ -403,9 +470,8 @@ function spawnCluster(now){
                 createRock(w * 0.30, y - 12, r)
             ],
             [
-                createRock(w * 0.43, y, r),
-                createRock(w * 0.53, y - 18, r),
-                createRock(w * 0.63, y, r)
+                createRock(w * 0.40, y, r),
+                createRock(w * 0.60, y - 65, r)
             ],
             [
                 createRock(w * 0.22, y, r),
@@ -415,7 +481,7 @@ function spawnCluster(now){
         ];
     }
 
-    if(difficulty === 3){
+    if(!isNarrow && difficulty === 3){
         patterns = [
             [
                 createRock(w * 0.18, y, r),
