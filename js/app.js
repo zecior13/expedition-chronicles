@@ -228,7 +228,7 @@ function getDifficulty(){
 function getWorldSpeed(){
     const difficulty = getDifficulty();
     const isNarrow = canvas && canvas.width < 520;
-    const speedMultiplier = 2.25;
+    const speedMultiplier = 3.0;
 
     const speed =
         difficulty === 1 ? 2.7 :
@@ -330,7 +330,7 @@ function drawHud(){
         ctx.fillText("Poziom " + level, 24, hudY + 52);
 
         ctx.textAlign = "right";
-        ctx.fillText("SPD x2.25", canvas.width - 24, hudY + 52);
+        ctx.fillText("SPD x3.0", canvas.width - 24, hudY + 52);
     }else{
         ctx.textAlign = "left";
         ctx.fillText(hearts, 28, hudY + 29);
@@ -343,7 +343,7 @@ function drawHud(){
 
         ctx.font = "bold 12px Arial";
         ctx.textAlign = "left";
-        ctx.fillText("Poziom " + level + " · SPD x2.25", 28, hudY + 41);
+        ctx.fillText("Poziom " + level + " · SPD x3.0", 28, hudY + 41);
     }
 
     ctx.restore();
