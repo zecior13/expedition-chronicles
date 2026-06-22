@@ -228,17 +228,19 @@ function getDifficulty(){
 function getWorldSpeed(){
     const difficulty = getDifficulty();
     const isNarrow = canvas && canvas.width < 520;
+    const speedMultiplier = 1.25;
 
     const speed =
         difficulty === 1 ? 2.7 :
         difficulty === 2 ? 3.45 :
         4.2;
+    const boostedSpeed = speed * speedMultiplier;
 
     if(isNarrow){
-        return speed + 0.45;
+        return boostedSpeed + 0.45;
     }
 
-    return speed;
+    return boostedSpeed;
 }
 
 function getSpawnDelay(){
@@ -295,11 +297,13 @@ function drawMovementLines(){
 }
 
 function drawHud(){
+    const hudY = 64;
+
     ctx.save();
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(12, 10, canvas.width - 24, 44);
+    ctx.fillRect(12, hudY, canvas.width - 24, 44);
 
     ctx.fillStyle = "#000000";
     ctx.font = "bold 20px Arial";
@@ -308,12 +312,12 @@ function drawHud(){
     const remaining = Math.max(0, gameSeconds - getElapsed());
     const level = getDifficulty();
 
-    ctx.fillText(hearts, 28, 39);
-    ctx.fillText("Punkty: " + score, canvas.width / 2 - 60, 39);
-    ctx.fillText("Czas: " + remaining, canvas.width - 145, 39);
+    ctx.fillText(hearts, 28, hudY + 29);
+    ctx.fillText("Punkty: " + score, canvas.width / 2 - 60, hudY + 29);
+    ctx.fillText("Czas: " + remaining, canvas.width - 145, hudY + 29);
 
     ctx.font = "bold 14px Arial";
-    ctx.fillText("Poziom: " + level, canvas.width / 2 + 85, 38);
+    ctx.fillText("Poziom: " + level, canvas.width / 2 + 85, hudY + 28);
     ctx.restore();
 }
 
