@@ -228,7 +228,7 @@ function getDifficulty(){
 function getWorldSpeed(){
     const difficulty = getDifficulty();
     const isNarrow = canvas && canvas.width < 520;
-    const speedMultiplier = 1.25;
+    const speedMultiplier = 1.75;
 
     const speed =
         difficulty === 1 ? 2.7 :
@@ -318,6 +318,9 @@ function drawHud(){
 
     ctx.font = "bold 14px Arial";
     ctx.fillText("Poziom: " + level, canvas.width / 2 + 85, hudY + 28);
+
+    ctx.font = "bold 12px Arial";
+    ctx.fillText("SPEED TEST +75%", 18, hudY + 62);
     ctx.restore();
 }
 
