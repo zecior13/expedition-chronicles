@@ -235,6 +235,11 @@ function getWorldSpeed(){
 
 function getSpawnDelay(){
     const difficulty = getDifficulty();
+    const isNarrow = canvas && canvas.width < 520;
+
+    if(isNarrow && difficulty === 1) return 1500;
+    if(isNarrow && difficulty === 2) return 1350;
+    if(isNarrow && difficulty === 3) return 1200;
 
     if(difficulty === 1) return 1250;
     if(difficulty === 2) return 1050;
@@ -287,10 +292,11 @@ function drawMovementLines(){
 }
 
 function drawHud(){
-    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(12, 10, canvas.width - 24, 44);
 
-    ctx.fillStyle = "#111";
+    ctx.fillStyle = "#000000";
     ctx.font = "20px Arial";
 
     const hearts = "❤️".repeat(lives);
@@ -368,9 +374,9 @@ function spawnCluster(now){
     const isNarrow = canvas.width < 520;
 
     const r =
-        isNarrow && difficulty === 1 ? 18 :
-        isNarrow && difficulty === 2 ? 19 :
-        isNarrow && difficulty === 3 ? 20 :
+        isNarrow && difficulty === 1 ? 16 :
+        isNarrow && difficulty === 2 ? 17 :
+        isNarrow && difficulty === 3 ? 18 :
         difficulty === 1 ? 20 :
         difficulty === 2 ? 22 :
         24;
@@ -380,18 +386,18 @@ function spawnCluster(now){
     if(isNarrow && difficulty === 1){
         patterns = [
             [
-                createRock(w * 0.30, y, r)
+                createRock(w * 0.28, y, r)
             ],
             [
-                createRock(w * 0.70, y, r)
+                createRock(w * 0.72, y, r)
             ],
             [
                 createRock(w * 0.24, y, r),
-                createRock(w * 0.66, y - 95, r)
+                createRock(w * 0.64, y - 130, r)
             ],
             [
                 createRock(w * 0.76, y, r),
-                createRock(w * 0.34, y - 95, r)
+                createRock(w * 0.36, y - 130, r)
             ]
         ];
     }
@@ -399,20 +405,20 @@ function spawnCluster(now){
     if(isNarrow && difficulty === 2){
         patterns = [
             [
-                createRock(w * 0.28, y, r),
-                createRock(w * 0.68, y - 110, r)
+                createRock(w * 0.24, y, r),
+                createRock(w * 0.62, y - 145, r)
             ],
             [
-                createRock(w * 0.72, y, r),
-                createRock(w * 0.32, y - 110, r)
+                createRock(w * 0.76, y, r),
+                createRock(w * 0.38, y - 145, r)
             ],
             [
-                createRock(w * 0.40, y, r),
-                createRock(w * 0.76, y - 120, r)
+                createRock(w * 0.34, y, r),
+                createRock(w * 0.72, y - 155, r)
             ],
             [
-                createRock(w * 0.60, y, r),
-                createRock(w * 0.24, y - 120, r)
+                createRock(w * 0.66, y, r),
+                createRock(w * 0.28, y - 155, r)
             ]
         ];
     }
@@ -421,21 +427,19 @@ function spawnCluster(now){
         patterns = [
             [
                 createRock(w * 0.24, y, r),
-                createRock(w * 0.58, y - 105, r),
-                createRock(w * 0.76, y - 210, r)
+                createRock(w * 0.66, y - 165, r)
             ],
             [
                 createRock(w * 0.76, y, r),
-                createRock(w * 0.42, y - 105, r),
-                createRock(w * 0.24, y - 210, r)
+                createRock(w * 0.34, y - 165, r)
             ],
             [
-                createRock(w * 0.36, y, r),
-                createRock(w * 0.72, y - 120, r)
+                createRock(w * 0.32, y, r),
+                createRock(w * 0.70, y - 175, r)
             ],
             [
-                createRock(w * 0.64, y, r),
-                createRock(w * 0.28, y - 120, r)
+                createRock(w * 0.68, y, r),
+                createRock(w * 0.30, y - 175, r)
             ]
         ];
     }
