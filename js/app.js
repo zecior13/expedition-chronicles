@@ -22,10 +22,7 @@ let invincibleUntil = 0;
 
 let driftDirection = 1;
 let lastDriftChange = 0;
-
-let lastPatternSpawn = 0;
-let channelCenter = 0;
-let targetChannelCenter = 0;
+let lastClusterSpawn = 0;
 
 kayakImage.onload = function(){
     kayakImageLoaded = true;
@@ -37,7 +34,6 @@ function showScreen(id){
     document.querySelectorAll('.screen').forEach(screen=>{
         screen.classList.remove('active');
     });
-
     document.getElementById(id).classList.add('active');
 }
 
@@ -46,7 +42,6 @@ function saveExpedition(){
         'expeditionName',
         document.getElementById('expeditionName').value
     );
-
     showScreen('playersScreen');
 }
 
@@ -110,13 +105,10 @@ function initCanvas(){
     gameSeconds = 60;
     gameRunning = true;
     invincibleUntil = 0;
-    lastPatternSpawn = 0;
+    lastClusterSpawn = 0;
 
     driftDirection = 1;
     lastDriftChange = performance.now();
-
-    channelCenter = canvas.width / 2;
-    targetChannelCenter = canvas.width / 2;
 
     setupControls();
 
@@ -269,32 +261,85 @@ function drawKayak(){
     ctx.restore();
 }
 
-function spawnPattern(now){
-    if(now - lastPatternSpawn < 1300){
+function createRock(x, y, radius){
+    return {
+        x: x,
+        y: y,
+        radius: radius,
+        speed: 3
+    };
+}
+
+function spawnCluster(now){
+    if(now - lastClusterSpawn < 1050){
         return;
     }
 
-    lastPatternSpawn = now;
+    lastClusterSpawn = now;
 
-    const maxShift = canvas.width * 0.18;
+    const w = canvas.width;
+    const y = -45;
+    const r = 22;
 
-    targetChannelCenter += (Math.random() - 0.5) * maxShift;
+    const patterns = [
+        // lewy klaster + prawa pojedyncza
+        [
+            createRock(w * 0.18, y, r),
+            createRock(w * 0.28, y - 22, r),
+            createRock(w * 0.72, y - 12, r)
+        ],
 
-    const minCenter = canvas.width * 0.28;
-    const maxCenter = canvas.width * 0.72;
+        // prawy klaster + lewa pojedyncza
+        [
+            createRock(w * 0.82, y, r),
+            createRock(w * 0.70, y - 22, r),
+            createRock(w * 0.30, y - 12, r)
+        ],
 
-    targetChannelCenter = Math.max(
-        minCenter,
-        Math.min(maxCenter, targetChannelCenter)
-    );
+        // środek zablokowany, przejścia bokami
+        [
+            createRock(w * 0.43, y, r),
+            createRock(w * 0.53, y - 18, r),
+            createRock(w * 0.63, y, r)
+        ],
 
-    channelCenter = channelCenter * 0.65 + targetChannelCenter * 0.35;
+        // slalom lewy-środek-prawy
+        [
+            createRock(w * 0.22, y, r),
+            createRock(w * 0.50, y - 70, r),
+            createRock(w * 0.78, y - 140, r)
+        ],
 
-    rocks.push({
-        y: -70,
-        channelCenter: channelCenter,
-        channelWidth: canvas.width * 0.38
-    });
+        // slalom prawy-środek-lewy
+        [
+            createRock(w * 0.78, y, r),
+            createRock(w * 0.50, y - 70, r),
+            createRock(w * 0.22, y - 140, r)
+        ],
+
+        // brama przesunięta w lewo
+        [
+            createRock(w * 0.10, y, r),
+            createRock(w * 0.22, y - 8, r),
+            createRock(w * 0.68, y, r),
+            createRock(w * 0.82, y - 8, r)
+        ],
+
+        // brama przesunięta w prawo
+        [
+            createRock(w * 0.18, y, r),
+            createRock(w * 0.32, y - 8, r),
+            createRock(w * 0.78, y, r),
+            createRock(w * 0.90, y - 8, r)
+        ]
+    ];
+
+    const chosen =
+        patterns[Math.floor(Math.random() * patterns.length)];
+
+    for(let rock of chosen){
+        rocks.push(rock);
+    }
 }
 
 function updateRocks(){
@@ -305,7 +350,7 @@ function updateRocks(){
     }
 
     rocks = rocks.filter(
-        rock => rock.y < canvas.height + 120
+        rock => rock.y < canvas.height + 80
     );
 }
 
@@ -322,19 +367,8 @@ function drawSingleRock(x, y, r){
 }
 
 function drawRocks(){
-    for(let segment of rocks){
-        const leftEdge = segment.channelCenter - segment.channelWidth / 2;
-        const rightEdge = segment.channelCenter + segment.channelWidth / 2;
-
-        const y = segment.y;
-
-        for(let x = 20; x < leftEdge - 15; x += 34){
-            drawSingleRock(x, y + 20 + Math.sin(x * 0.08) * 8, 18);
-        }
-
-        for(let x = rightEdge + 15; x < canvas.width - 20; x += 34){
-            drawSingleRock(x, y + 20 + Math.sin(x * 0.08) * 8, 18);
-        }
+    for(let rock of rocks){
+        drawSingleRock(rock.x, rock.y, rock.radius);
     }
 }
 
@@ -345,21 +379,22 @@ function checkCollisions(){
         return;
     }
 
-    for(let segment of rocks){
-        if(Math.abs(segment.y + 20 - kayakY) < 45){
-            const leftEdge = segment.channelCenter - segment.channelWidth / 2;
-            const rightEdge = segment.channelCenter + segment.channelWidth / 2;
+    for(let rock of rocks){
+        const dx = kayakX - rock.x;
+        const dy = kayakY - rock.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if(kayakX < leftEdge || kayakX > rightEdge){
-                lives--;
-                invincibleUntil = now + 1000;
+        if(distance < rock.radius + 25){
+            lives--;
+            invincibleUntil = now + 1000;
 
-                if(lives <= 0){
-                    endKayakGame(false);
-                }
+            rock.y = canvas.height + 100;
 
-                return;
+            if(lives <= 0){
+                endKayakGame(false);
             }
+
+            return;
         }
     }
 }
@@ -459,7 +494,7 @@ function gameLoop(){
     drawMovementLines();
 
     if(gameRunning){
-        spawnPattern(now);
+        spawnCluster(now);
         updateRocks();
         update();
         checkCollisions();
