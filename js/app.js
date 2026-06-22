@@ -14,15 +14,21 @@ let kayakImageLoaded = false;
 
 let startTime = 0;
 let rocks = [];
+let seals = [];
 let lives = 3;
 let score = 0;
+let bonusScore = 0;
+let sealCount = 0;
 let gameSeconds = 60;
 let gameRunning = false;
 let invincibleUntil = 0;
+let sealMessageUntil = 0;
 
 let driftDirection = 1;
 let lastDriftChange = 0;
 let lastClusterSpawn = 0;
+let lastSealSpawn = 0;
+let nextSealDelay = 15000;
 
 kayakImage.onload = function(){
     kayakImageLoaded = true;
@@ -101,12 +107,18 @@ function initCanvas(){
     startTime = performance.now();
 
     rocks = [];
+    seals = [];
     lives = 3;
     score = 0;
+    bonusScore = 0;
+    sealCount = 0;
     gameSeconds = 60;
     gameRunning = true;
     invincibleUntil = 0;
+    sealMessageUntil = 0;
     lastClusterSpawn = 0;
+    lastSealSpawn = performance.now();
+    nextSealDelay = 15000 + Math.random() * 5000;
 
     driftDirection = 1;
     lastDriftChange = performance.now();
@@ -155,6 +167,11 @@ function resizeCanvas(preserveState){
         for(const rock of rocks){
             rock.x *= scaleX;
             rock.y *= scaleY;
+        }
+
+        for(const seal of seals){
+            seal.x *= scaleX;
+            seal.y *= scaleY;
         }
     }
 
@@ -327,7 +344,7 @@ function drawHud(){
 
         ctx.font = "bold 11px Arial";
         ctx.textAlign = "left";
-        ctx.fillText("Poziom " + level, 24, hudY + 52);
+        ctx.fillText("🦭 " + sealCount + " · Poziom " + level, 24, hudY + 52);
 
         ctx.textAlign = "right";
         ctx.fillText("SPD x3.0", canvas.width - 24, hudY + 52);
@@ -343,7 +360,7 @@ function drawHud(){
 
         ctx.font = "bold 12px Arial";
         ctx.textAlign = "left";
-        ctx.fillText("Poziom " + level + " · SPD x3.0", 28, hudY + 41);
+        ctx.fillText("🦭 " + sealCount + " · Poziom " + level + " · SPD x3.0", 28, hudY + 41);
     }
 
     ctx.restore();
@@ -710,6 +727,81 @@ function drawRocks(){
     }
 }
 
+function spawnSeal(now){
+    if(now - lastSealSpawn < nextSealDelay){
+        return;
+    }
+
+    lastSealSpawn = now;
+    nextSealDelay = 15000 + Math.random() * 5000;
+
+    seals.push({
+        x: canvas.width * (0.22 + Math.random() * 0.56),
+        y: -45,
+        radius: 26,
+        collected: false
+    });
+}
+
+function updateSeals(){
+    const worldSpeed = getWorldSpeed();
+
+    for(const seal of seals){
+        seal.y += worldSpeed;
+        seal.x += Math.sin((seal.y + waterOffset) * 0.025) * 0.22;
+    }
+
+    seals = seals.filter(
+        seal => seal.y < canvas.height + 70 && !seal.collected
+    );
+}
+
+function drawSeals(){
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "32px Arial";
+
+    for(const seal of seals){
+        ctx.fillText("🦭", seal.x, seal.y);
+    }
+
+    ctx.restore();
+}
+
+function checkSealEncounters(){
+    const collectRadius = 46;
+
+    for(const seal of seals){
+        const dx = kayakX - seal.x;
+        const dy = kayakY - seal.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < collectRadius){
+            seal.collected = true;
+            sealCount++;
+            bonusScore += 100;
+            sealMessageUntil = performance.now() + 1500;
+        }
+    }
+}
+
+function drawSealMessage(){
+    if(performance.now() > sealMessageUntil){
+        return;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.textAlign = "center";
+    ctx.font = "bold 24px Arial";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(canvas.width / 2 - 120, 92, 240, 40);
+    ctx.fillStyle = "#000000";
+    ctx.fillText("🦭 Spotkana foka!", canvas.width / 2, 120);
+    ctx.restore();
+}
+
 function checkCollisions(){
     const now = performance.now();
 
@@ -765,7 +857,7 @@ function update(){
         kayakX = canvas.width - 30;
     }
 
-    score = getElapsed() * 10;
+    score = getElapsed() * 10 + bonusScore;
 
     if(getElapsed() >= gameSeconds){
         endKayakGame(true);
@@ -814,8 +906,10 @@ function endKayakGame(won){
     drawWater();
     drawMovementLines();
     drawRocks();
+    drawSeals();
     drawKayak();
     drawHud();
+    drawSealMessage();
     drawEndScreen(won);
 
     if(animationId){
@@ -834,14 +928,19 @@ function gameLoop(){
 
     if(gameRunning){
         spawnCluster(now);
+        spawnSeal(now);
         updateRocks();
+        updateSeals();
         update();
         checkCollisions();
+        checkSealEncounters();
     }
 
     drawRocks();
+    drawSeals();
     drawKayak();
     drawHud();
+    drawSealMessage();
 
     if(gameRunning){
         animationId = requestAnimationFrame(gameLoop);
