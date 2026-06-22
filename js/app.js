@@ -14,6 +14,8 @@ let kayakImageLoaded = false;
 let startTime = 0;
 
 let rocks = [];
+let channelCenter = 0;
+let targetChannelCenter = 0;
 let lastPatternSpawn = 0;
 let lives = 4;
 let score = 0;
@@ -97,6 +99,8 @@ function initCanvas(){
 
     kayakX = canvas.width / 2;
     kayakY = canvas.height - 115;
+    channelCenter = canvas.width / 2;
+targetChannelCenter = canvas.width / 2;
 
     waterOffset = 0;
     startTime = performance.now();
@@ -264,71 +268,41 @@ function drawKayak(){
 
 function spawnPattern(now){
 
-    if(now - lastPatternSpawn < 2500){
+    if(now - lastPatternSpawn < 1800){
         return;
     }
 
     lastPatternSpawn = now;
 
-    const margin = 60;
-    const width = canvas.width;
+    const shift =
+        (Math.random() - 0.5) * 180;
 
-    const patterns = [
+    targetChannelCenter += shift;
 
-        // BRAMA
+    const minCenter =
+        canvas.width * 0.30;
 
-        [
-            {x: margin},
-            {x: width - margin}
-        ],
+    const maxCenter =
+        canvas.width * 0.70;
 
-        // LEWA ZAMKNIĘTA
+    targetChannelCenter =
+        Math.max(
+            minCenter,
+            Math.min(
+                maxCenter,
+                targetChannelCenter
+            )
+        );
 
-        [
-            {x: margin},
-            {x: margin + 60}
-        ],
+    channelCenter =
+        channelCenter * 0.5 +
+        targetChannelCenter * 0.5;
 
-        // PRAWA ZAMKNIĘTA
+    rocks.push({
 
-        [
-            {x: width - margin},
-            {x: width - margin - 60}
-        ],
+        y: -80,
 
-        // SLALOM
-
-        [
-            {x: margin},
-            {x: width / 2},
-            {x: width - margin}
-        ],
-
-        // ŚRODEK ZAMKNIĘTY
-
-        [
-            {x: width / 2}
-        ]
-    ];
-
-    const pattern =
-        patterns[
-            Math.floor(Math.random() * patterns.length)
-        ];
-
-    pattern.forEach((item,index)=>{
-
-        rocks.push({
-
-            x: item.x,
-
-            y: -60 - (index * 80),
-
-            radius: 26,
-
-            speed: 3
-        });
-
+        channelCenter: channelCenter
     });
 }
 
@@ -344,47 +318,90 @@ function updateRocks(){
     }
 
     rocks = rocks.filter(
-        rock => rock.y < canvas.height + 80
+        rock => rock.y < canvas.height + 100
     );
 }
 
 function drawRocks(){
-    for(let rock of rocks){
-        ctx.fillStyle = "#6b6258";
-        ctx.beginPath();
-        ctx.arc(rock.x, rock.y, rock.radius, 0, Math.PI * 2);
-        ctx.fill();
 
-        ctx.fillStyle = "rgba(255,255,255,0.25)";
-        ctx.beginPath();
-        ctx.arc(rock.x - 6, rock.y - 6, rock.radius * 0.35, 0, Math.PI * 2);
-        ctx.fill();
+    const channelWidth = canvas.width * 0.42;
+
+    ctx.fillStyle = "#72685d";
+
+    for(let rock of rocks){
+
+        const leftWidth =
+            Math.max(
+                0,
+                rock.channelCenter - channelWidth / 2
+            );
+
+        const rightX =
+            rock.channelCenter + channelWidth / 2;
+
+        const rightWidth =
+            canvas.width - rightX;
+
+        ctx.fillRect(
+            0,
+            rock.y,
+            leftWidth,
+            70
+        );
+
+        ctx.fillRect(
+            rightX,
+            rock.y,
+            rightWidth,
+            70
+        );
     }
 }
 
 function checkCollisions(){
+
     const now = performance.now();
 
     if(now < invincibleUntil){
         return;
     }
 
+    const channelWidth =
+        canvas.width * 0.42;
+
     for(let rock of rocks){
-        const dx = kayakX - rock.x;
-        const dy = kayakY - rock.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if(distance < rock.radius + 26){
-            lives -= 1;
-            invincibleUntil = now + 1000;
+        if(
+            Math.abs(
+                rock.y - kayakY
+            ) < 45
+        ){
 
-            rock.y = canvas.height + 100;
+            const leftEdge =
+                rock.channelCenter -
+                channelWidth / 2;
 
-            if(lives <= 0){
-                endKayakGame(false);
+            const rightEdge =
+                rock.channelCenter +
+                channelWidth / 2;
+
+            if(
+                kayakX < leftEdge ||
+                kayakX > rightEdge
+            ){
+
+                lives--;
+
+                invincibleUntil =
+                    now + 1000;
+
+                if(lives <= 0){
+
+                    endKayakGame(false);
+                }
+
+                return;
             }
-
-            return;
         }
     }
 }
