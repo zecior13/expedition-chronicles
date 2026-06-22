@@ -227,10 +227,18 @@ function getDifficulty(){
 
 function getWorldSpeed(){
     const difficulty = getDifficulty();
+    const isNarrow = canvas && canvas.width < 520;
 
-    if(difficulty === 1) return 2.7;
-    if(difficulty === 2) return 3.2;
-    return 3.7;
+    const speed =
+        difficulty === 1 ? 2.7 :
+        difficulty === 2 ? 3.45 :
+        4.2;
+
+    if(isNarrow){
+        return speed + 0.25;
+    }
+
+    return speed;
 }
 
 function getSpawnDelay(){
@@ -398,6 +406,12 @@ function spawnCluster(now){
             [
                 createRock(w * 0.76, y, r),
                 createRock(w * 0.36, y - 130, r)
+            ],
+            [
+                createRock(w * 0.12, y, r)
+            ],
+            [
+                createRock(w * 0.88, y, r)
             ]
         ];
     }
@@ -419,6 +433,14 @@ function spawnCluster(now){
             [
                 createRock(w * 0.66, y, r),
                 createRock(w * 0.28, y - 155, r)
+            ],
+            [
+                createRock(w * 0.12, y, r),
+                createRock(w * 0.68, y - 150, r)
+            ],
+            [
+                createRock(w * 0.88, y, r),
+                createRock(w * 0.32, y - 150, r)
             ]
         ];
     }
@@ -440,6 +462,14 @@ function spawnCluster(now){
             [
                 createRock(w * 0.68, y, r),
                 createRock(w * 0.30, y - 175, r)
+            ],
+            [
+                createRock(w * 0.12, y, r),
+                createRock(w * 0.70, y - 180, r)
+            ],
+            [
+                createRock(w * 0.88, y, r),
+                createRock(w * 0.30, y - 180, r)
             ]
         ];
     }
@@ -457,6 +487,12 @@ function spawnCluster(now){
             [
                 createRock(w * 0.50, y, r),
                 createRock(w * 0.20, y - 80, r)
+            ],
+            [
+                createRock(w * 0.10, y, r)
+            ],
+            [
+                createRock(w * 0.90, y, r)
             ]
         ];
     }
@@ -481,6 +517,14 @@ function spawnCluster(now){
                 createRock(w * 0.22, y, r),
                 createRock(w * 0.50, y - 70, r),
                 createRock(w * 0.78, y - 140, r)
+            ],
+            [
+                createRock(w * 0.10, y, r),
+                createRock(w * 0.62, y - 95, r)
+            ],
+            [
+                createRock(w * 0.90, y, r),
+                createRock(w * 0.38, y - 95, r)
             ]
         ];
     }
@@ -510,6 +554,16 @@ function spawnCluster(now){
                 createRock(w * 0.50, y - 65, r),
                 createRock(w * 0.20, y - 130, r),
                 createRock(w * 0.55, y - 190, r)
+            ],
+            [
+                createRock(w * 0.10, y, r),
+                createRock(w * 0.35, y - 95, r),
+                createRock(w * 0.74, y - 190, r)
+            ],
+            [
+                createRock(w * 0.90, y, r),
+                createRock(w * 0.65, y - 95, r),
+                createRock(w * 0.26, y - 190, r)
             ]
         ];
     }
