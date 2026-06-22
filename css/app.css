@@ -20,6 +20,24 @@ body{
     flex-direction:column;
 }
 
+h1{
+    margin-bottom:10px;
+}
+
+h2{
+    color:#666;
+    font-weight:normal;
+}
+
+input{
+    padding:12px;
+    font-size:18px;
+    width:280px;
+    margin:10px 0;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
 button{
     padding:15px 25px;
     font-size:18px;
@@ -27,4 +45,82 @@ button{
     border-radius:10px;
     background:#2f6b3f;
     color:white;
+    cursor:pointer;
+    margin:8px;
+}
+
+button.secondary{
+    background:#8b6f47;
+}
+
+.location,
+.card{
+    background:white;
+    padding:18px;
+    margin:10px;
+    border-radius:12px;
+    width:280px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.location{
+    cursor:pointer;
+}
+
+.locked{
+    opacity:.45;
+    cursor:not-allowed;
+}
+
+.guardian{
+    font-size:80px;
+    margin:20px;
+}
+
+.quote{
+    font-size:22px;
+    line-height:1.4;
+    max-width:520px;
+    margin:20px auto;
+}
+
+.game-screen{
+    padding:0;
+}
+
+.game-header{
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 15px;
+    box-sizing:border-box;
+    background:white;
+    width:100%;
+}
+
+.small-button{
+    padding:8px 12px;
+    font-size:14px;
+}
+
+#kayakCanvas{
+    background:#6bb7e8;
+    width:100%;
+    height:calc(100vh - 130px);
+    display:block;
+}
+
+.game-controls{
+    height:70px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:20px;
+    background:white;
+    width:100%;
+}
+
+.game-controls button{
+    width:80px;
 }
