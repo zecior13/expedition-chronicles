@@ -78,21 +78,21 @@ const flamingoSecrets = [
 ];
 
 const wildlifeTargets = [
-    { id: "seal_01", type: "seal", xPercent: 40.5, yPercent: 72.8, radiusPercent: 2.6, difficulty: "easy", hint: "Szukaj dużej foki nisko, trochę na lewo od środka zdjęcia.", found: false },
-    { id: "seal_02", type: "seal", xPercent: 80.8, yPercent: 64.2, radiusPercent: 2.2, difficulty: "medium", hint: "Szukaj foki przy prawym brzegu, obok jasnych skał.", found: false },
-    { id: "seal_03", type: "seal", xPercent: 31.5, yPercent: 66.5, radiusPercent: 2.0, difficulty: "hard", hint: "Szukaj niżej po lewej stronie, wśród ciemnych skał i mokrego piasku.", found: false },
-    { id: "seal_04", type: "seal", xPercent: 49.5, yPercent: 58.0, radiusPercent: 1.8, difficulty: "very hard", hint: "Szukaj małej foki w środkowej części laguny, między kępami roślin.", found: false },
-    { id: "seal_05", type: "seal", xPercent: 20.0, yPercent: 40.0, radiusPercent: 1.6, difficulty: "extreme", hint: "Szukaj daleko po lewej, nisko na ciemnej skale przy wodzie.", found: false },
-    { id: "flamingo_01", type: "flamingo", xPercent: 3.0, yPercent: 44.0, radiusPercent: 2.2, difficulty: "easy", hint: "Szukaj samotnego flaminga przy lewym brzegu obrazu.", found: false },
-    { id: "flamingo_02", type: "flamingo", xPercent: 57.5, yPercent: 52.0, radiusPercent: 2.0, difficulty: "medium", hint: "Szukaj flaminga z wygiętą szyją trochę na prawo od środka.", found: false },
-    { id: "flamingo_03", type: "flamingo", xPercent: 66.8, yPercent: 43.5, radiusPercent: 2.0, difficulty: "hard", hint: "Szukaj flaminga blisko drewnianego pomostu po prawej stronie.", found: false },
-    { id: "flamingo_04", type: "flamingo", xPercent: 27.2, yPercent: 53.0, radiusPercent: 1.8, difficulty: "very hard", hint: "Szukaj flaminga częściowo ukrytego wśród skał i traw po lewej stronie środka.", found: false },
-    { id: "flamingo_05", type: "flamingo", xPercent: 70.2, yPercent: 50.0, radiusPercent: 1.7, difficulty: "extreme", hint: "Szukaj drobnego różowego ptaka wśród wielu podobnych sylwetek po prawej stronie laguny.", found: false },
-    { id: "pelican_01", type: "pelican", xPercent: 71.5, yPercent: 78.0, radiusPercent: 2.7, difficulty: "easy", hint: "Szukaj dużego pelikana nisko po prawej stronie.", found: false },
-    { id: "pelican_02", type: "pelican", xPercent: 10.8, yPercent: 78.5, radiusPercent: 2.5, difficulty: "medium", hint: "Szukaj pelikana nisko po lewej stronie, blisko brzegu.", found: false },
-    { id: "pelican_03", type: "pelican", xPercent: 41.5, yPercent: 49.0, radiusPercent: 2.0, difficulty: "hard", hint: "Szukaj pelikana stojącego na małej wysepce w centralnej części laguny.", found: false },
-    { id: "pelican_04", type: "pelican", xPercent: 38.5, yPercent: 36.5, radiusPercent: 1.7, difficulty: "very hard", hint: "Szukaj jasnego ptaka daleko w wodzie, powyżej środkowej części obrazu.", found: false },
-    { id: "pelican_05", type: "pelican", xPercent: 72.5, yPercent: 37.0, radiusPercent: 1.6, difficulty: "extreme", hint: "Szukaj małego jasnego ptaka blisko prawej części laguny, niedaleko pomostu.", found: false }
+    { id: "seal_01", type: "seal", xPercent: 39.0, yPercent: 70.8, radiusPercent: 3.0, difficulty: "easy", hint: "Szukaj dużej foki nisko, trochę na lewo od środka zdjęcia.", found: false },
+    { id: "seal_02", type: "seal", xPercent: 52.0, yPercent: 69.6, radiusPercent: 2.6, difficulty: "medium", hint: "Szukaj foki pływającej w wodzie, trochę na prawo od środka.", found: false },
+    { id: "seal_03", type: "seal", xPercent: 84.0, yPercent: 64.0, radiusPercent: 3.0, difficulty: "medium", hint: "Szukaj foki przy prawym brzegu, obok jasnych skał i łodzi.", found: false },
+    { id: "seal_04", type: "seal", xPercent: 5.4, yPercent: 26.5, radiusPercent: 2.0, difficulty: "very hard", hint: "Szukaj ciemnej sylwetki na skalistej wysepce po lewej stronie.", found: false },
+    { id: "seal_05", type: "seal", xPercent: 31.5, yPercent: 57.5, radiusPercent: 2.0, difficulty: "very hard", hint: "Szukaj małej szarej sylwetki przy skałach po lewej stronie środka.", found: false },
+    { id: "flamingo_01", type: "flamingo", xPercent: 8.1, yPercent: 34.6, radiusPercent: 2.3, difficulty: "easy", hint: "Szukaj samotnego flaminga przy lewym brzegu obrazu.", found: false },
+    { id: "flamingo_02", type: "flamingo", xPercent: 27.7, yPercent: 38.5, radiusPercent: 2.6, difficulty: "easy", hint: "Szukaj flaminga stojącego na niskiej wysepce po lewej stronie środka.", found: false },
+    { id: "flamingo_03", type: "flamingo", xPercent: 47.0, yPercent: 36.8, radiusPercent: 2.2, difficulty: "medium", hint: "Szukaj różowego ptaka w środkowym pasie płytkiej wody.", found: false },
+    { id: "flamingo_04", type: "flamingo", xPercent: 56.4, yPercent: 46.0, radiusPercent: 2.3, difficulty: "medium", hint: "Szukaj dużego flaminga z wygiętą szyją w centralnej części wody.", found: false },
+    { id: "flamingo_05", type: "flamingo", xPercent: 67.7, yPercent: 50.0, radiusPercent: 2.4, difficulty: "hard", hint: "Szukaj jasnoróżowego flaminga po prawej stronie laguny.", found: false },
+    { id: "pelican_01", type: "pelican", xPercent: 11.4, yPercent: 76.0, radiusPercent: 3.4, difficulty: "easy", hint: "Szukaj dużego pelikana nisko po lewej stronie.", found: false },
+    { id: "pelican_02", type: "pelican", xPercent: 44.0, yPercent: 52.0, radiusPercent: 3.0, difficulty: "easy", hint: "Szukaj dużego pelikana stojącego na środkowej wysepce.", found: false },
+    { id: "pelican_03", type: "pelican", xPercent: 81.8, yPercent: 78.8, radiusPercent: 3.3, difficulty: "easy", hint: "Szukaj dużego pelikana nisko po prawej stronie.", found: false },
+    { id: "pelican_04", type: "pelican", xPercent: 54.0, yPercent: 35.7, radiusPercent: 2.0, difficulty: "medium", hint: "Szukaj jasnego ptaka stojącego na wodzie bliżej pomostu.", found: false },
+    { id: "pelican_05", type: "pelican", xPercent: 63.2, yPercent: 7.0, radiusPercent: 2.0, difficulty: "hard", hint: "Szukaj dużego ptaka lecącego wysoko nad górami.", found: false }
 ];
 
 kayakImage.onload = function(){
