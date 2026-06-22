@@ -89,13 +89,13 @@ function initCanvas(){
     canvas = document.getElementById("kayakCanvas");
     ctx = canvas.getContext("2d");
 
-    const rect = canvas.getBoundingClientRect();
-
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    if(!resizeCanvas(false)){
+        requestAnimationFrame(initCanvas);
+        return;
+    }
 
     kayakX = canvas.width / 2;
-    kayakY = canvas.height - 115;
+    setKayakY();
 
     waterOffset = 0;
     startTime = performance.now();
@@ -118,6 +118,49 @@ function initCanvas(){
     }
 
     gameLoop();
+}
+
+function setKayakY(){
+    kayakY = canvas.height - 115;
+}
+
+function resizeCanvas(preserveState){
+    if(!canvas){
+        return false;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const nextWidth = Math.round(rect.width);
+    const nextHeight = Math.round(rect.height);
+
+    if(nextWidth <= 0 || nextHeight <= 0){
+        return false;
+    }
+
+    if(canvas.width === nextWidth && canvas.height === nextHeight){
+        return true;
+    }
+
+    const previousWidth = canvas.width || nextWidth;
+    const previousHeight = canvas.height || nextHeight;
+    const scaleX = nextWidth / previousWidth;
+    const scaleY = nextHeight / previousHeight;
+
+    canvas.width = nextWidth;
+    canvas.height = nextHeight;
+
+    if(preserveState){
+        kayakX *= scaleX;
+
+        for(const rock of rocks){
+            rock.x *= scaleX;
+            rock.y *= scaleY;
+        }
+    }
+
+    setKayakY();
+
+    return true;
 }
 
 function setupControls(){
@@ -556,6 +599,8 @@ function endKayakGame(won){
 function gameLoop(){
     const now = performance.now();
 
+    resizeCanvas(true);
+
     drawWater();
     drawMovementLines();
 
@@ -582,4 +627,8 @@ window.onload = function(){
         document.getElementById("expeditionTitle").innerText = savedName;
         showScreen("mapScreen");
     }
+};
+
+window.onresize = function(){
+    resizeCanvas(true);
 };

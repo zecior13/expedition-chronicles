@@ -133,6 +133,7 @@ button{
 
     width:100%;
     height:100%;
+    max-width:100%;
 
     background:#63b7df;
 }
@@ -163,6 +164,8 @@ button{
 }
 
 #kayakCanvas{
+    display:block;
+
     width:100%;
     height:100%;
 }
@@ -212,24 +215,8 @@ button{
     text-align:center;
 }
 
-@media (orientation:portrait){
-
+@media (min-width:900px) and (hover:hover){
     .game-area{
-        display:none;
-    }
-
-    .rotate-notice{
-        display:flex;
-    }
-}
-
-@media (orientation:landscape){
-
-    .rotate-notice{
-        display:none;
-    }
-
-    .game-area{
-        display:block;
+        max-width:620px;
     }
 }
