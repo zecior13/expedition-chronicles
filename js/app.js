@@ -14,17 +14,18 @@ let kayakImageLoaded = false;
 let startTime = 0;
 
 let rocks = [];
-let channelCenter = 0;
-let targetChannelCenter = 0;
-let lastPatternSpawn = 0;
 let lives = 4;
 let score = 0;
 let gameSeconds = 60;
 let gameRunning = false;
 let invincibleUntil = 0;
-let lastRockSpawn = 0;
+
 let driftDirection = 1;
 let lastDriftChange = 0;
+
+let lastPatternSpawn = 0;
+let channelCenter = 0;
+let targetChannelCenter = 0;
 
 kayakImage.onload = function(){
     kayakImageLoaded = true;
@@ -99,8 +100,6 @@ function initCanvas(){
 
     kayakX = canvas.width / 2;
     kayakY = canvas.height - 115;
-    channelCenter = canvas.width / 2;
-targetChannelCenter = canvas.width / 2;
 
     waterOffset = 0;
     startTime = performance.now();
@@ -111,9 +110,13 @@ targetChannelCenter = canvas.width / 2;
     gameSeconds = 60;
     gameRunning = true;
     invincibleUntil = 0;
-    lastRockSpawn = 0;
+    lastPatternSpawn = 0;
+
     driftDirection = 1;
-lastDriftChange = performance.now();
+    lastDriftChange = performance.now();
+
+    channelCenter = canvas.width / 2;
+    targetChannelCenter = canvas.width / 2;
 
     setupControls();
 
@@ -197,7 +200,7 @@ function drawWater(){
 }
 
 function drawMovementLines(){
-    ctx.strokeStyle = "rgba(255,255,255,0.45)";
+    ctx.strokeStyle = "rgba(255,255,255,0.40)";
     ctx.lineWidth = 3;
 
     for(let i = 0; i < 6; i++){
@@ -206,7 +209,7 @@ function drawMovementLines(){
 
         ctx.beginPath();
         ctx.moveTo(x, y);
-        ctx.lineTo(x, y + 35);
+        ctx.lineTo(x, y + 30);
         ctx.stroke();
     }
 }
@@ -267,136 +270,91 @@ function drawKayak(){
 }
 
 function spawnPattern(now){
-
-    if(now - lastPatternSpawn < 1800){
+    if(now - lastPatternSpawn < 1300){
         return;
     }
 
     lastPatternSpawn = now;
 
-    const shift =
-        (Math.random() - 0.5) * 180;
+    const maxShift = canvas.width * 0.18;
 
-    targetChannelCenter += shift;
+    targetChannelCenter += (Math.random() - 0.5) * maxShift;
 
-    const minCenter =
-        canvas.width * 0.30;
+    const minCenter = canvas.width * 0.28;
+    const maxCenter = canvas.width * 0.72;
 
-    const maxCenter =
-        canvas.width * 0.70;
+    targetChannelCenter = Math.max(
+        minCenter,
+        Math.min(maxCenter, targetChannelCenter)
+    );
 
-    targetChannelCenter =
-        Math.max(
-            minCenter,
-            Math.min(
-                maxCenter,
-                targetChannelCenter
-            )
-        );
-
-    channelCenter =
-        channelCenter * 0.5 +
-        targetChannelCenter * 0.5;
+    channelCenter = channelCenter * 0.65 + targetChannelCenter * 0.35;
 
     rocks.push({
-
-        y: -80,
-
-        channelCenter: channelCenter
+        y: -70,
+        channelCenter: channelCenter,
+        channelWidth: canvas.width * 0.38
     });
 }
 
-
 function updateRocks(){
-
     const worldSpeed = 3;
 
     for(let rock of rocks){
-
         rock.y += worldSpeed;
-
     }
 
     rocks = rocks.filter(
-        rock => rock.y < canvas.height + 100
+        rock => rock.y < canvas.height + 120
     );
 }
 
+function drawSingleRock(x, y, r){
+    ctx.fillStyle = "#6b6258";
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(255,255,255,0.22)";
+    ctx.beginPath();
+    ctx.arc(x - r * 0.25, y - r * 0.25, r * 0.32, 0, Math.PI * 2);
+    ctx.fill();
+}
+
 function drawRocks(){
+    for(let segment of rocks){
+        const leftEdge = segment.channelCenter - segment.channelWidth / 2;
+        const rightEdge = segment.channelCenter + segment.channelWidth / 2;
 
-    const channelWidth = canvas.width * 0.42;
+        const y = segment.y;
 
-    ctx.fillStyle = "#72685d";
+        for(let x = 20; x < leftEdge - 15; x += 34){
+            drawSingleRock(x, y + 20 + Math.sin(x * 0.08) * 8, 18);
+        }
 
-    for(let rock of rocks){
-
-        const leftWidth =
-            Math.max(
-                0,
-                rock.channelCenter - channelWidth / 2
-            );
-
-        const rightX =
-            rock.channelCenter + channelWidth / 2;
-
-        const rightWidth =
-            canvas.width - rightX;
-
-        ctx.fillRect(
-            0,
-            rock.y,
-            leftWidth,
-            70
-        );
-
-        ctx.fillRect(
-            rightX,
-            rock.y,
-            rightWidth,
-            70
-        );
+        for(let x = rightEdge + 15; x < canvas.width - 20; x += 34){
+            drawSingleRock(x, y + 20 + Math.sin(x * 0.08) * 8, 18);
+        }
     }
 }
 
 function checkCollisions(){
-
     const now = performance.now();
 
     if(now < invincibleUntil){
         return;
     }
 
-    const channelWidth =
-        canvas.width * 0.42;
+    for(let segment of rocks){
+        if(Math.abs(segment.y + 20 - kayakY) < 45){
+            const leftEdge = segment.channelCenter - segment.channelWidth / 2;
+            const rightEdge = segment.channelCenter + segment.channelWidth / 2;
 
-    for(let rock of rocks){
-
-        if(
-            Math.abs(
-                rock.y - kayakY
-            ) < 45
-        ){
-
-            const leftEdge =
-                rock.channelCenter -
-                channelWidth / 2;
-
-            const rightEdge =
-                rock.channelCenter +
-                channelWidth / 2;
-
-            if(
-                kayakX < leftEdge ||
-                kayakX > rightEdge
-            ){
-
+            if(kayakX < leftEdge || kayakX > rightEdge){
                 lives--;
-
-                invincibleUntil =
-                    now + 1000;
+                invincibleUntil = now + 1000;
 
                 if(lives <= 0){
-
                     endKayakGame(false);
                 }
 
@@ -409,14 +367,13 @@ function checkCollisions(){
 function update(){
     const now = performance.now();
 
-if(now - lastDriftChange > 4000){
+    if(now - lastDriftChange > 4000){
+        driftDirection *= -1;
+        lastDriftChange = now;
+    }
 
-    driftDirection *= -1;
+    kayakX += driftDirection * 0.35;
 
-    lastDriftChange = now;
-}
-
-kayakX += driftDirection * 0.35;
     const speed = 4.2;
 
     if(moveLeft){
@@ -427,12 +384,12 @@ kayakX += driftDirection * 0.35;
         kayakX += speed;
     }
 
-    if(kayakX < 35){
-        kayakX = 35;
+    if(kayakX < 30){
+        kayakX = 30;
     }
 
-    if(kayakX > canvas.width - 35){
-        kayakX = canvas.width - 35;
+    if(kayakX > canvas.width - 30){
+        kayakX = canvas.width - 30;
     }
 
     const elapsed = Math.floor((performance.now() - startTime) / 1000);
