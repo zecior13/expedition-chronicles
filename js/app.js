@@ -228,7 +228,7 @@ function getDifficulty(){
 function getWorldSpeed(){
     const difficulty = getDifficulty();
     const isNarrow = canvas && canvas.width < 520;
-    const speedMultiplier = 1.75;
+    const speedMultiplier = 2.25;
 
     const speed =
         difficulty === 1 ? 2.7 :
@@ -237,7 +237,7 @@ function getWorldSpeed(){
     const boostedSpeed = speed * speedMultiplier;
 
     if(isNarrow){
-        return boostedSpeed + 0.45;
+        return boostedSpeed + 0.75;
     }
 
     return boostedSpeed;
@@ -297,30 +297,55 @@ function drawMovementLines(){
 }
 
 function drawHud(){
-    const hudY = 64;
+    const hudY = 12;
+    const isNarrow = canvas.width < 520;
+    const hudHeight = isNarrow ? 64 : 44;
 
     ctx.save();
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(12, hudY, canvas.width - 24, 44);
+    ctx.fillRect(12, hudY, canvas.width - 24, hudHeight);
 
     ctx.fillStyle = "#000000";
     ctx.font = "bold 20px Arial";
+    ctx.textBaseline = "alphabetic";
 
     const hearts = "❤️".repeat(lives);
     const remaining = Math.max(0, gameSeconds - getElapsed());
     const level = getDifficulty();
 
-    ctx.fillText(hearts, 28, hudY + 29);
-    ctx.fillText("Punkty: " + score, canvas.width / 2 - 60, hudY + 29);
-    ctx.fillText("Czas: " + remaining, canvas.width - 145, hudY + 29);
+    if(isNarrow){
+        ctx.textAlign = "left";
+        ctx.fillText(hearts, 24, hudY + 25);
 
-    ctx.font = "bold 14px Arial";
-    ctx.fillText("Poziom: " + level, canvas.width / 2 + 85, hudY + 28);
+        ctx.textAlign = "right";
+        ctx.fillText("Czas: " + remaining, canvas.width - 24, hudY + 25);
 
-    ctx.font = "bold 12px Arial";
-    ctx.fillText("SPEED TEST +75%", 18, hudY + 62);
+        ctx.textAlign = "center";
+        ctx.fillText("Punkty: " + score, canvas.width / 2, hudY + 52);
+
+        ctx.font = "bold 11px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText("Poziom " + level, 24, hudY + 52);
+
+        ctx.textAlign = "right";
+        ctx.fillText("SPD x2.25", canvas.width - 24, hudY + 52);
+    }else{
+        ctx.textAlign = "left";
+        ctx.fillText(hearts, 28, hudY + 29);
+
+        ctx.textAlign = "center";
+        ctx.fillText("Punkty: " + score, canvas.width / 2, hudY + 29);
+
+        ctx.textAlign = "right";
+        ctx.fillText("Czas: " + remaining, canvas.width - 28, hudY + 29);
+
+        ctx.font = "bold 12px Arial";
+        ctx.textAlign = "left";
+        ctx.fillText("Poziom " + level + " · SPD x2.25", 28, hudY + 41);
+    }
+
     ctx.restore();
 }
 
