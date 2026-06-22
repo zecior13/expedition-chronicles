@@ -45,6 +45,11 @@ let flamingoMessageUntil = 0;
 let flamingoAnimationId = null;
 let flamingosFound = 0;
 let secretsFound = [];
+let wildlifeRunning = false;
+let wildlifeBinocularMode = false;
+let wildlifeMessageUntil = 0;
+let wildlifeAnimationId = null;
+let wildlifePhotosFound = 0;
 
 const flamingoGroups = [
     { id: "flamingo-1", x: 0.14, y: 0.58, discovered: false, identified: false },
@@ -58,6 +63,24 @@ const flamingoSecrets = [
     { id: "seal", label: "🦭", x: 0.23, y: 0.68 },
     { id: "pelican", label: "🪿", x: 0.57, y: 0.30 },
     { id: "wreck", label: "⛵", x: 0.78, y: 0.72 }
+];
+
+const wildlifeTargets = [
+    { id: "seal-1", type: "seal", label: "🦭", x: 12, y: 68, difficulty: 1, found: false },
+    { id: "seal-2", type: "seal", label: "🦭", x: 28, y: 74, difficulty: 2, found: false },
+    { id: "seal-3", type: "seal", label: "🦭", x: 48, y: 64, difficulty: 2, found: false },
+    { id: "seal-4", type: "seal", label: "🦭", x: 72, y: 76, difficulty: 3, found: false },
+    { id: "seal-5", type: "seal", label: "🦭", x: 88, y: 66, difficulty: 2, found: false },
+    { id: "flamingo-1", type: "flamingo", label: "🦩", x: 16, y: 54, difficulty: 2, found: false },
+    { id: "flamingo-2", type: "flamingo", label: "🦩", x: 34, y: 47, difficulty: 1, found: false },
+    { id: "flamingo-3", type: "flamingo", label: "🦩", x: 52, y: 56, difficulty: 2, found: false },
+    { id: "flamingo-4", type: "flamingo", label: "🦩", x: 67, y: 44, difficulty: 3, found: false },
+    { id: "flamingo-5", type: "flamingo", label: "🦩", x: 83, y: 53, difficulty: 2, found: false },
+    { id: "pelican-1", type: "pelican", label: "🪿", x: 20, y: 30, difficulty: 3, found: false },
+    { id: "pelican-2", type: "pelican", label: "🪿", x: 41, y: 36, difficulty: 2, found: false },
+    { id: "pelican-3", type: "pelican", label: "🪿", x: 61, y: 27, difficulty: 3, found: false },
+    { id: "pelican-4", type: "pelican", label: "🪿", x: 76, y: 34, difficulty: 2, found: false },
+    { id: "pelican-5", type: "pelican", label: "🪿", x: 91, y: 40, difficulty: 3, found: false }
 ];
 
 kayakImage.onload = function(){
@@ -99,6 +122,229 @@ function savePlayers(){
 }
 
 function openWalvisBay(){
+    showScreen("walvisScreen");
+}
+
+function startWildlifeSearch(){
+    stopKayakGame();
+    stopFlamingoObserver();
+    showScreen("wildlifeScreen");
+
+    wildlifeRunning = true;
+    wildlifeBinocularMode = false;
+    wildlifeMessageUntil = 0;
+
+    const savedTargets = JSON.parse(localStorage.getItem("wildlifeTargetsFound") || "[]");
+
+    for(const target of wildlifeTargets){
+        target.found = savedTargets.includes(target.id);
+    }
+
+    renderWildlifeScene();
+    updateWildlifeProgress();
+    updateWildlifeBinocularButton();
+    showWildlifeMessage("");
+
+    if(wildlifeAnimationId){
+        cancelAnimationFrame(wildlifeAnimationId);
+    }
+
+    wildlifeLoop();
+}
+
+function stopWildlifeSearch(){
+    wildlifeRunning = false;
+
+    if(wildlifeAnimationId){
+        cancelAnimationFrame(wildlifeAnimationId);
+        wildlifeAnimationId = null;
+    }
+}
+
+function renderWildlifeScene(){
+    const scene = document.getElementById("wildlifeScene");
+
+    scene.innerHTML = `
+        <div class="wildlife-waterline"></div>
+        <div class="wildlife-decor" style="left:8%;top:72%;font-size:2rem;">🪨</div>
+        <div class="wildlife-decor" style="left:24%;top:61%;font-size:2rem;">🚤</div>
+        <div class="wildlife-decor" style="left:46%;top:73%;font-size:2rem;">🪨</div>
+        <div class="wildlife-decor" style="left:58%;top:47%;font-size:2.2rem;">⛵</div>
+        <div class="wildlife-decor" style="left:80%;top:70%;font-size:2rem;">🪨</div>
+        <div class="wildlife-decor" style="left:92%;top:48%;font-size:2rem;">🚤</div>
+    `;
+
+    for(const target of wildlifeTargets){
+        const el = document.createElement("button");
+        el.className = "wildlife-target";
+        el.dataset.id = target.id;
+        el.style.left = target.x + "%";
+        el.style.top = target.y + "%";
+        el.textContent = target.label;
+        el.onclick = ()=> markWildlifeTargetFound(target.id);
+        scene.appendChild(el);
+    }
+
+    updateWildlifeTargetStyles();
+}
+
+function toggleWildlifeBinoculars(){
+    wildlifeBinocularMode = !wildlifeBinocularMode;
+    updateWildlifeBinocularButton();
+}
+
+function updateWildlifeBinocularButton(){
+    const screen = document.getElementById("wildlifeScreen");
+    const button = document.getElementById("wildlifeBinocularBtn");
+
+    screen.classList.toggle("binocular-active", wildlifeBinocularMode);
+    button.classList.toggle("active", wildlifeBinocularMode);
+}
+
+function takeWildlifePhoto(){
+    const target = getCenteredWildlifeTarget();
+
+    if(target){
+        markWildlifeTargetFound(target.id);
+    }else{
+        showWildlifeMessage(wildlifeBinocularMode ? "Przesuń kadr bliżej zwierzęcia." : "Włącz lornetkę i znajdź cel.");
+    }
+}
+
+function getCenteredWildlifeTarget(){
+    const viewport = document.getElementById("wildlifeViewport").getBoundingClientRect();
+    const centerX = viewport.left + viewport.width / 2;
+    const centerY = viewport.top + viewport.height / 2;
+    let bestTarget = null;
+    let bestDistance = Infinity;
+
+    for(const target of wildlifeTargets){
+        if(target.found){
+            continue;
+        }
+
+        const el = document.querySelector('[data-id="' + target.id + '"]');
+        const rect = el.getBoundingClientRect();
+        const dx = rect.left + rect.width / 2 - centerX;
+        const dy = rect.top + rect.height / 2 - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if(distance < bestDistance){
+            bestDistance = distance;
+            bestTarget = target;
+        }
+    }
+
+    if(bestDistance < (wildlifeBinocularMode ? 130 : 70)){
+        return bestTarget;
+    }
+
+    return null;
+}
+
+function markWildlifeTargetFound(id){
+    const target = wildlifeTargets.find(item => item.id === id);
+
+    if(!target || target.found){
+        return;
+    }
+
+    target.found = true;
+    showWildlifeMessage("📸 Zdjęcie zapisane: " + getWildlifeTypeLabel(target.type));
+    updateWildlifeProgress();
+    updateWildlifeTargetStyles();
+}
+
+function getWildlifeTypeLabel(type){
+    if(type === "seal") return "Foka";
+    if(type === "flamingo") return "Flaming";
+    return "Pelikan";
+}
+
+function showWildlifeHint(){
+    const remaining = wildlifeTargets.filter(target => !target.found);
+
+    if(remaining.length === 0){
+        return;
+    }
+
+    const target = remaining[Math.floor(Math.random() * remaining.length)];
+    const el = document.querySelector('[data-id="' + target.id + '"]');
+
+    if(el){
+        el.classList.add("hint");
+        showWildlifeMessage("Podpowiedź: szukaj " + getWildlifeTypeLabel(target.type).toLowerCase() + ".");
+
+        setTimeout(()=>{
+            el.classList.remove("hint");
+        },1200);
+    }
+}
+
+function showWildlifeChronicle(){
+    showWildlifeMessage("Kronika: zapisano " + wildlifePhotosFound + " / 15 zdjęć.");
+}
+
+function updateWildlifeProgress(){
+    wildlifePhotosFound = wildlifeTargets.filter(target => target.found).length;
+
+    const seals = wildlifeTargets.filter(target => target.type === "seal" && target.found).length;
+    const flamingos = wildlifeTargets.filter(target => target.type === "flamingo" && target.found).length;
+    const pelicans = wildlifeTargets.filter(target => target.type === "pelican" && target.found).length;
+    const foundIds = wildlifeTargets.filter(target => target.found).map(target => target.id);
+
+    document.getElementById("wildlifePhotoProgress").innerText = "Zdjęcia " + wildlifePhotosFound + "/15";
+    document.getElementById("sealObjective").innerText = "Foka " + seals + "/5";
+    document.getElementById("flamingoObjective").innerText = "Flaming " + flamingos + "/5";
+    document.getElementById("pelicanObjective").innerText = "Pelikan " + pelicans + "/5";
+
+    localStorage.setItem("wildlifePhotosFound", String(wildlifePhotosFound));
+    localStorage.setItem("wildlifeTargetsFound", JSON.stringify(foundIds));
+
+    if(wildlifePhotosFound === 15){
+        localStorage.setItem("wildlifeSearchCompleted", "true");
+        stopWildlifeSearch();
+        showScreen("wildlifeCompleteScreen");
+    }
+}
+
+function updateWildlifeTargetStyles(){
+    for(const target of wildlifeTargets){
+        const el = document.querySelector('[data-id="' + target.id + '"]');
+
+        if(el){
+            el.classList.toggle("found", target.found);
+        }
+    }
+}
+
+function showWildlifeMessage(text){
+    const message = document.getElementById("wildlifeMessage");
+
+    if(!text){
+        message.classList.remove("visible");
+        message.innerText = "";
+        return;
+    }
+
+    message.innerText = text;
+    message.classList.add("visible");
+    wildlifeMessageUntil = performance.now() + 1800;
+}
+
+function wildlifeLoop(){
+    if(!wildlifeRunning){
+        return;
+    }
+
+    if(performance.now() > wildlifeMessageUntil){
+        showWildlifeMessage("");
+    }
+
+    wildlifeAnimationId = requestAnimationFrame(wildlifeLoop);
+}
+
+function addWildlifeToChronicle(){
     showScreen("walvisScreen");
 }
 
