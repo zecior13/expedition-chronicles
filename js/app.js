@@ -49,7 +49,6 @@ let mapPinchStartDistance = 0;
 let mapPinchStartZoom = 1;
 let mapPinchMapX = 0;
 let mapPinchMapY = 0;
-const mapMarkerXOffset = 4;
 
 let flamingoRunning = false;
 let flamingoOffset = 0;
@@ -421,9 +420,11 @@ function updateNamibiaMap(){
     for(const region of layer.querySelectorAll(".map-region")){
         const x = Number(region.dataset.x || 50);
         const y = Number(region.dataset.y || 50);
-        region.style.left = Math.min(96, x + mapMarkerXOffset) + "%";
+        region.style.left = x + "%";
         region.style.top = y + "%";
     }
+
+    updateNamibiaRouteLayer(layer);
 
     if(!mapInitialPanReady){
         const walvis = document.getElementById("walvisMapLocation");
@@ -438,6 +439,25 @@ function updateNamibiaMap(){
     mapPanY = Math.min(0, Math.max(minY, mapPanY));
 
     layer.style.transform = "translate(" + mapPanX + "px, " + mapPanY + "px) scale(" + mapZoom + ")";
+}
+
+function updateNamibiaRouteLayer(layer){
+    const routeLayer = layer.querySelector(".map-route-layer");
+
+    if(!routeLayer){
+        return;
+    }
+
+    const points = Array.from(layer.querySelectorAll(".map-region")).map(region=>{
+        const x = Number(region.dataset.x || 50) * layer.offsetWidth / 100;
+        const y = Number(region.dataset.y || 50) * layer.offsetHeight / 100;
+        return x + "," + y;
+    });
+
+    routeLayer.innerHTML =
+        "<svg class=\"map-route-svg\" viewBox=\"0 0 " + layer.offsetWidth + " " + layer.offsetHeight + "\" preserveAspectRatio=\"none\">" +
+        "<polyline class=\"map-route-line\" points=\"" + points.join(" ") + "\"></polyline>" +
+        "</svg>";
 }
 
 function zoomNamibiaMap(direction){
