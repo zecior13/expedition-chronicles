@@ -1101,22 +1101,16 @@ button{
 }
 
 .map-guardian.sesriem-guardian::before{
-    left:20px;
-    top:42px;
-    width:44px;
-    height:20px;
-    border-radius:55% 45% 50% 50%;
-    background:#1f3842;
+    inset:4px;
+    width:auto;
+    height:auto;
+    border-radius:50%;
+    background:
+        url("../assets/guardians/guardian-oryx.png") center/contain no-repeat;
 }
 
 .map-guardian.sesriem-guardian::after{
-    left:37px;
-    top:18px;
-    width:22px;
-    height:32px;
-    border-left:4px solid #1f3842;
-    border-right:4px solid #1f3842;
-    transform:skewX(-12deg);
+    content:none;
 }
 
 .map-guardian.gecko::before{
