@@ -33,6 +33,17 @@ let nextSealDelay = 15000;
 let lastFishSpawn = 0;
 let nextFishDelay = 4000;
 
+let mapPanX = 0;
+let mapPanY = 0;
+let mapDragging = false;
+let mapDragMoved = false;
+let mapDragStartX = 0;
+let mapDragStartY = 0;
+let mapPanStartX = 0;
+let mapPanStartY = 0;
+let mapControlsReady = false;
+let mapInitialPanReady = false;
+
 let flamingoRunning = false;
 let flamingoOffset = 0;
 let flamingoSceneWidth = 0;
@@ -102,6 +113,11 @@ function showScreen(id){
     document.getElementById(id).classList.add("active");
 
     updateWalvisBayMapState();
+
+    if(id === "mapScreen"){
+        setupNamibiaMap();
+        updateNamibiaMap();
+    }
 
     if(id === "walvisChronicleScreen"){
         updateWalvisChronicle();
@@ -235,6 +251,97 @@ function updateWalvisBayMapState(){
     if(sealStatus){
         sealStatus.innerText = sealCollected ? "✓ odebrana" : (walvisDone ? "Czeka na odbiór" : "Nieodebrana");
     }
+}
+
+function setupNamibiaMap(){
+    const viewport = document.getElementById("mapViewport");
+
+    if(!viewport || mapControlsReady){
+        return;
+    }
+
+    mapControlsReady = true;
+
+    viewport.onpointerdown = e=>{
+        mapDragging = true;
+        mapDragMoved = false;
+        mapDragStartX = e.clientX;
+        mapDragStartY = e.clientY;
+        mapPanStartX = mapPanX;
+        mapPanStartY = mapPanY;
+        viewport.classList.add("dragging");
+        viewport.setPointerCapture(e.pointerId);
+    };
+
+    viewport.onpointermove = e=>{
+        if(!mapDragging){
+            return;
+        }
+
+        mapPanX = mapPanStartX + e.clientX - mapDragStartX;
+        mapPanY = mapPanStartY + e.clientY - mapDragStartY;
+
+        if(Math.abs(e.clientX - mapDragStartX) > 6 || Math.abs(e.clientY - mapDragStartY) > 6){
+            mapDragMoved = true;
+        }
+
+        updateNamibiaMap();
+    };
+
+    viewport.onpointerup = e=>{
+        mapDragging = false;
+        viewport.classList.remove("dragging");
+        viewport.releasePointerCapture(e.pointerId);
+    };
+
+    viewport.onpointercancel = ()=>{
+        mapDragging = false;
+        viewport.classList.remove("dragging");
+    };
+
+    viewport.addEventListener("click", e=>{
+        if(mapDragMoved){
+            e.preventDefault();
+            e.stopPropagation();
+            mapDragMoved = false;
+        }
+    }, true);
+}
+
+function updateNamibiaMap(){
+    const viewport = document.getElementById("mapViewport");
+    const layer = document.getElementById("namibiaMapLayer");
+
+    if(!viewport || !layer){
+        return;
+    }
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const layerWidth = layer.offsetWidth;
+    const layerHeight = layer.offsetHeight;
+    const minX = Math.min(0, viewportRect.width - layerWidth);
+    const minY = Math.min(0, viewportRect.height - layerHeight);
+
+    for(const region of layer.querySelectorAll(".map-region")){
+        const x = Number(region.dataset.x || 50);
+        const y = Number(region.dataset.y || 50);
+        region.style.left = x + "%";
+        region.style.top = y + "%";
+    }
+
+    if(!mapInitialPanReady){
+        const walvis = document.getElementById("walvisMapLocation");
+        const walvisX = Number(walvis?.dataset.x || 50) / 100;
+        const walvisY = Number(walvis?.dataset.y || 50) / 100;
+        mapPanX = viewportRect.width / 2 - layerWidth * walvisX;
+        mapPanY = viewportRect.height / 2 - layerHeight * walvisY;
+        mapInitialPanReady = true;
+    }
+
+    mapPanX = Math.min(0, Math.max(minX, mapPanX));
+    mapPanY = Math.min(0, Math.max(minY, mapPanY));
+
+    layer.style.transform = "translate(" + mapPanX + "px, " + mapPanY + "px)";
 }
 
 function startWildlifeSearch(){
@@ -1837,4 +1944,5 @@ window.onload = function(){
 
 window.onresize = function(){
     resizeCanvas(true);
+    updateNamibiaMap();
 };

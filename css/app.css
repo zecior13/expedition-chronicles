@@ -902,40 +902,70 @@ button{
     color:#ffd46a;
 }
 
-.route-map{
+.map-viewport{
     position:relative;
 
     width:min(100%, 350px);
+    height:min(54vh, 460px);
+    min-height:360px;
 
-    display:flex;
-    flex-direction:column;
-    gap:12px;
+    overflow:hidden;
 
-    padding-left:18px;
+    border:1px solid rgba(16,43,63,0.14);
+    border-radius:26px;
+
+    background:
+        linear-gradient(90deg, rgba(25,121,154,0.10) 0 32%, rgba(217,164,65,0.12) 32% 100%),
+        rgba(255,250,240,0.82);
+
+    touch-action:none;
+    cursor:grab;
+
+    box-shadow:var(--shadow);
 }
 
-.route-map::before{
-    content:"";
+.map-viewport.dragging{
+    cursor:grabbing;
+}
+
+.namibia-map-layer{
+    position:absolute;
+    left:0;
+    top:0;
+
+    width:900px;
+    height:1200px;
+
+    transform:translate(0, 0);
+    will-change:transform;
+}
+
+.namibia-map-layer::before{
+    content:"Future master-map-namibia-v1.png";
 
     position:absolute;
-    left:32px;
-    top:22px;
-    bottom:22px;
+    left:50%;
+    top:50%;
 
-    width:3px;
+    transform:translate(-50%, -50%) rotate(-18deg);
 
-    border-radius:999px;
+    color:rgba(16,43,63,0.18);
 
-    background:linear-gradient(180deg, var(--ocean), var(--gold), rgba(16,43,63,0.16));
+    font-size:2rem;
+    font-weight:900;
+    text-align:center;
+    pointer-events:none;
 }
 
-.route-map .location{
-    position:relative;
+.map-region{
+    position:absolute;
 
-    width:100%;
-    min-height:74px;
+    width:220px;
+    min-height:68px;
 
-    padding-left:54px;
+    padding-left:52px;
+
+    transform:translate(-50%, -50%);
 }
 
 .route-dot{
