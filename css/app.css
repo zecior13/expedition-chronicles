@@ -1137,16 +1137,16 @@ button{
     background-image:url("../assets/guardians/guardian-cheetah.png");
 }
 
-.map-guardian.fox-guardian::before{
-    background-image:url("../assets/guardians/guardian-fox.png");
+.map-guardian.big-daddy-guardian::before{
+    background-image:url("../assets/guardians/guardian-big-daddy-spirit.png");
 }
 
 .map-guardian.swakopmund-guardian::before{
-    background-image:url("../assets/guardians/guardian-pelican.png");
+    background-image:url("../assets/guardians/guardian-ocean.png");
 }
 
-.map-guardian.gecko-guardian::before{
-    background-image:url("../assets/guardians/guardian-gecko.png");
+.map-guardian.spitzkoppe-guardian::before{
+    background-image:url("../assets/guardians/guardian-stars.png");
 }
 
 .map-guardian.twyfelfontein-guardian::before{
@@ -1174,15 +1174,15 @@ button{
 }
 
 .map-guardian.okahandja-guardian::before{
-    background-image:url("../assets/guardians/guardian-canyon.png");
-}
-
-.map-guardian.daan-viljoen-guardian::before{
     background-image:url("../assets/guardians/guardian-jackal.png");
 }
 
+.map-guardian.daan-viljoen-guardian::before{
+    background-image:url("../assets/guardians/guardian-canyon.png");
+}
+
 .map-guardian.ceremony-guardian::before{
-    background-image:url("../assets/guardians/guardian-stars.png");
+    background-image:url("../assets/guardians/guardian-dunes.png");
 }
 
 .map-guardian.gecko::before{
