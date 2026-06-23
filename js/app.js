@@ -510,11 +510,43 @@ function updateNamibiaRouteLayer(layer){
         return;
     }
 
-    const points = Array.from(layer.querySelectorAll(".map-region")).map(region=>{
+    const routeRegions = Array.from(layer.querySelectorAll(".map-region"));
+    const regionPoint = region=>{
         const x = Number(region.dataset.x || 50) * layer.offsetWidth / 100;
         const y = Number(region.dataset.y || 50) * layer.offsetHeight / 100;
-        return x + "," + y;
-    });
+        return { x, y };
+    };
+    const routePoints = [];
+
+    for(let index = 0; index < routeRegions.length; index++){
+        const point = regionPoint(routeRegions[index]);
+
+        routePoints.push(point);
+
+        if(index === 2 && routeRegions[index + 1]){
+            const nextPoint = regionPoint(routeRegions[index + 1]);
+            routePoints.push({ x: point.x - 72, y: point.y - 70 });
+            routePoints.push({ x: nextPoint.x + 12, y: nextPoint.y + 22 });
+        }
+
+        if(index === 3 && routeRegions[index + 1]){
+            const nextPoint = regionPoint(routeRegions[index + 1]);
+            routePoints.push({ x: point.x + 6, y: nextPoint.y - 20 });
+        }
+
+        if(index === 4 && routeRegions[index + 1]){
+            const nextPoint = regionPoint(routeRegions[index + 1]);
+            routePoints.push({ x: point.x - 8, y: (point.y + nextPoint.y) / 2 });
+        }
+
+        if(index === 5 && routeRegions[index + 1]){
+            const nextPoint = regionPoint(routeRegions[index + 1]);
+            routePoints.push({ x: point.x + 38, y: point.y - 34 });
+            routePoints.push({ x: nextPoint.x - 26, y: nextPoint.y + 34 });
+        }
+    }
+
+    const points = routePoints.map(point=>point.x + "," + point.y);
 
     routeLayer.innerHTML =
         "<svg class=\"map-route-svg\" viewBox=\"0 0 " + layer.offsetWidth + " " + layer.offsetHeight + "\" preserveAspectRatio=\"none\">" +

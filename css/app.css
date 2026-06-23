@@ -979,13 +979,15 @@ button{
 
 .map-route-line{
     fill:none;
-    stroke:#d5a245;
-    stroke-width:7;
+    stroke:#102b3f;
+    stroke-width:5.5;
     stroke-linecap:round;
     stroke-linejoin:round;
-    stroke-dasharray:15 13;
-    filter:drop-shadow(0 2px 3px rgba(79,49,22,0.30));
-    opacity:0.98;
+    stroke-dasharray:8 8;
+    filter:
+        drop-shadow(0 1px 0 rgba(255,247,218,0.58))
+        drop-shadow(0 2px 4px rgba(16,43,63,0.36));
+    opacity:0.92;
 }
 
 .map-guardian{
@@ -1154,7 +1156,7 @@ button{
     width:200px;
     min-height:58px;
 
-    padding:10px 14px 10px 48px;
+    padding:10px 16px;
 
     transform:translate(-50%, -50%);
 
@@ -1174,6 +1176,10 @@ button{
     box-shadow:
         0 12px 24px rgba(71,48,28,0.28),
         inset 0 0 0 1px rgba(255,255,255,0.66);
+}
+
+.map-region.windhoek-region{
+    transform:translate(-50%, calc(-50% + 18px));
 }
 
 .map-region::after{
@@ -1206,36 +1212,11 @@ button{
 }
 
 .route-dot{
-    position:absolute;
-    left:12px;
-    top:50%;
-
-    width:28px;
-    height:28px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    transform:translateY(-50%);
-
-    border:2px solid rgba(255,255,255,0.88);
-    border-radius:50%;
-
-    color:#1e3441;
-    background:
-        radial-gradient(circle at 35% 30%, #fff7dc, #d49b3a 70%);
-
-    font-size:0.82rem;
-    font-weight:900;
-
-    box-shadow:0 4px 10px rgba(16,43,63,0.20);
+    display:none;
 }
 
 .location.locked .route-dot{
-    color:#f6ebd0;
-    background:
-        radial-gradient(circle at 35% 30%, #8f8170, #473d36 72%);
+    display:none;
 }
 
 .map-location.completed .route-dot{
