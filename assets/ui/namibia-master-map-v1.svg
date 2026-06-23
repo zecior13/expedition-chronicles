@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200">
+  <defs>
+    <linearGradient id="parchment" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff2cf"/>
+      <stop offset="0.52" stop-color="#efd39a"/>
+      <stop offset="1" stop-color="#c98242"/>
+    </linearGradient>
+    <linearGradient id="ocean" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#0e6f8d"/>
+      <stop offset="0.72" stop-color="#6fb6b3"/>
+      <stop offset="1" stop-color="#efd39a" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="desertGlow" cx="54%" cy="58%" r="55%">
+      <stop offset="0" stop-color="#f7d889" stop-opacity="0.85"/>
+      <stop offset="0.55" stop-color="#d9924d" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#9b5b35" stop-opacity="0.12"/>
+    </radialGradient>
+    <filter id="paperNoise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="11"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.14"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+
+  <rect width="900" height="1200" fill="url(#parchment)"/>
+  <rect width="900" height="1200" fill="url(#desertGlow)"/>
+  <path d="M0 0H300C266 122 282 210 238 314C203 397 211 499 175 587C131 692 146 810 97 922C59 1007 67 1103 33 1200H0Z" fill="url(#ocean)" opacity="0.92"/>
+  <path d="M298 0C262 130 278 213 236 317C202 403 211 504 172 594C130 694 145 816 97 923C58 1010 67 1107 35 1200" fill="none" stroke="#f6e6bc" stroke-width="10" opacity="0.78"/>
+  <path d="M306 0C270 130 286 214 245 319C212 405 220 506 181 597C139 696 154 816 106 925C68 1012 77 1107 45 1200" fill="none" stroke="#15364d" stroke-width="2.5" stroke-dasharray="18 16" opacity="0.22"/>
+
+  <path d="M315 670C363 610 463 585 544 615C619 642 678 727 742 716C786 709 823 663 872 680V1200H313Z" fill="#b86d3d" opacity="0.18"/>
+  <path d="M290 735C356 699 444 694 526 737C602 777 684 809 770 789C812 780 849 758 900 766V1200H285Z" fill="#7d4b31" opacity="0.13"/>
+  <path d="M360 675C398 653 455 661 493 690C535 722 569 720 609 694" fill="none" stroke="#f3c46e" stroke-width="8" stroke-linecap="round" opacity="0.38"/>
+
+  <ellipse cx="402" cy="750" rx="82" ry="34" fill="#f8d88a" opacity="0.52" transform="rotate(-8 402 750)"/>
+  <ellipse cx="713" cy="210" rx="115" ry="62" fill="#c9b96b" opacity="0.34" transform="rotate(-10 713 210)"/>
+  <ellipse cx="382" cy="356" rx="62" ry="39" fill="#70583f" opacity="0.22" transform="rotate(-15 382 356)"/>
+  <ellipse cx="461" cy="270" rx="80" ry="46" fill="#8d6b43" opacity="0.18" transform="rotate(9 461 270)"/>
+  <path d="M326 435C374 407 424 419 457 455C491 493 537 492 574 467" fill="none" stroke="#2b4d3f" stroke-width="7" stroke-linecap="round" opacity="0.12"/>
+  <path d="M612 402C675 380 734 391 783 424" fill="none" stroke="#2b4d3f" stroke-width="6" stroke-linecap="round" opacity="0.14"/>
+
+  <g fill="#15364d" opacity="0.12" font-family="Georgia, serif" font-weight="700" letter-spacing="3">
+    <text x="112" y="234" font-size="30" transform="rotate(-90 112 234)">ATLANTIC</text>
+    <text x="432" y="826" font-size="34" transform="rotate(-11 432 826)">NAMIB DESERT</text>
+    <text x="610" y="192" font-size="25">ETOSHA</text>
+    <text x="298" y="372" font-size="23">SPITZKOPPE</text>
+    <text x="328" y="730" font-size="22">SOSSUSVLEI</text>
+  </g>
+
+  <rect width="900" height="1200" fill="#6a4b2b" filter="url(#paperNoise)" opacity="0.18"/>
+  <rect x="18" y="18" width="864" height="1164" rx="38" fill="none" stroke="#fff6dd" stroke-width="5" opacity="0.48"/>
+  <rect x="34" y="34" width="832" height="1132" rx="28" fill="none" stroke="#613a24" stroke-width="2" stroke-dasharray="8 14" opacity="0.18"/>
+</svg>

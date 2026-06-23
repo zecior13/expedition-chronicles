@@ -411,7 +411,7 @@ function clampNamibiaMapZoom(value){
 }
 
 function getGuardianVisualScale(){
-    const baseSize = 36;
+    const baseSize = 40;
     const normalZoomRange = Math.max(0.01, 1 - mapMinZoom);
     const overviewProgress = Math.max(0, Math.min(1, (mapZoom - mapMinZoom) / normalZoomRange));
     let targetSize = guardianMinRenderedSize + (guardianPreferredRenderedSize - guardianMinRenderedSize) * overviewProgress;
