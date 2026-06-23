@@ -4,6 +4,22 @@
     padding:0;
 }
 
+:root{
+    --navy:#102b3f;
+    --navy-soft:#173c55;
+    --ocean:#19799a;
+    --ocean-light:#d9f0f3;
+    --sand:#f4dfb7;
+    --sand-light:#fff7e7;
+    --gold:#d9a441;
+    --terra:#b66a3c;
+    --ink:#17212b;
+    --muted:#64717b;
+    --paper:#fffaf0;
+    --line:rgba(23,33,43,0.12);
+    --shadow:0 14px 34px rgba(17,43,63,0.16);
+}
+
 html,
 body{
     width:100%;
@@ -16,12 +32,21 @@ body{
         "Segoe UI",
         sans-serif;
 
-    background:#e9f3fa;
+    color:var(--ink);
+    background:
+        radial-gradient(circle at 20% 10%, rgba(217,164,65,0.28), transparent 28%),
+        linear-gradient(145deg, #11324b 0%, #1f809d 48%, #e9c98f 100%);
 }
 
 #app{
     width:100%;
     height:100%;
+
+    overflow:hidden;
+
+    background:
+        linear-gradient(180deg, rgba(255,250,240,0.94), rgba(248,232,198,0.98)),
+        var(--paper);
 }
 
 .screen{
@@ -30,9 +55,11 @@ body{
     width:100%;
     height:100%;
 
-    padding:24px;
+    padding:28px 22px;
 
     text-align:center;
+
+    overflow:hidden;
 }
 
 .screen.active{
@@ -40,66 +67,89 @@ body{
 
     flex-direction:column;
 
-    justify-content:center;
+    justify-content:flex-start;
     align-items:center;
 
-    gap:16px;
+    gap:18px;
 }
 
 h1{
-    font-size:2rem;
+    color:var(--navy);
+
+    font-size:clamp(1.85rem, 9vw, 2.6rem);
+    line-height:1.02;
+    font-weight:850;
 }
 
 h2{
-    font-size:1.1rem;
-    font-weight:400;
-    color:#555;
+    max-width:320px;
+
+    font-size:1rem;
+    line-height:1.35;
+    font-weight:650;
+    color:var(--muted);
 }
 
 input{
-    width:280px;
+    width:min(100%, 330px);
 
-    padding:12px;
+    padding:14px 16px;
 
-    border:1px solid #ccc;
-    border-radius:10px;
+    border:1px solid rgba(16,43,63,0.18);
+    border-radius:14px;
+
+    color:var(--navy);
+    background:#ffffff;
 
     font-size:1rem;
+    font-weight:700;
+
+    box-shadow:0 6px 16px rgba(16,43,63,0.08);
 }
 
 button{
-    padding:14px 24px;
+    min-width:190px;
+
+    padding:14px 20px;
 
     border:none;
-    border-radius:12px;
+    border-radius:16px;
 
-    background:#1d73b2;
+    background:linear-gradient(180deg, #1d84a8, #12617f);
     color:white;
 
     font-size:1rem;
+    font-weight:800;
+
+    box-shadow:0 10px 22px rgba(18,97,127,0.24);
 }
 
 .secondary{
-    background:#888;
+    background:linear-gradient(180deg, #6e7a82, #4f5a62);
+    box-shadow:0 10px 22px rgba(20,30,36,0.16);
 }
 
 .location{
-    width:280px;
+    width:min(100%, 340px);
 
-    padding:18px;
+    padding:18px 18px;
 
-    border-radius:12px;
+    border:1px solid var(--line);
+    border-radius:18px;
 
-    background:white;
+    background:rgba(255,250,240,0.96);
 
     cursor:pointer;
 
     box-shadow:
-        0 2px 8px rgba(0,0,0,0.1);
+        0 10px 24px rgba(17,43,63,0.12);
 }
 
 .location.locked{
-    opacity:0.45;
+    color:#6d6254;
+    background:rgba(255,250,240,0.55);
+
+    opacity:0.72;
 }
 
 .map-location{
@@ -130,25 +180,37 @@ button{
 }
 
 .card{
-    background:white;
+    width:min(100%, 340px);
 
-    padding:18px;
+    padding:20px;
 
-    border-radius:12px;
+    border:1px solid var(--line);
+    border-radius:20px;
 
-    min-width:280px;
+    background:rgba(255,250,240,0.94);
+
+    box-shadow:var(--shadow);
 }
 
 .quote{
-    max-width:400px;
+    max-width:340px;
+
+    padding:18px;
+
+    border:1px solid rgba(217,164,65,0.32);
+    border-radius:18px;
 
     font-style:italic;
+    line-height:1.45;
 
-    color:#444;
+    color:#344653;
+    background:rgba(255,250,240,0.82);
 }
 
 .guardian{
     font-size:4rem;
+
+    filter:drop-shadow(0 8px 18px rgba(16,43,63,0.18));
 }
 
 .seal-reward-screen{
@@ -226,6 +288,268 @@ button{
     margin-bottom:12px;
 }
 
+#startScreen,
+#expeditionScreen,
+#playersScreen,
+#mapScreen,
+#walvisScreen,
+#guardianScreen,
+#wildlifeCompleteScreen,
+.seal-reward-screen,
+.chronicle-screen{
+    background:
+        linear-gradient(180deg, rgba(255,250,240,0.88), rgba(246,224,183,0.94)),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0 31px,
+            rgba(16,43,63,0.04) 31px 32px
+        );
+}
+
+#startScreen,
+#expeditionScreen,
+#playersScreen,
+#mapScreen,
+#walvisScreen,
+#guardianScreen,
+#wildlifeCompleteScreen,
+.seal-reward-screen,
+.chronicle-screen{
+    padding-top:max(32px, env(safe-area-inset-top));
+    padding-bottom:max(24px, env(safe-area-inset-bottom));
+}
+
+#startScreen::before,
+#mapScreen::before,
+#walvisScreen::before{
+    content:"";
+
+    width:82px;
+    height:7px;
+
+    margin-bottom:6px;
+
+    border-radius:999px;
+
+    background:linear-gradient(90deg, var(--gold), var(--ocean));
+}
+
+#startScreen h1{
+    margin-top:auto;
+
+    max-width:340px;
+}
+
+#startScreen h2{
+    color:var(--navy-soft);
+
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+}
+
+#startScreen button{
+    margin-top:18px;
+    margin-bottom:auto;
+}
+
+#expeditionScreen,
+#playersScreen{
+    justify-content:center;
+}
+
+#expeditionScreen h1,
+#playersScreen h1{
+    margin-bottom:4px;
+}
+
+#playersScreen br{
+    display:none;
+}
+
+#mapScreen{
+    overflow-y:auto;
+}
+
+#mapScreen h1{
+    width:min(100%, 340px);
+
+    padding:18px 18px 4px;
+
+    text-align:left;
+}
+
+#expeditionTitle{
+    width:min(100%, 340px);
+
+    padding:0 18px 8px;
+
+    text-align:left;
+}
+
+.map-location-title{
+    color:var(--navy);
+
+    font-size:1.1rem;
+    font-weight:850;
+}
+
+.map-location-status{
+    display:inline-flex;
+    align-items:center;
+
+    width:max-content;
+
+    padding:5px 9px;
+
+    border-radius:999px;
+
+    background:#f1e5cf;
+}
+
+.map-location.in-progress{
+    background:linear-gradient(180deg, #fff7e7, #f4dfb7);
+}
+
+.map-location.completed{
+    background:
+        radial-gradient(circle at 88% 22%, rgba(25,121,154,0.16), transparent 25%),
+        #f4fff9;
+}
+
+#walvisScreen{
+    overflow-y:auto;
+}
+
+#walvisScreen h1,
+#walvisScreen h2{
+    width:min(100%, 340px);
+
+    text-align:left;
+}
+
+#walvisScreen .card{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+
+    background:
+        linear-gradient(180deg, rgba(255,250,240,0.96), rgba(255,247,231,0.96)),
+        radial-gradient(circle at 78% 22%, rgba(25,121,154,0.18), transparent 30%);
+}
+
+#walvisScreen .card p{
+    padding:12px 10px;
+
+    border-radius:14px;
+
+    color:var(--navy);
+    background:rgba(255,255,255,0.68);
+
+    font-weight:800;
+}
+
+#guardianScreen .guardian,
+#wildlifeCompleteScreen .guardian,
+.seal-reward-screen .guardian{
+    width:128px;
+    height:128px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:6px solid rgba(25,121,154,0.22);
+    border-radius:50%;
+
+    background:linear-gradient(180deg, #ffffff, var(--ocean-light));
+}
+
+.seal-reward-screen{
+    justify-content:center;
+}
+
+.journal-stamp{
+    position:relative;
+
+    border-color:var(--ocean);
+    background:
+        radial-gradient(circle at 50% 38%, rgba(25,121,154,0.12), transparent 34%),
+        linear-gradient(180deg, #fffaf0, #f4dfb7);
+}
+
+.journal-stamp::after{
+    content:"EXPEDITION JOURNAL";
+
+    position:absolute;
+    left:50%;
+    top:-13px;
+
+    transform:translateX(-50%);
+
+    padding:4px 10px;
+
+    border-radius:999px;
+
+    color:#ffffff;
+    background:var(--navy);
+
+    font-size:0.66rem;
+    font-weight:900;
+    letter-spacing:0.08em;
+}
+
+.chronicle-screen{
+    overflow-y:auto;
+}
+
+.chronicle-screen h1{
+    width:min(100%, 340px);
+
+    text-align:left;
+}
+
+.chronicle-card{
+    background:
+        linear-gradient(90deg, rgba(217,164,65,0.16) 0 5px, transparent 5px),
+        rgba(255,250,240,0.96);
+
+    line-height:1.45;
+}
+
+.chronicle-card p:first-child,
+.chronicle-card p:nth-child(2),
+.chronicle-card p:nth-child(3){
+    padding:10px 12px;
+
+    border-radius:12px;
+
+    background:rgba(255,255,255,0.62);
+
+    font-weight:800;
+}
+
+@media (min-width:720px){
+    body{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+
+        padding:24px;
+    }
+
+    #app{
+        width:430px;
+        height:min(932px, calc(100vh - 48px));
+
+        border:1px solid rgba(255,255,255,0.48);
+        border-radius:34px;
+
+        box-shadow:
+            0 30px 80px rgba(0,0,0,0.34),
+            0 0 0 10px rgba(255,255,255,0.10);
+    }
+}
+
 .game-screen{
     padding:0;
 }
@@ -261,6 +585,8 @@ button{
 }
 
 .small-button{
+    min-width:auto;
+
     padding:8px 12px;
 }
 
@@ -278,6 +604,7 @@ button{
 
     bottom:18px;
 
+    min-width:96px;
     width:96px;
     height:96px;
 
