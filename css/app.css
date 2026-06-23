@@ -352,6 +352,76 @@ button{
     margin-bottom:auto;
 }
 
+#startScreen{
+    position:relative;
+
+    justify-content:flex-end;
+
+    padding:34px 20px max(32px, env(safe-area-inset-bottom));
+
+    background:
+        linear-gradient(180deg, rgba(6,18,28,0.08) 0%, rgba(6,18,28,0.18) 42%, rgba(6,18,28,0.82) 100%),
+        url("../assets/ui/start-screen-namibia.png") center / cover no-repeat;
+}
+
+#startScreen::before{
+    display:none;
+}
+
+#startScreen .hero-panel{
+    min-height:0;
+
+    padding:0;
+
+    border:0;
+    border-radius:0;
+
+    background:transparent;
+    box-shadow:none;
+
+    text-align:left;
+}
+
+#startScreen .hero-panel h1{
+    margin-top:0;
+
+    color:#ffffff;
+
+    text-shadow:0 3px 18px rgba(0,0,0,0.46);
+}
+
+#startScreen .hero-panel h2{
+    color:rgba(255,255,255,0.90);
+
+    text-shadow:0 2px 12px rgba(0,0,0,0.42);
+}
+
+#startScreen .hero-panel .app-kicker{
+    color:#f4dfb7;
+
+    text-shadow:0 2px 10px rgba(0,0,0,0.42);
+}
+
+#startScreen .hero-scene{
+    display:none;
+}
+
+#startScreen .button-stack{
+    margin-top:2px;
+
+    padding:12px;
+
+    border:1px solid rgba(255,255,255,0.24);
+    border-radius:24px;
+
+    background:linear-gradient(180deg, rgba(8,22,34,0.10), rgba(8,22,34,0.32));
+    backdrop-filter:blur(6px);
+}
+
+#startScreen .button-stack button{
+    margin:0;
+}
+
 #expeditionScreen,
 #playersScreen{
     justify-content:center;
