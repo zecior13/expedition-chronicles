@@ -1149,6 +1149,10 @@ button{
     background-image:url("../assets/guardians/guardian-flamingo.png");
 }
 
+.map-guardian.seal-guardian::before{
+    background-image:url("../assets/guardians/guardian-seal-v1.png");
+}
+
 .map-guardian.himba-guardian::before{
     background-image:url("../assets/guardians/guardian-himba.png");
 }
