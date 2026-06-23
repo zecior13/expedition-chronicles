@@ -1178,10 +1178,6 @@ button{
         inset 0 0 0 1px rgba(255,255,255,0.66);
 }
 
-.map-region.windhoek-region{
-    transform:translate(-50%, calc(-50% + 18px));
-}
-
 .map-region::after{
     content:"";
     position:absolute;
