@@ -52,6 +52,9 @@ let mapPinchMapY = 0;
 const mapMinZoom = 0.3;
 const mapMaxZoom = 1.8;
 const mapOverviewPadding = 0.92;
+const guardianMinRenderedSize = 28;
+const guardianPreferredRenderedSize = 36;
+const guardianMaxRenderedSize = 52;
 
 let flamingoRunning = false;
 let flamingoOffset = 0;
@@ -407,6 +410,16 @@ function clampNamibiaMapZoom(value){
     return Math.max(mapMinZoom, Math.min(mapMaxZoom, value));
 }
 
+function getGuardianVisualScale(){
+    const baseSize = 36;
+    const targetSize = Math.max(
+        guardianMinRenderedSize,
+        Math.min(guardianMaxRenderedSize, guardianPreferredRenderedSize)
+    );
+
+    return targetSize / (baseSize * mapZoom);
+}
+
 function updateNamibiaMap(){
     const viewport = document.getElementById("mapViewport");
     const layer = document.getElementById("namibiaMapLayer");
@@ -428,6 +441,7 @@ function updateNamibiaMap(){
         const y = Number(guardian.dataset.y || 50);
         guardian.style.left = x + "%";
         guardian.style.top = y + "%";
+        guardian.style.setProperty("--guardian-scale", getGuardianVisualScale());
     }
 
     updateNamibiaRouteLayer(layer);

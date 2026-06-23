@@ -996,41 +996,34 @@ button{
 .map-guardian{
     position:absolute;
 
-    min-width:48px;
-
-    transform:translate(-50%, -50%);
-
-    padding:5px 7px;
-
-    border:1px solid rgba(16,43,63,0.28);
-    border-radius:999px;
-
-    color:var(--navy);
-    background:rgba(255,250,240,0.76);
-
-    font-size:0.72rem;
-    font-weight:900;
-    text-align:center;
-    white-space:nowrap;
-
-    pointer-events:none;
-}
-
-.map-guardian.silhouette{
-    min-width:28px;
-    width:28px;
-    height:28px;
-
-    padding:0;
+    width:36px;
+    height:36px;
 
     display:flex;
     align-items:center;
     justify-content:center;
 
-    color:rgba(16,43,63,0.68);
-    background:rgba(16,43,63,0.18);
+    transform:translate(-50%, -50%) scale(var(--guardian-scale, 1));
+    transform-origin:center center;
 
-    font-size:0.55rem;
+    border:1px solid rgba(16,43,63,0.28);
+    border-radius:50%;
+
+    color:var(--navy);
+    background:rgba(255,250,240,0.76);
+
+    font-size:1.25rem;
+    font-weight:900;
+    text-align:center;
+    line-height:1;
+
+    pointer-events:none;
+}
+
+.map-guardian.silhouette{
+    color:rgba(16,43,63,0.58);
+    background:rgba(16,43,63,0.16);
+    filter:saturate(0.45);
 }
 
 .map-region{
