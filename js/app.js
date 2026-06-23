@@ -199,6 +199,9 @@ function updateWalvisChronicle(){
 function updateWalvisBayMapState(){
     const location = document.getElementById("walvisMapLocation");
     const status = document.getElementById("walvisMapStatus");
+    const kayakStatus = document.getElementById("walvisKayakStatus");
+    const wildlifeStatus = document.getElementById("walvisWildlifeStatus");
+    const sealStatus = document.getElementById("walvisSealStatus");
 
     if(!location || !status){
         return;
@@ -219,6 +222,18 @@ function updateWalvisBayMapState(){
         status.innerText = "W trakcie";
     }else{
         status.innerText = "Nie rozpoczęto";
+    }
+
+    if(kayakStatus){
+        kayakStatus.innerText = kayakDone ? "✓ ukończone" : "Do odkrycia";
+    }
+
+    if(wildlifeStatus){
+        wildlifeStatus.innerText = wildlifeDone ? "✓ ukończone" : "Do odkrycia";
+    }
+
+    if(sealStatus){
+        sealStatus.innerText = sealCollected ? "✓ odebrana" : (walvisDone ? "Czeka na odbiór" : "Nieodebrana");
     }
 }
 

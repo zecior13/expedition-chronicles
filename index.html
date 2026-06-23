@@ -11,61 +11,138 @@
 <div id="app">
 
   <section id="startScreen" class="screen active">
-    <h1>Expedition Chronicles</h1>
-    <h2>Family Adventures. Forever.</h2>
-    <button onclick="showScreen('expeditionScreen')">Rozpocznij Ekspedycję</button>
+    <div class="hero-panel">
+      <div class="app-kicker">Namibia 2026</div>
+      <h1>Namibia Quest</h1>
+      <h2>Family Adventures. Forever.</h2>
+      <div class="hero-scene" aria-hidden="true">
+        <span class="hero-sun"></span>
+        <span class="hero-dune hero-dune-one"></span>
+        <span class="hero-dune hero-dune-two"></span>
+        <span class="hero-ocean"></span>
+      </div>
+    </div>
+    <div class="button-stack">
+      <button onclick="showScreen('expeditionScreen')">Rozpocznij wyprawę</button>
+      <button class="secondary" onclick="showScreen('mapScreen')">Kontynuuj</button>
+    </div>
   </section>
 
   <section id="expeditionScreen" class="screen">
-    <h1>Nowa Ekspedycja</h1>
-    <input id="expeditionName" value="Namibia 2026">
+    <div class="profile-card">
+      <div class="avatar-circle">NQ</div>
+      <p class="app-kicker">Profil ekspedycji</p>
+      <h1>Nowa Ekspedycja</h1>
+      <input id="expeditionName" value="Namibia 2026">
+      <div class="stats-row">
+        <span>Walvis Bay</span>
+        <span>Board 01</span>
+        <span>Pieczęcie</span>
+      </div>
+      <p class="achievement-pill">Ostatnie osiągnięcie: Strażnik Oceanu</p>
+    </div>
     <button onclick="saveExpedition()">Dalej</button>
   </section>
 
   <section id="playersScreen" class="screen">
-    <h1>Uczestnicy</h1>
-    <input id="player1" value="Matylda"><br>
-    <input id="player2" value="Gosia"><br>
-    <input id="player3" value="Tata"><br>
+    <div class="profile-card">
+      <div class="avatar-row">
+        <span>🧭</span>
+        <span>📓</span>
+        <span>📷</span>
+      </div>
+      <p class="app-kicker">Zespół podróżników</p>
+      <h1>Uczestnicy</h1>
+      <input id="player1" value="Matylda"><br>
+      <input id="player2" value="Gosia"><br>
+      <input id="player3" value="Tata"><br>
+      <div class="stats-row">
+        <span>3 osoby</span>
+        <span>1 region</span>
+        <span>0/1 pieczęci</span>
+      </div>
+    </div>
     <button onclick="savePlayers()">Rozpocznij Wyprawę</button>
   </section>
 
   <section id="mapScreen" class="screen">
-    <h1>🏜️ Namibia Quest</h1>
-    <h2 id="expeditionTitle"></h2>
-
-    <div id="walvisMapLocation" class="location map-location" onclick="openWalvisBay()">
-      <span class="map-location-title">📍 Walvis Bay</span>
-      <span id="walvisMapStatus" class="map-location-status">Nie rozpoczęto</span>
+    <div class="map-header">
+      <p class="app-kicker">Trasa wyprawy</p>
+      <h1>Namibia Quest</h1>
+      <h2 id="expeditionTitle"></h2>
     </div>
-    <div class="location locked">🔒 Sesriem</div>
-    <div class="location locked">🔒 Big Daddy</div>
-    <div class="location locked">🔒 Spitzkoppe</div>
-    <div class="location locked">🔒 Etosha</div>
+
+    <div class="route-map">
+      <div id="walvisMapLocation" class="location map-location" onclick="openWalvisBay()">
+        <span class="route-dot">1</span>
+        <span class="map-location-title">Walvis Bay</span>
+        <span id="walvisMapStatus" class="map-location-status">Nie rozpoczęto</span>
+      </div>
+      <div class="location locked"><span class="route-dot">2</span> Sesriem</div>
+      <div class="location locked"><span class="route-dot">3</span> Big Daddy</div>
+      <div class="location locked"><span class="route-dot">4</span> Spitzkoppe</div>
+      <div class="location locked"><span class="route-dot">5</span> Etosha</div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="small-button" onclick="openWalvisBay()">Region</button>
+      <button class="small-button secondary" onclick="showScreen('walvisChronicleScreen')">Kronika</button>
+    </div>
   </section>
 
   <section id="walvisScreen" class="screen">
-    <h1>Walvis Bay</h1>
-    <h2>Tam, gdzie pustynia spotyka ocean.</h2>
+    <div class="region-hero">
+      <p class="app-kicker">Region 01</p>
+      <h1>Walvis Bay</h1>
+      <h2>Tam, gdzie pustynia spotyka ocean.</h2>
+    </div>
 
-    <div class="card">
+    <div class="card region-summary">
       <p>🌊 Ocean</p>
       <p>🦭 Foki</p>
       <p>🦩 Flamingi</p>
       <p>🏜️ Wydmy</p>
     </div>
 
-    <button onclick="showScreen('guardianScreen')">Rozpocznij dzień</button>
-    <button onclick="startWildlifeSearch()">Walvis Bay Wildlife Search</button>
-    <button class="secondary" onclick="showScreen('mapScreen')">Wróć na mapę</button>
+    <div class="activity-list">
+      <button class="activity-card" onclick="showScreen('guardianScreen')">
+        <span class="activity-icon">🚣</span>
+        <span>
+          <strong>Seal Kayak Adventure</strong>
+          <small id="walvisKayakStatus">Do odkrycia</small>
+        </span>
+      </button>
+      <button class="activity-card" onclick="startWildlifeSearch()">
+        <span class="activity-icon">📷</span>
+        <span>
+          <strong>Wildlife Search Board 01</strong>
+          <small id="walvisWildlifeStatus">Do odkrycia</small>
+        </span>
+      </button>
+      <div class="activity-card seal-status-card">
+        <span class="activity-icon">🦭</span>
+        <span>
+          <strong>Pieczęć Strażnika</strong>
+          <small id="walvisSealStatus">Nieodebrana</small>
+        </span>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="small-button secondary" onclick="showScreen('mapScreen')">Mapa</button>
+      <button class="small-button" onclick="showScreen('walvisChronicleScreen')">Kronika</button>
+    </div>
   </section>
 
   <section id="guardianScreen" class="screen">
-    <h1>Strażnik Oceanu</h1>
-    <div class="guardian">🦭</div>
+    <div class="guardian-card">
+      <div class="guardian">🦭</div>
+      <p class="app-kicker">Ocean Guardian</p>
+      <h1>Strażnik Oceanu</h1>
 
-    <div class="quote">
-      „Na końcu pustyni zaczyna się moje królestwo.”
+      <div class="quote">
+        „Na końcu pustyni zaczyna się moje królestwo.”
+      </div>
     </div>
 
     <button onclick="startKayakGame()">Wsiądź do kajaka</button>
@@ -73,13 +150,16 @@
   </section>
 
   <section id="walvisSealIntroScreen" class="screen seal-reward-screen">
-    <h1>Strażnik Oceanu</h1>
-    <div class="guardian">🦭</div>
+    <div class="guardian-card">
+      <div class="guardian">🦭</div>
+      <p class="app-kicker">Nagroda regionu</p>
+      <h1>Strażnik Oceanu</h1>
 
-    <div class="quote">
-      Odnalazłeś mieszkańców laguny i bezpiecznie przepłynąłeś przez wody Walvis Bay.
-      <br><br>
-      Otrzymujesz Pieczęć Strażnika Oceanu.
+      <div class="quote">
+        Odnalazłeś mieszkańców laguny i bezpiecznie przepłynąłeś przez wody Walvis Bay.
+        <br><br>
+        Otrzymujesz Pieczęć Strażnika Oceanu.
+      </div>
     </div>
 
     <button onclick="collectOceanGuardianSeal()">Odbierz pieczęć</button>
@@ -159,13 +239,17 @@
   </section>
 
   <section id="walvisChronicleScreen" class="screen chronicle-screen">
+    <p class="app-kicker">Expedition Journal</p>
     <h1>Walvis Bay Chronicle</h1>
 
     <div class="card chronicle-card">
-      <p id="chronicleSealStatus">Seal collected: Nie</p>
-      <p id="chronicleKayakStatus">Kayak completed: Nie</p>
-      <p id="chronicleWildlifeStatus">Wildlife Search completed: Nie</p>
-      <p>
+      <div class="photo-frame">Walvis Bay</div>
+      <div class="chronicle-checklist">
+        <p id="chronicleSealStatus">Seal collected: Nie</p>
+        <p id="chronicleKayakStatus">Kayak completed: Nie</p>
+        <p id="chronicleWildlifeStatus">Wildlife Search completed: Nie</p>
+      </div>
+      <p class="chronicle-entry">
         <strong>Dzień 5 – Walvis Bay</strong><br>
         Tego dnia wypłynęliśmy na lagunę pełną fok i ptaków. Udało się sfotografować mieszkańców wybrzeża i zdobyć Pieczęć Strażnika Oceanu.
       </p>
