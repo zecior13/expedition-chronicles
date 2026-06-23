@@ -1060,21 +1060,17 @@ button{
 }
 
 .map-guardian.seal::before{
-    left:9px;
-    top:18px;
-    width:22px;
-    height:12px;
-    border-radius:60% 50% 50% 45%;
-    transform:rotate(-7deg);
+    inset:3px;
+    width:auto;
+    height:auto;
+    border-radius:50%;
+    background:
+        url("../assets/guardians/guardian-seal-v1.png") center/contain no-repeat;
+    transform:none;
 }
 
 .map-guardian.seal::after{
-    right:8px;
-    top:14px;
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:#1f3842;
+    content:none;
 }
 
 .map-guardian.gecko::before{
