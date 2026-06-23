@@ -75,25 +75,31 @@
 
     <div id="mapViewport" class="map-viewport">
       <div id="namibiaMapLayer" class="namibia-map-layer">
-        <div id="walvisMapLocation" class="location map-location map-region walvis-region" data-x="28" data-y="42" onclick="openWalvisBay()">
-          <span class="route-dot">1</span>
+        <div class="location locked map-region" data-x="58" data-y="50"><span class="route-dot">1</span> Windhoek</div>
+        <div class="location locked map-region" data-x="35" data-y="66"><span class="route-dot">2</span> Sesriem</div>
+        <div class="location locked map-region" data-x="38" data-y="72"><span class="route-dot">3</span> Big Daddy</div>
+        <div class="location locked map-region" data-x="25" data-y="43"><span class="route-dot">4</span> Swakopmund</div>
+        <div id="walvisMapLocation" class="location map-location map-region walvis-region" data-x="27" data-y="49" onclick="openWalvisBay()">
+          <span class="route-dot">5</span>
           <span class="map-location-title">Walvis Bay</span>
           <span id="walvisMapStatus" class="map-location-status">Nie rozpoczęto</span>
         </div>
-        <div class="location locked map-region" data-x="34" data-y="58"><span class="route-dot">2</span> Sesriem</div>
-        <div class="location locked map-region" data-x="42" data-y="64"><span class="route-dot">3</span> Big Daddy</div>
-        <div class="location locked map-region" data-x="39" data-y="34"><span class="route-dot">4</span> Spitzkoppe</div>
-        <div class="location locked map-region" data-x="72" data-y="20"><span class="route-dot">5</span> Etosha</div>
-        <div class="location locked map-region" data-x="20" data-y="18"><span class="route-dot">6</span> Skeleton Coast</div>
-        <div class="location locked map-region" data-x="26" data-y="28"><span class="route-dot">7</span> Cape Cross</div>
-        <div class="location locked map-region" data-x="55" data-y="26"><span class="route-dot">8</span> Damaraland</div>
-        <div class="location locked map-region" data-x="66" data-y="39"><span class="route-dot">9</span> Waterberg</div>
-        <div class="location locked map-region" data-x="74" data-y="52"><span class="route-dot">10</span> Windhoek</div>
-        <div class="location locked map-region" data-x="56" data-y="72"><span class="route-dot">11</span> NamibRand</div>
-        <div class="location locked map-region" data-x="44" data-y="82"><span class="route-dot">12</span> Lüderitz</div>
-        <div class="location locked map-region" data-x="68" data-y="84"><span class="route-dot">13</span> Fish River Canyon</div>
-        <div class="location locked map-region" data-x="84" data-y="70"><span class="route-dot">14</span> Kalahari</div>
+        <div class="location locked map-region" data-x="24" data-y="57"><span class="route-dot">6</span> Sandwich Harbour</div>
+        <div class="location locked map-region" data-x="34" data-y="34"><span class="route-dot">7</span> Spitzkoppe</div>
+        <div class="location locked map-region" data-x="42" data-y="25"><span class="route-dot">8</span> Twyfelfontein</div>
+        <div class="location locked map-region" data-x="50" data-y="20"><span class="route-dot">9</span> Himba/Damara</div>
+        <div class="location locked map-region" data-x="69" data-y="18"><span class="route-dot">10</span> Etosha</div>
+        <div class="location locked map-region" data-x="63" data-y="38"><span class="route-dot">11</span> Mount Etjo</div>
+        <div class="location locked map-region" data-x="57" data-y="44"><span class="route-dot">12</span> Okahandja</div>
+        <div class="location locked map-region" data-x="61" data-y="55"><span class="route-dot">13</span> Daan Viljoen</div>
+        <div class="location locked map-region" data-x="72" data-y="66"><span class="route-dot">14</span> Ceremonia Strażników</div>
       </div>
+    </div>
+
+    <div class="map-controls">
+      <button class="small-button secondary" onclick="zoomNamibiaMap(-1)">−</button>
+      <button class="small-button secondary" onclick="resetNamibiaMap()">Reset</button>
+      <button class="small-button secondary" onclick="zoomNamibiaMap(1)">+</button>
     </div>
 
     <div class="bottom-nav">
@@ -145,7 +151,6 @@
       <button class="small-button" onclick="showScreen('walvisChronicleScreen')">Kronika</button>
     </div>
   </section>
-
   <section id="guardianScreen" class="screen">
     <div class="guardian-card">
       <div class="guardian">🦭</div>

@@ -35,6 +35,7 @@ let nextFishDelay = 4000;
 
 let mapPanX = 0;
 let mapPanY = 0;
+let mapZoom = 1;
 let mapDragging = false;
 let mapDragMoved = false;
 let mapDragStartX = 0;
@@ -317,8 +318,8 @@ function updateNamibiaMap(){
     }
 
     const viewportRect = viewport.getBoundingClientRect();
-    const layerWidth = layer.offsetWidth;
-    const layerHeight = layer.offsetHeight;
+    const layerWidth = layer.offsetWidth * mapZoom;
+    const layerHeight = layer.offsetHeight * mapZoom;
     const minX = Math.min(0, viewportRect.width - layerWidth);
     const minY = Math.min(0, viewportRect.height - layerHeight);
 
@@ -341,7 +342,34 @@ function updateNamibiaMap(){
     mapPanX = Math.min(0, Math.max(minX, mapPanX));
     mapPanY = Math.min(0, Math.max(minY, mapPanY));
 
-    layer.style.transform = "translate(" + mapPanX + "px, " + mapPanY + "px)";
+    layer.style.transform = "translate(" + mapPanX + "px, " + mapPanY + "px) scale(" + mapZoom + ")";
+}
+
+function zoomNamibiaMap(direction){
+    const viewport = document.getElementById("mapViewport");
+
+    if(!viewport){
+        return;
+    }
+
+    const oldZoom = mapZoom;
+    const nextZoom = Math.max(0.75, Math.min(1.8, mapZoom + direction * 0.2));
+    const viewportRect = viewport.getBoundingClientRect();
+    const centerX = viewportRect.width / 2;
+    const centerY = viewportRect.height / 2;
+    const mapCenterX = (centerX - mapPanX) / oldZoom;
+    const mapCenterY = (centerY - mapPanY) / oldZoom;
+
+    mapZoom = nextZoom;
+    mapPanX = centerX - mapCenterX * mapZoom;
+    mapPanY = centerY - mapCenterY * mapZoom;
+    updateNamibiaMap();
+}
+
+function resetNamibiaMap(){
+    mapZoom = 1;
+    mapInitialPanReady = false;
+    updateNamibiaMap();
 }
 
 function startWildlifeSearch(){
