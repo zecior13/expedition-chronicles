@@ -423,6 +423,13 @@ function updateNamibiaMap(){
         region.style.top = y + "%";
     }
 
+    for(const guardian of layer.querySelectorAll(".map-guardian")){
+        const x = Number(guardian.dataset.x || 50);
+        const y = Number(guardian.dataset.y || 50);
+        guardian.style.left = x + "%";
+        guardian.style.top = y + "%";
+    }
+
     updateNamibiaRouteLayer(layer);
 
     if(!mapInitialPanReady){
