@@ -49,6 +49,9 @@ let mapPinchStartDistance = 0;
 let mapPinchStartZoom = 1;
 let mapPinchMapX = 0;
 let mapPinchMapY = 0;
+const mapMinZoom = 0.3;
+const mapMaxZoom = 1.8;
+const mapOverviewPadding = 0.92;
 
 let flamingoRunning = false;
 let flamingoOffset = 0;
@@ -122,6 +125,7 @@ function showScreen(id){
 
     if(id === "mapScreen"){
         setupNamibiaMap();
+        mapInitialPanReady = false;
         updateNamibiaMap();
     }
 
@@ -400,7 +404,7 @@ function updateNamibiaMapPinch(pointers){
 }
 
 function clampNamibiaMapZoom(value){
-    return Math.max(0.75, Math.min(1.8, value));
+    return Math.max(mapMinZoom, Math.min(mapMaxZoom, value));
 }
 
 function updateNamibiaMap(){
@@ -412,11 +416,6 @@ function updateNamibiaMap(){
     }
 
     const viewportRect = viewport.getBoundingClientRect();
-    const layerWidth = layer.offsetWidth * mapZoom;
-    const layerHeight = layer.offsetHeight * mapZoom;
-    const minX = Math.min(0, viewportRect.width - layerWidth);
-    const minY = Math.min(0, viewportRect.height - layerHeight);
-
     for(const region of layer.querySelectorAll(".map-region")){
         const x = Number(region.dataset.x || 50);
         const y = Number(region.dataset.y || 50);
@@ -427,18 +426,43 @@ function updateNamibiaMap(){
     updateNamibiaRouteLayer(layer);
 
     if(!mapInitialPanReady){
-        const walvis = document.getElementById("walvisMapLocation");
-        const walvisX = Number(walvis?.dataset.x || 50) / 100;
-        const walvisY = Number(walvis?.dataset.y || 50) / 100;
-        mapPanX = viewportRect.width / 2 - layerWidth * walvisX;
-        mapPanY = viewportRect.height / 2 - layerHeight * walvisY;
+        mapZoom = getNamibiaOverviewZoom(viewportRect, layer);
+        const overviewWidth = layer.offsetWidth * mapZoom;
+        const overviewHeight = layer.offsetHeight * mapZoom;
+        mapPanX = (viewportRect.width - overviewWidth) / 2;
+        mapPanY = (viewportRect.height - overviewHeight) / 2;
         mapInitialPanReady = true;
     }
 
-    mapPanX = Math.min(0, Math.max(minX, mapPanX));
-    mapPanY = Math.min(0, Math.max(minY, mapPanY));
+    constrainNamibiaMapPan(viewportRect, layer);
 
     layer.style.transform = "translate(" + mapPanX + "px, " + mapPanY + "px) scale(" + mapZoom + ")";
+}
+
+function getNamibiaOverviewZoom(viewportRect, layer){
+    const fitX = viewportRect.width / layer.offsetWidth;
+    const fitY = viewportRect.height / layer.offsetHeight;
+
+    return clampNamibiaMapZoom(Math.min(fitX, fitY) * mapOverviewPadding);
+}
+
+function constrainNamibiaMapPan(viewportRect, layer){
+    const layerWidth = layer.offsetWidth * mapZoom;
+    const layerHeight = layer.offsetHeight * mapZoom;
+
+    if(layerWidth <= viewportRect.width){
+        mapPanX = (viewportRect.width - layerWidth) / 2;
+    }else{
+        const minX = viewportRect.width - layerWidth;
+        mapPanX = Math.min(0, Math.max(minX, mapPanX));
+    }
+
+    if(layerHeight <= viewportRect.height){
+        mapPanY = (viewportRect.height - layerHeight) / 2;
+    }else{
+        const minY = viewportRect.height - layerHeight;
+        mapPanY = Math.min(0, Math.max(minY, mapPanY));
+    }
 }
 
 function updateNamibiaRouteLayer(layer){
@@ -482,7 +506,6 @@ function zoomNamibiaMap(direction){
 }
 
 function resetNamibiaMap(){
-    mapZoom = 1;
     mapInitialPanReady = false;
     updateNamibiaMap();
 }
