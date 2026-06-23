@@ -914,9 +914,7 @@ button{
     border:1px solid rgba(16,43,63,0.14);
     border-radius:26px;
 
-    background:
-        linear-gradient(90deg, rgba(25,121,154,0.10) 0 32%, rgba(217,164,65,0.12) 32% 100%),
-        rgba(255,250,240,0.82);
+    background:rgba(255,250,240,0.82);
 
     touch-action:none;
     cursor:grab;
@@ -941,7 +939,21 @@ button{
     will-change:transform;
 }
 
-.namibia-map-layer::before{
+.map-background-placeholder,
+.map-route-layer{
+    position:absolute;
+    inset:0;
+
+    pointer-events:none;
+}
+
+.map-background-placeholder{
+    background:
+        linear-gradient(90deg, rgba(25,121,154,0.10) 0 32%, rgba(217,164,65,0.12) 32% 100%),
+        rgba(255,250,240,0.82);
+}
+
+.map-background-placeholder::before{
     content:"Future master-map-namibia-v1.png";
 
     position:absolute;
@@ -958,8 +970,13 @@ button{
     pointer-events:none;
 }
 
+.map-route-layer{
+    z-index:1;
+}
+
 .map-region{
     position:absolute;
+    z-index:2;
 
     width:220px;
     min-height:68px;

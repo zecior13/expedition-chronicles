@@ -44,6 +44,11 @@ let mapPanStartX = 0;
 let mapPanStartY = 0;
 let mapControlsReady = false;
 let mapInitialPanReady = false;
+let mapPointers = {};
+let mapPinchStartDistance = 0;
+let mapPinchStartZoom = 1;
+let mapPinchMapX = 0;
+let mapPinchMapY = 0;
 
 let flamingoRunning = false;
 let flamingoOffset = 0;
@@ -264,6 +269,7 @@ function setupNamibiaMap(){
     mapControlsReady = true;
 
     viewport.onpointerdown = e=>{
+        mapPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
         mapDragging = true;
         mapDragMoved = false;
         mapDragStartX = e.clientX;
@@ -272,32 +278,63 @@ function setupNamibiaMap(){
         mapPanStartY = mapPanY;
         viewport.classList.add("dragging");
         viewport.setPointerCapture(e.pointerId);
+
+        if(getMapPointerList().length === 2){
+            startNamibiaMapPinch();
+        }
     };
 
     viewport.onpointermove = e=>{
-        if(!mapDragging){
+        if(!mapPointers[e.pointerId]){
             return;
         }
 
-        mapPanX = mapPanStartX + e.clientX - mapDragStartX;
-        mapPanY = mapPanStartY + e.clientY - mapDragStartY;
+        mapPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
 
-        if(Math.abs(e.clientX - mapDragStartX) > 6 || Math.abs(e.clientY - mapDragStartY) > 6){
+        const pointers = getMapPointerList();
+
+        if(pointers.length >= 2){
+            updateNamibiaMapPinch(pointers);
             mapDragMoved = true;
+            return;
         }
 
-        updateNamibiaMap();
+        if(mapDragging){
+            mapPanX = mapPanStartX + e.clientX - mapDragStartX;
+            mapPanY = mapPanStartY + e.clientY - mapDragStartY;
+
+            if(Math.abs(e.clientX - mapDragStartX) > 6 || Math.abs(e.clientY - mapDragStartY) > 6){
+                mapDragMoved = true;
+            }
+
+            updateNamibiaMap();
+        }
     };
 
     viewport.onpointerup = e=>{
-        mapDragging = false;
-        viewport.classList.remove("dragging");
+        delete mapPointers[e.pointerId];
+
+        if(getMapPointerList().length === 0){
+            mapDragging = false;
+            viewport.classList.remove("dragging");
+        }else{
+            const nextPointer = getMapPointerList()[0];
+            mapDragStartX = nextPointer.x;
+            mapDragStartY = nextPointer.y;
+            mapPanStartX = mapPanX;
+            mapPanStartY = mapPanY;
+        }
+
         viewport.releasePointerCapture(e.pointerId);
     };
 
-    viewport.onpointercancel = ()=>{
-        mapDragging = false;
-        viewport.classList.remove("dragging");
+    viewport.onpointercancel = e=>{
+        delete mapPointers[e.pointerId];
+
+        if(getMapPointerList().length === 0){
+            mapDragging = false;
+            viewport.classList.remove("dragging");
+        }
     };
 
     viewport.addEventListener("click", e=>{
@@ -307,6 +344,63 @@ function setupNamibiaMap(){
             mapDragMoved = false;
         }
     }, true);
+}
+
+function getMapPointerList(){
+    return Object.values(mapPointers);
+}
+
+function getMapPointerDistance(pointers){
+    return Math.hypot(pointers[0].x - pointers[1].x, pointers[0].y - pointers[1].y);
+}
+
+function getMapPointerCenter(pointers){
+    return {
+        x: (pointers[0].x + pointers[1].x) / 2,
+        y: (pointers[0].y + pointers[1].y) / 2
+    };
+}
+
+function startNamibiaMapPinch(){
+    const viewport = document.getElementById("mapViewport");
+    const pointers = getMapPointerList();
+
+    if(!viewport || pointers.length < 2){
+        return;
+    }
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const center = getMapPointerCenter(pointers);
+    const centerX = center.x - viewportRect.left;
+    const centerY = center.y - viewportRect.top;
+
+    mapPinchStartDistance = getMapPointerDistance(pointers);
+    mapPinchStartZoom = mapZoom;
+    mapPinchMapX = (centerX - mapPanX) / mapZoom;
+    mapPinchMapY = (centerY - mapPanY) / mapZoom;
+}
+
+function updateNamibiaMapPinch(pointers){
+    const viewport = document.getElementById("mapViewport");
+
+    if(!viewport || mapPinchStartDistance <= 0){
+        return;
+    }
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const center = getMapPointerCenter(pointers);
+    const centerX = center.x - viewportRect.left;
+    const centerY = center.y - viewportRect.top;
+    const scale = getMapPointerDistance(pointers) / mapPinchStartDistance;
+
+    mapZoom = clampNamibiaMapZoom(mapPinchStartZoom * scale);
+    mapPanX = centerX - mapPinchMapX * mapZoom;
+    mapPanY = centerY - mapPinchMapY * mapZoom;
+    updateNamibiaMap();
+}
+
+function clampNamibiaMapZoom(value){
+    return Math.max(0.75, Math.min(1.8, value));
 }
 
 function updateNamibiaMap(){
@@ -353,7 +447,7 @@ function zoomNamibiaMap(direction){
     }
 
     const oldZoom = mapZoom;
-    const nextZoom = Math.max(0.75, Math.min(1.8, mapZoom + direction * 0.2));
+    const nextZoom = clampNamibiaMapZoom(mapZoom + direction * 0.2);
     const viewportRect = viewport.getBoundingClientRect();
     const centerX = viewportRect.width / 2;
     const centerY = viewportRect.height / 2;
