@@ -34,7 +34,10 @@
     <h1>🏜️ Namibia Quest</h1>
     <h2 id="expeditionTitle"></h2>
 
-    <div class="location" onclick="openWalvisBay()">📍 Walvis Bay</div>
+    <div id="walvisMapLocation" class="location map-location" onclick="openWalvisBay()">
+      <span class="map-location-title">📍 Walvis Bay</span>
+      <span id="walvisMapStatus" class="map-location-status">Nie rozpoczęto</span>
+    </div>
     <div class="location locked">🔒 Sesriem</div>
     <div class="location locked">🔒 Big Daddy</div>
     <div class="location locked">🔒 Spitzkoppe</div>
@@ -67,6 +70,33 @@
 
     <button onclick="startKayakGame()">Wsiądź do kajaka</button>
     <button class="secondary" onclick="showScreen('walvisScreen')">Wróć</button>
+  </section>
+
+  <section id="walvisSealIntroScreen" class="screen seal-reward-screen">
+    <h1>Strażnik Oceanu</h1>
+    <div class="guardian">🦭</div>
+
+    <div class="quote">
+      Odnalazłeś mieszkańców laguny i bezpiecznie przepłynąłeś przez wody Walvis Bay.
+      <br><br>
+      Otrzymujesz Pieczęć Strażnika Oceanu.
+    </div>
+
+    <button onclick="collectOceanGuardianSeal()">Odbierz pieczęć</button>
+  </section>
+
+  <section id="oceanGuardianSealScreen" class="screen seal-reward-screen">
+    <div class="journal-stamp">
+      <div class="stamp-wave">≈ ≈ ≈</div>
+      <div class="stamp-circle">
+        <span>🦭</span>
+      </div>
+      <h1>Strażnik Oceanu</h1>
+      <p>Walvis Bay 2026</p>
+    </div>
+
+    <button onclick="openWalvisChronicle()">Dodaj wpis do Kroniki</button>
+    <button class="secondary" onclick="showScreen('mapScreen')">Wróć na mapę</button>
   </section>
 
   <section id="kayakScreen" class="screen game-screen">
@@ -126,6 +156,22 @@
       Udokumentowano foki, flamingi i pelikany w lagunie Walvis Bay.
     </div>
     <button onclick="addWildlifeToChronicle()">Dodaj do Kroniki</button>
+  </section>
+
+  <section id="walvisChronicleScreen" class="screen chronicle-screen">
+    <h1>Walvis Bay Chronicle</h1>
+
+    <div class="card chronicle-card">
+      <p id="chronicleSealStatus">Seal collected: Nie</p>
+      <p id="chronicleKayakStatus">Kayak completed: Nie</p>
+      <p id="chronicleWildlifeStatus">Wildlife Search completed: Nie</p>
+      <p>
+        <strong>Dzień 5 – Walvis Bay</strong><br>
+        Tego dnia wypłynęliśmy na lagunę pełną fok i ptaków. Udało się sfotografować mieszkańców wybrzeża i zdobyć Pieczęć Strażnika Oceanu.
+      </p>
+    </div>
+
+    <button class="secondary" onclick="showScreen('mapScreen')">Wróć na mapę</button>
   </section>
 
 </div>

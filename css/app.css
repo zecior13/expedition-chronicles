@@ -102,6 +102,33 @@ button{
     opacity:0.45;
 }
 
+.map-location{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+
+    text-align:left;
+}
+
+.map-location-status{
+    font-size:0.84rem;
+    font-weight:700;
+    color:#666;
+}
+
+.map-location.in-progress{
+    border:2px solid #d6a849;
+}
+
+.map-location.completed{
+    border:2px solid #1f8b72;
+    background:#f4fff9;
+}
+
+.map-location.completed .map-location-status{
+    color:#136b55;
+}
+
 .card{
     background:white;
 
@@ -122,6 +149,81 @@ button{
 
 .guardian{
     font-size:4rem;
+}
+
+.seal-reward-screen{
+    background:#efe7d4;
+}
+
+.journal-stamp{
+    width:min(360px, 88vw);
+
+    padding:24px 22px;
+
+    border:4px double #315f78;
+    border-radius:8px;
+
+    color:#173c50;
+    background:#fff9e9;
+
+    text-align:center;
+
+    box-shadow:
+        0 8px 24px rgba(0,0,0,0.14),
+        inset 0 0 0 8px rgba(49,95,120,0.08);
+}
+
+.stamp-wave{
+    color:#2d89a6;
+
+    font-size:1.4rem;
+    font-weight:800;
+    letter-spacing:4px;
+}
+
+.stamp-circle{
+    width:150px;
+    height:150px;
+
+    margin:12px auto;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:8px solid #2d89a6;
+    border-radius:50%;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(45,137,166,0.10) 0 6px,
+            rgba(45,137,166,0.02) 6px 14px
+        );
+
+    font-size:4rem;
+}
+
+.journal-stamp h1{
+    color:#173c50;
+    text-transform:uppercase;
+}
+
+.journal-stamp p{
+    margin-top:6px;
+
+    font-weight:800;
+    letter-spacing:1px;
+}
+
+.chronicle-card{
+    max-width:560px;
+
+    text-align:left;
+}
+
+.chronicle-card p{
+    margin-bottom:12px;
 }
 
 .game-screen{

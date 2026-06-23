@@ -100,6 +100,12 @@ function showScreen(id){
     });
 
     document.getElementById(id).classList.add("active");
+
+    updateWalvisBayMapState();
+
+    if(id === "walvisChronicleScreen"){
+        updateWalvisChronicle();
+    }
 }
 
 function saveExpedition(){
@@ -127,7 +133,93 @@ function savePlayers(){
 }
 
 function openWalvisBay(){
+    const sealAlreadyCollected = localStorage.getItem("oceanGuardianSeal") === "true";
+
+    if(checkWalvisBayCompletion(true) && !sealAlreadyCollected){
+        return;
+    }
+
     showScreen("walvisScreen");
+}
+
+function isSealKayakCompleted(){
+    return localStorage.getItem("sealKayakCompleted") === "true";
+}
+
+function isWildlifeSearchCompleted(){
+    return localStorage.getItem("wildlifeSearchCompleted") === "true";
+}
+
+function isWalvisBayCompleteReady(){
+    return isSealKayakCompleted() && isWildlifeSearchCompleted();
+}
+
+function checkWalvisBayCompletion(showReward){
+    if(!isWalvisBayCompleteReady()){
+        return false;
+    }
+
+    localStorage.setItem("walvisBayCompleted", "true");
+
+    if(showReward && localStorage.getItem("oceanGuardianSeal") !== "true"){
+        stopKayakGame();
+        stopWildlifeSearch();
+        showScreen("walvisSealIntroScreen");
+    }
+
+    return true;
+}
+
+function collectOceanGuardianSeal(){
+    localStorage.setItem("oceanGuardianSeal", "true");
+    localStorage.setItem("chronicleWalvisBayUnlocked", "true");
+    updateWalvisBayMapState();
+    showScreen("oceanGuardianSealScreen");
+}
+
+function openWalvisChronicle(){
+    localStorage.setItem("chronicleWalvisBayUnlocked", "true");
+    showScreen("walvisChronicleScreen");
+}
+
+function updateWalvisChronicle(){
+    const sealStatus = document.getElementById("chronicleSealStatus");
+    const kayakStatus = document.getElementById("chronicleKayakStatus");
+    const wildlifeStatus = document.getElementById("chronicleWildlifeStatus");
+
+    if(!sealStatus || !kayakStatus || !wildlifeStatus){
+        return;
+    }
+
+    sealStatus.innerText = "Seal collected: " + (localStorage.getItem("oceanGuardianSeal") === "true" ? "Tak" : "Nie");
+    kayakStatus.innerText = "Kayak completed: " + (isSealKayakCompleted() ? "Tak" : "Nie");
+    wildlifeStatus.innerText = "Wildlife Search completed: " + (isWildlifeSearchCompleted() ? "Tak" : "Nie");
+}
+
+function updateWalvisBayMapState(){
+    const location = document.getElementById("walvisMapLocation");
+    const status = document.getElementById("walvisMapStatus");
+
+    if(!location || !status){
+        return;
+    }
+
+    const kayakDone = isSealKayakCompleted();
+    const wildlifeDone = isWildlifeSearchCompleted();
+    const walvisDone = localStorage.getItem("walvisBayCompleted") === "true";
+    const sealCollected = localStorage.getItem("oceanGuardianSeal") === "true";
+
+    location.classList.remove("in-progress", "completed");
+
+    if(walvisDone || sealCollected){
+        location.classList.add("completed");
+        status.innerText = sealCollected ? "🦭 Pieczęć Strażnika Oceanu" : "Ukończono - pieczęć czeka";
+    }else if(kayakDone || wildlifeDone){
+        location.classList.add("in-progress");
+        status.innerText = "W trakcie";
+    }else{
+        status.innerText = "Nie rozpoczęto";
+    }
 }
 
 function startWildlifeSearch(){
@@ -444,7 +536,10 @@ function updateWildlifeProgress(){
     if(wildlifePhotosFound === total){
         localStorage.setItem("wildlifeSearchCompleted", "true");
         stopWildlifeSearch();
-        showScreen("wildlifeCompleteScreen");
+
+        if(!checkWalvisBayCompletion(true)){
+            showScreen("wildlifeCompleteScreen");
+        }
     }
 }
 
@@ -479,7 +574,9 @@ function wildlifeLoop(){
 }
 
 function addWildlifeToChronicle(){
-    showScreen("walvisScreen");
+    if(!checkWalvisBayCompletion(true)){
+        showScreen("walvisScreen");
+    }
 }
 
 function startFlamingoObserver(){
@@ -1656,6 +1753,10 @@ function drawEndScreen(won){
 function endKayakGame(won){
     gameRunning = false;
 
+    if(won){
+        localStorage.setItem("sealKayakCompleted", "true");
+    }
+
     drawWater();
     drawMovementLines();
     drawRocks();
@@ -1669,6 +1770,10 @@ function endKayakGame(won){
     if(animationId){
         cancelAnimationFrame(animationId);
         animationId = null;
+    }
+
+    if(won){
+        checkWalvisBayCompletion(true);
     }
 }
 
@@ -1710,6 +1815,7 @@ window.onload = function(){
 
     if(savedName){
         document.getElementById("expeditionTitle").innerText = savedName;
+        checkWalvisBayCompletion(false);
         showScreen("mapScreen");
     }
 };
