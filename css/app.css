@@ -1060,7 +1060,7 @@ button{
 }
 
 .map-guardian.seal::before{
-    inset:3px;
+    inset:4px;
     width:auto;
     height:auto;
     border-radius:50%;
@@ -1071,6 +1071,21 @@ button{
 
 .map-guardian.seal::after{
     content:none;
+}
+
+.map-guardian.seal{
+    width:64px;
+    height:64px;
+    border-color:rgba(24,121,154,0.48);
+    background:
+        radial-gradient(circle at 35% 28%, rgba(255,252,234,0.98), rgba(233,196,112,0.82) 52%, rgba(25,121,154,0.24) 78%);
+    box-shadow:
+        0 0 0 2px rgba(255,242,184,0.45),
+        0 0 22px rgba(25,121,154,0.32),
+        0 10px 24px rgba(47,38,31,0.24),
+        inset 0 0 0 2px rgba(255,255,255,0.58);
+    opacity:0.98;
+    transform:translate(-50%, -50%) scale(calc(var(--guardian-scale, 1) * 0.72));
 }
 
 .map-guardian.gecko::before{
