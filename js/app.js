@@ -52,7 +52,7 @@ let mapPinchMapY = 0;
 const mapMinZoom = 0.3;
 const mapMaxZoom = 1.8;
 const mapOverviewPadding = 0.92;
-const guardianMinRenderedSize = 28;
+const guardianMinRenderedSize = 22;
 const guardianPreferredRenderedSize = 36;
 const guardianMaxRenderedSize = 52;
 
@@ -412,10 +412,14 @@ function clampNamibiaMapZoom(value){
 
 function getGuardianVisualScale(){
     const baseSize = 36;
-    const targetSize = Math.max(
-        guardianMinRenderedSize,
-        Math.min(guardianMaxRenderedSize, guardianPreferredRenderedSize)
-    );
+    const normalZoomRange = Math.max(0.01, 1 - mapMinZoom);
+    const overviewProgress = Math.max(0, Math.min(1, (mapZoom - mapMinZoom) / normalZoomRange));
+    let targetSize = guardianMinRenderedSize + (guardianPreferredRenderedSize - guardianMinRenderedSize) * overviewProgress;
+
+    if(mapZoom > 1){
+        const closeProgress = Math.max(0, Math.min(1, (mapZoom - 1) / Math.max(0.01, mapMaxZoom - 1)));
+        targetSize = guardianPreferredRenderedSize + (guardianMaxRenderedSize - guardianPreferredRenderedSize) * closeProgress;
+    }
 
     return targetSize / (baseSize * mapZoom);
 }
