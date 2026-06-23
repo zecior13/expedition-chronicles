@@ -1134,19 +1134,19 @@ button{
 }
 
 .map-guardian.windhoek-guardian::before{
-    background-image:url("../assets/guardians/guardian-cheetah.png");
+    background-image:url("../assets/guardians/guardian-expedition-master.png");
 }
 
 .map-guardian.big-daddy-guardian::before{
-    background-image:url("../assets/guardians/guardian-big-daddy-spirit.png");
+    background-image:url("../assets/guardians/guardian-dune-giant.png");
 }
 
 .map-guardian.swakopmund-guardian::before{
-    background-image:url("../assets/guardians/guardian-ocean.png");
+    background-image:url("../assets/guardians/guardian-atlantic-mist.png");
 }
 
 .map-guardian.spitzkoppe-guardian::before{
-    background-image:url("../assets/guardians/guardian-stars.png");
+    background-image:url("../assets/guardians/guardian-star-wanderer.png");
 }
 
 .map-guardian.twyfelfontein-guardian::before{
@@ -1161,28 +1161,28 @@ button{
     background-image:url("../assets/guardians/guardian-rhino.png");
 }
 
-.map-guardian.flamingo-guardian::before{
-    background-image:url("../assets/guardians/guardian-flamingo.png");
-}
-
-.map-guardian.seal-guardian::before{
+.map-guardian.walvis-bay-guardian::before{
     background-image:url("../assets/guardians/guardian-seal-v1.png");
 }
 
+.map-guardian.sandwich-harbour-guardian::before{
+    background-image:url("../assets/guardians/guardian-two-worlds.png");
+}
+
 .map-guardian.himba-guardian::before{
-    background-image:url("../assets/guardians/guardian-himba.png");
+    background-image:url("../assets/guardians/guardian-twyfelfontein-shaman.png");
 }
 
 .map-guardian.okahandja-guardian::before{
-    background-image:url("../assets/guardians/guardian-jackal.png");
+    background-image:url("../assets/guardians/guardian-caravan-merchant.png");
 }
 
 .map-guardian.daan-viljoen-guardian::before{
-    background-image:url("../assets/guardians/guardian-canyon.png");
+    background-image:url("../assets/guardians/guardian-returning-wanderer.png");
 }
 
 .map-guardian.ceremony-guardian::before{
-    background-image:url("../assets/guardians/guardian-dunes.png");
+    background-image:url("../assets/guardians/guardian-circle-of-guardians.png");
 }
 
 .map-guardian.gecko::before{
