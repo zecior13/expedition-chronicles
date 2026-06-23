@@ -53,9 +53,9 @@ let mapViewportDebugLogged = false;
 const mapMinZoom = 0.3;
 const mapMaxZoom = 1.8;
 const mapOverviewPadding = 0.92;
-const guardianMinRenderedSize = 22;
-const guardianPreferredRenderedSize = 36;
-const guardianMaxRenderedSize = 52;
+const guardianMinRenderedSize = 24;
+const guardianPreferredRenderedSize = 39;
+const guardianMaxRenderedSize = 56;
 
 let flamingoRunning = false;
 let flamingoOffset = 0;
@@ -412,7 +412,7 @@ function clampNamibiaMapZoom(value){
 }
 
 function getGuardianVisualScale(){
-    const baseSize = 40;
+    const baseSize = 42;
     const normalZoomRange = Math.max(0.01, 1 - mapMinZoom);
     const overviewProgress = Math.max(0, Math.min(1, (mapZoom - mapMinZoom) / normalZoomRange));
     let targetSize = guardianMinRenderedSize + (guardianPreferredRenderedSize - guardianMinRenderedSize) * overviewProgress;

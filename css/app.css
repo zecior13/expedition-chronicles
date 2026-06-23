@@ -979,20 +979,20 @@ button{
 
 .map-route-line{
     fill:none;
-    stroke:#c8943c;
-    stroke-width:6;
+    stroke:#d5a245;
+    stroke-width:7;
     stroke-linecap:round;
     stroke-linejoin:round;
     stroke-dasharray:15 13;
-    filter:drop-shadow(0 2px 2px rgba(79,49,22,0.22));
-    opacity:0.82;
+    filter:drop-shadow(0 2px 3px rgba(79,49,22,0.30));
+    opacity:0.98;
 }
 
 .map-guardian{
     position:absolute;
 
-    width:40px;
-    height:40px;
+    width:42px;
+    height:42px;
 
     display:flex;
     align-items:center;
@@ -1001,19 +1001,19 @@ button{
     transform:translate(-50%, -50%) scale(var(--guardian-scale, 1));
     transform-origin:center center;
 
-    border:1px solid rgba(47,38,31,0.28);
+    border:1px solid rgba(47,38,31,0.34);
     border-radius:50%;
 
     color:#1f2f38;
     background:
-        radial-gradient(circle at 35% 28%, rgba(255,248,222,0.95), rgba(214,176,104,0.78) 58%, rgba(88,63,43,0.24));
+        radial-gradient(circle at 35% 28%, rgba(255,252,234,0.98), rgba(229,191,111,0.86) 58%, rgba(95,68,43,0.26));
 
     box-shadow:
-        0 7px 16px rgba(47,38,31,0.18),
-        inset 0 0 0 2px rgba(255,255,255,0.38);
+        0 8px 18px rgba(47,38,31,0.22),
+        inset 0 0 0 2px rgba(255,255,255,0.48);
 
     pointer-events:none;
-    opacity:0.86;
+    opacity:0.92;
 }
 
 .map-guardian::before,
@@ -1029,9 +1029,9 @@ button{
 
 .map-guardian.silhouette{
     background:
-        radial-gradient(circle at 35% 28%, rgba(246,222,171,0.70), rgba(99,78,58,0.42) 62%, rgba(38,33,31,0.30));
+        radial-gradient(circle at 35% 28%, rgba(253,230,179,0.78), rgba(120,93,65,0.50) 62%, rgba(38,33,31,0.34));
     filter:saturate(0.45);
-    opacity:0.62;
+    opacity:0.72;
 }
 
 .map-guardian.silhouette::before{
@@ -1158,12 +1158,12 @@ button{
 
     transform:translate(-50%, -50%);
 
-    border:1px solid rgba(92,62,35,0.22);
+    border:1px solid rgba(92,62,35,0.30);
     border-radius:15px 9px 15px 9px;
 
     color:#173244;
     background:
-        linear-gradient(135deg, rgba(255,249,228,0.96), rgba(235,203,137,0.88));
+        linear-gradient(135deg, rgba(255,253,239,0.99), rgba(244,216,157,0.96));
 
     font-family:Georgia, "Times New Roman", serif;
     font-size:0.95rem;
@@ -1172,8 +1172,8 @@ button{
     letter-spacing:0.01em;
 
     box-shadow:
-        0 9px 18px rgba(71,48,28,0.18),
-        inset 0 0 0 1px rgba(255,255,255,0.48);
+        0 12px 24px rgba(71,48,28,0.28),
+        inset 0 0 0 1px rgba(255,255,255,0.66);
 }
 
 .map-region::after{
@@ -1189,19 +1189,20 @@ button{
 }
 
 .map-region.locked{
-    color:rgba(31,47,56,0.72);
+    color:rgba(31,47,56,0.86);
     background:
-        linear-gradient(135deg, rgba(255,249,228,0.86), rgba(210,184,134,0.78));
+        linear-gradient(135deg, rgba(255,251,232,0.94), rgba(225,198,139,0.90));
 }
 
 .map-location{
-    border-color:rgba(204,151,58,0.76);
+    border-color:rgba(207,145,28,0.95);
     background:
-        linear-gradient(135deg, rgba(255,253,239,0.98), rgba(244,204,110,0.94));
+        linear-gradient(135deg, rgba(255,255,247,1), rgba(255,216,118,0.98));
     box-shadow:
-        0 0 0 3px rgba(218,162,55,0.20),
-        0 10px 22px rgba(71,48,28,0.22),
-        inset 0 0 0 1px rgba(255,255,255,0.62);
+        0 0 0 4px rgba(224,161,42,0.34),
+        0 0 24px rgba(224,161,42,0.28),
+        0 14px 28px rgba(71,48,28,0.30),
+        inset 0 0 0 1px rgba(255,255,255,0.74);
 }
 
 .route-dot{
