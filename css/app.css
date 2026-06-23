@@ -905,9 +905,9 @@ button{
 .map-viewport{
     position:relative;
 
-    width:min(100%, 350px);
-    height:min(54vh, 460px);
-    min-height:360px;
+    width:min(100%, 386px);
+    height:540px;
+    flex:0 0 540px;
 
     overflow:hidden;
 
@@ -941,7 +941,7 @@ button{
     will-change:transform;
 }
 
-.map-background-placeholder,
+.map-artwork-layer,
 .map-route-layer,
 .map-guardian-layer{
     position:absolute;
@@ -950,10 +950,14 @@ button{
     pointer-events:none;
 }
 
+.map-artwork-layer{
+    z-index:0;
+}
+
 .map-background-placeholder{
     background:
         linear-gradient(180deg, rgba(255,248,225,0.20), rgba(95,54,25,0.10)),
-        url("../assets/ui/namibia-master-map-v1.svg") center/100% 100% no-repeat;
+        url("../assets/ui/namibia-master-map-v1.png") center/100% 100% no-repeat;
 }
 
 .map-background-placeholder::before{
@@ -965,7 +969,7 @@ button{
 }
 
 .map-guardian-layer{
-    z-index:1;
+    z-index:2;
 }
 
 .map-route-svg{
@@ -1145,7 +1149,7 @@ button{
 
 .map-region{
     position:absolute;
-    z-index:2;
+    z-index:3;
 
     width:200px;
     min-height:58px;

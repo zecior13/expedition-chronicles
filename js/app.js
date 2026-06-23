@@ -49,6 +49,7 @@ let mapPinchStartDistance = 0;
 let mapPinchStartZoom = 1;
 let mapPinchMapX = 0;
 let mapPinchMapY = 0;
+let mapViewportDebugLogged = false;
 const mapMinZoom = 0.3;
 const mapMaxZoom = 1.8;
 const mapOverviewPadding = 0.92;
@@ -433,6 +434,18 @@ function updateNamibiaMap(){
     }
 
     const viewportRect = viewport.getBoundingClientRect();
+    if(!mapViewportDebugLogged){
+        const width = Math.round(viewportRect.width);
+        const height = Math.round(viewportRect.height);
+        const aspectRatio = (viewportRect.width / viewportRect.height).toFixed(3);
+        console.log("[Map viewport locked]", {
+            width: width + "px",
+            height: height + "px",
+            aspectRatio
+        });
+        mapViewportDebugLogged = true;
+    }
+
     for(const region of layer.querySelectorAll(".map-region")){
         const x = Number(region.dataset.x || 50);
         const y = Number(region.dataset.y || 50);
