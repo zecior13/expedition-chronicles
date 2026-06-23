@@ -1074,7 +1074,8 @@ button{
 }
 
 .map-guardian.seal,
-.map-guardian.sesriem-guardian{
+.map-guardian.sesriem-guardian,
+.map-guardian.artwork-guardian{
     width:86px;
     height:86px;
     border-color:rgba(24,121,154,0.48);
@@ -1087,6 +1088,21 @@ button{
         inset 0 0 0 2px rgba(255,255,255,0.58);
     opacity:0.98;
     transform:translate(-50%, -50%) scale(calc(var(--guardian-scale, 1) * 0.82));
+}
+
+.map-guardian.artwork-guardian::before{
+    inset:4px;
+    width:auto;
+    height:auto;
+    border-radius:50%;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-size:contain;
+    transform:none;
+}
+
+.map-guardian.artwork-guardian::after{
+    content:none;
 }
 
 .map-guardian.sesriem-guardian{
@@ -1111,6 +1127,30 @@ button{
 
 .map-guardian.sesriem-guardian::after{
     content:none;
+}
+
+.map-guardian.oryx-guardian::before{
+    background-image:url("../assets/guardians/guardian-oryx.png");
+}
+
+.map-guardian.gecko-guardian::before{
+    background-image:url("../assets/guardians/guardian-gecko.png");
+}
+
+.map-guardian.elephant-guardian::before{
+    background-image:url("../assets/guardians/guardian-elephant.png");
+}
+
+.map-guardian.rhino-guardian::before{
+    background-image:url("../assets/guardians/guardian-rhino.png");
+}
+
+.map-guardian.flamingo-guardian::before{
+    background-image:url("../assets/guardians/guardian-flamingo.png");
+}
+
+.map-guardian.himba-guardian::before{
+    background-image:url("../assets/guardians/guardian-himba.png");
 }
 
 .map-guardian.gecko::before{
@@ -1176,7 +1216,9 @@ button{
 .map-guardian.rhino::before,
 .map-guardian.bundle::before,
 .map-guardian.boot::before,
-.map-guardian.ceremony::before{
+.map-guardian.ceremony::before,
+.map-guardian.eagle-guardian::before,
+.map-guardian.fox-guardian::before{
     left:12px;
     top:10px;
     width:16px;
