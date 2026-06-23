@@ -986,18 +986,6 @@ button{
     transform:translate(-50%, -50%);
 }
 
-.map-controls{
-    width:min(100%, 350px);
-
-    display:grid;
-    grid-template-columns:1fr 1.4fr 1fr;
-    gap:8px;
-}
-
-.map-controls .small-button{
-    width:100%;
-}
-
 .route-dot{
     position:absolute;
     left:15px;

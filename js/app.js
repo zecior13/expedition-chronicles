@@ -49,6 +49,7 @@ let mapPinchStartDistance = 0;
 let mapPinchStartZoom = 1;
 let mapPinchMapX = 0;
 let mapPinchMapY = 0;
+const mapMarkerXOffset = 4;
 
 let flamingoRunning = false;
 let flamingoOffset = 0;
@@ -420,7 +421,7 @@ function updateNamibiaMap(){
     for(const region of layer.querySelectorAll(".map-region")){
         const x = Number(region.dataset.x || 50);
         const y = Number(region.dataset.y || 50);
-        region.style.left = x + "%";
+        region.style.left = Math.min(96, x + mapMarkerXOffset) + "%";
         region.style.top = y + "%";
     }
 
