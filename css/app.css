@@ -1005,6 +1005,7 @@ button{
 
     border:1px solid rgba(47,38,31,0.34);
     border-radius:50%;
+    overflow:hidden;
 
     color:#1f2f38;
     background:
@@ -1078,6 +1079,7 @@ button{
 .map-guardian.artwork-guardian{
     width:86px;
     height:86px;
+    aspect-ratio:1;
     border-color:rgba(24,121,154,0.48);
     background:
         radial-gradient(circle at 35% 28%, rgba(255,252,234,0.98), rgba(233,196,112,0.82) 52%, rgba(25,121,154,0.24) 78%);
@@ -1091,13 +1093,14 @@ button{
 }
 
 .map-guardian.artwork-guardian::before{
-    inset:4px;
-    width:auto;
-    height:auto;
+    inset:0;
+    width:100%;
+    height:100%;
     border-radius:50%;
+    overflow:hidden;
     background-position:center;
     background-repeat:no-repeat;
-    background-size:contain;
+    background-size:cover;
     transform:none;
 }
 
