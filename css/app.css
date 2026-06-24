@@ -1111,7 +1111,11 @@ button{
 .map-guardian.spitzkoppe-guardian::before,
 .map-guardian.daan-viljoen-guardian::before,
 .map-guardian.ceremony-guardian::before{
-    background-position:center 25%;
+    background-position:center 18%;
+}
+
+.map-guardian.okahandja-guardian::before{
+    background-position:center 22%;
 }
 
 .map-guardian.artwork-guardian::after{
