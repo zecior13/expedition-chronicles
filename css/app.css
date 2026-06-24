@@ -1104,6 +1104,16 @@ button{
     transform:none;
 }
 
+.map-guardian.windhoek-guardian::before,
+.map-guardian.big-daddy-guardian::before,
+.map-guardian.swakopmund-guardian::before,
+.map-guardian.sandwich-harbour-guardian::before,
+.map-guardian.spitzkoppe-guardian::before,
+.map-guardian.daan-viljoen-guardian::before,
+.map-guardian.ceremony-guardian::before{
+    background-position:center 25%;
+}
+
 .map-guardian.artwork-guardian::after{
     content:none;
 }
@@ -1153,7 +1163,7 @@ button{
 }
 
 .map-guardian.twyfelfontein-guardian::before{
-    background-image:url("../assets/guardians/guardian-twyfelfontein-shaman.png");
+    background-image:url("../assets/guardians/guardian-gecko.png");
 }
 
 .map-guardian.elephant-guardian::before{
