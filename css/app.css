@@ -3494,13 +3494,13 @@ button:disabled{
 }
 
 #solitaireScreen .solitaire-player{
-    width:28px;
-    height:38px;
+    width:34px;
+    height:48px;
     border:0;
     border-radius:0;
     background:transparent;
     box-shadow:none;
-    transition:left 0.32s ease, top 0.32s ease;
+    transition:left 0.76s cubic-bezier(0.28, 0.72, 0.28, 1), top 0.76s cubic-bezier(0.28, 0.72, 0.28, 1);
 }
 
 #solitaireScreen .solitaire-player::before{
@@ -3509,8 +3509,8 @@ button:disabled{
     left:50%;
     top:0;
 
-    width:12px;
-    height:12px;
+    width:13px;
+    height:13px;
     border:2px solid rgba(255,235,177,0.98);
     border-radius:50%;
 
@@ -3525,19 +3525,37 @@ button:disabled{
     left:50%;
     top:12px;
 
-    width:18px;
-    height:24px;
+    width:20px;
+    height:29px;
 
     border-radius:9px 9px 6px 6px;
 
     background:
-        linear-gradient(90deg, transparent 0 16%, #f2d071 17% 32%, transparent 33% 67%, #f2d071 68% 83%, transparent 84%),
+        linear-gradient(90deg, transparent 0 12%, #f2d071 13% 28%, transparent 29% 71%, #f2d071 72% 87%, transparent 88%),
         linear-gradient(180deg, #12324a, #0d2030);
     transform:translateX(-50%);
 
     box-shadow:
         0 0 0 2px rgba(255,255,255,0.18),
         0 8px 14px rgba(0,0,0,0.42);
+}
+
+#solitaireScreen .solitaire-player.walking::after{
+    animation:solitaireWalkBody 0.28s steps(2, end) infinite;
+}
+
+#solitaireScreen .solitaire-player.walking::before{
+    animation:solitaireWalkHead 0.28s ease-in-out infinite;
+}
+
+@keyframes solitaireWalkBody{
+    0%{ transform:translateX(-50%) rotate(-5deg); }
+    100%{ transform:translateX(-50%) rotate(5deg); }
+}
+
+@keyframes solitaireWalkHead{
+    0%, 100%{ transform:translateX(-50%) translateY(0); }
+    50%{ transform:translateX(-50%) translateY(-2px); }
 }
 
 #solitaireScreen .solitaire-location-layer{
@@ -3709,51 +3727,195 @@ button:disabled{
         linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.30));
 }
 
+.solitaire-scene-stage .scene-prop{
+    position:absolute;
+    z-index:1;
+    pointer-events:none;
+}
+
+.scene-wreck .scene-prop.car-body{
+    left:8%;
+    top:31%;
+    width:82%;
+    height:42%;
+    border-radius:46% 42% 28% 30%;
+    background:
+        radial-gradient(circle at 20% 78%, #111 0 8%, transparent 9%),
+        radial-gradient(circle at 78% 78%, #111 0 8%, transparent 9%),
+        linear-gradient(180deg, #5f96aa, #1f5064);
+    box-shadow:inset 0 0 0 3px rgba(255,255,255,0.10), 0 24px 26px rgba(0,0,0,0.26);
+}
+
+.scene-wreck .scene-prop.car-window{
+    left:34%;
+    top:24%;
+    width:34%;
+    height:23%;
+    border-radius:20px 20px 8px 8px;
+    background:linear-gradient(180deg, rgba(214,238,234,0.72), rgba(38,74,86,0.72));
+}
+
+.scene-station .scene-prop.pump{
+    left:12%;
+    top:26%;
+    width:24%;
+    height:50%;
+    border-radius:14px 14px 8px 8px;
+    background:linear-gradient(180deg, #d2bf90, #40535a 54%, #23333a);
+    box-shadow:0 18px 22px rgba(0,0,0,0.22);
+}
+
+.scene-station .scene-prop.shop-front{
+    left:43%;
+    top:22%;
+    width:42%;
+    height:42%;
+    border-radius:12px;
+    background:linear-gradient(180deg, #efe1b8 0 28%, #263842 29% 100%);
+}
+
+.scene-phone .scene-prop.booth{
+    left:28%;
+    top:15%;
+    width:44%;
+    height:68%;
+    border-radius:20px 20px 12px 12px;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,0.28) 0 2px, transparent 2px 31%, rgba(255,255,255,0.20) 32% 34%, transparent 35%),
+        linear-gradient(180deg, #c14b3b, #702a25);
+    box-shadow:0 22px 28px rgba(0,0,0,0.28);
+}
+
+.scene-sign .scene-prop.road-sign{
+    left:24%;
+    top:22%;
+    width:52%;
+    height:25%;
+    border-radius:10px;
+    background:linear-gradient(180deg, #d6a04c, #8c4b2d);
+    box-shadow:inset 0 0 0 2px rgba(255,235,176,0.20), 0 18px 24px rgba(0,0,0,0.22);
+}
+
+.scene-sign .scene-prop.sign-post{
+    left:48%;
+    top:46%;
+    width:5%;
+    height:42%;
+    border-radius:999px;
+    background:#4d3c2f;
+}
+
+.scene-burrow .scene-prop.burrow-ground{
+    left:9%;
+    top:42%;
+    width:82%;
+    height:38%;
+    border-radius:50%;
+    background:
+        radial-gradient(ellipse at 25% 50%, #231914 0 13%, transparent 14%),
+        radial-gradient(ellipse at 62% 60%, #211610 0 15%, transparent 16%),
+        radial-gradient(circle at 72% 22%, #8b5835 0 5%, transparent 6%),
+        rgba(112,67,41,0.24);
+}
+
+.scene-bakery .scene-prop.bakery-front{
+    left:22%;
+    top:15%;
+    width:58%;
+    height:68%;
+    border-radius:26px 26px 10px 10px;
+    background:
+        linear-gradient(90deg, transparent 0 34%, #44291f 35% 62%, transparent 63%),
+        linear-gradient(180deg, #f2dcad 0 28%, #b9824a 29% 100%);
+    box-shadow:0 22px 30px rgba(0,0,0,0.28);
+}
+
+.scene-bakery-inside .scene-prop.table{
+    left:22%;
+    top:56%;
+    width:56%;
+    height:19%;
+    border-radius:50%;
+    background:linear-gradient(180deg, #fff0bf, #8f4d2a);
+    box-shadow:0 20px 28px rgba(0,0,0,0.25);
+}
+
+.scene-cars .scene-prop.rust-car-a{
+    left:12%;
+    top:38%;
+    width:38%;
+    height:26%;
+    border-radius:34% 38% 18% 18%;
+    background:linear-gradient(180deg, #46535b, #242b30);
+}
+
+.scene-cars .scene-prop.rust-car-b{
+    left:53%;
+    top:45%;
+    width:34%;
+    height:24%;
+    border-radius:34% 38% 18% 18%;
+    background:linear-gradient(180deg, #9a5538, #572d22);
+}
+
 .scene-wreck::before{
     background:
-        radial-gradient(circle at 62% 18%, rgba(255,225,154,0.32), transparent 18%),
-        linear-gradient(180deg, transparent 0 20%, #507d91 21% 52%, transparent 53%),
-        linear-gradient(100deg, transparent 0 9%, #213746 10% 22%, transparent 23%),
-        linear-gradient(80deg, transparent 0 55%, #1e2e35 56% 68%, transparent 69%),
+        linear-gradient(180deg, rgba(20,13,8,0.02), rgba(20,13,8,0.28)),
+        url("../assets/solitaire/scenes/solitaire-wreck-blue-car.png") center / cover no-repeat,
         linear-gradient(180deg, #ddaa62 0 34%, #97603a 35% 100%);
 }
 
 .scene-station::before{
     background:
-        radial-gradient(circle at 18% 70%, #1a313c 0 9%, transparent 10%),
-        linear-gradient(90deg, #1c3442 0 34%, transparent 35%),
-        linear-gradient(180deg, transparent 0 18%, #d7ba83 19% 32%, #2d3c42 33% 72%, transparent 73%),
+        linear-gradient(180deg, rgba(20,13,8,0.02), rgba(20,13,8,0.24)),
+        url("../assets/solitaire/scenes/solitaire-fuel-station.png") center / cover no-repeat,
         linear-gradient(180deg, #e3bb70, #87543a);
 }
 
 .scene-phone::before{
     background:
-        linear-gradient(90deg, transparent 0 28%, #c54d39 29% 72%, transparent 73%),
-        linear-gradient(180deg, transparent 0 18%, rgba(255,245,207,0.62) 19% 76%, transparent 77%),
+        linear-gradient(180deg, rgba(20,13,8,0.02), rgba(20,13,8,0.25)),
+        url("../assets/solitaire/scenes/solitaire-phone-booth.png") center / cover no-repeat,
         linear-gradient(180deg, #e3bc76, #7a4631);
 }
 
 .scene-sign::before{
     background:
-        linear-gradient(88deg, transparent 0 36%, #4d3c2f 37% 41%, transparent 42%),
-        linear-gradient(180deg, transparent 0 20%, #d3a252 21% 40%, transparent 41%),
+        linear-gradient(180deg, rgba(20,13,8,0.02), rgba(20,13,8,0.22)),
+        url("../assets/solitaire/scenes/solitaire-rusty-sign.png") center / cover no-repeat,
         linear-gradient(180deg, #ecc67b, #845039);
 }
 
 .scene-burrow::before{
     background:
-        radial-gradient(ellipse at 30% 62%, #2b1d15 0 8%, transparent 9%),
-        radial-gradient(ellipse at 58% 70%, #2b1d15 0 10%, transparent 11%),
-        radial-gradient(circle at 76% 35%, rgba(255,231,162,0.36), transparent 18%),
+        linear-gradient(180deg, rgba(20,13,8,0.02), rgba(20,13,8,0.20)),
+        url("../assets/solitaire/scenes/solitaire-squirrel-burrows.png") center / cover no-repeat,
         linear-gradient(180deg, #efc97e, #9f653f);
 }
 
 .scene-bakery::before{
     background:
-        radial-gradient(ellipse at 52% 78%, #f2b944 0 8%, transparent 9%),
-        linear-gradient(90deg, transparent 0 31%, #4b2d22 32% 62%, transparent 63%),
-        linear-gradient(180deg, transparent 0 18%, #f3d89d 19% 78%, #80533b 79%),
+        linear-gradient(180deg, rgba(20,13,8,0.02), rgba(20,13,8,0.24)),
+        url("../assets/solitaire/scenes/solitaire-bakery-exterior.png") center / cover no-repeat,
         linear-gradient(180deg, #ddb16d, #815039);
+}
+
+.scene-bakery.completed::before,
+.scene-bakery-inside::before{
+    background:
+        linear-gradient(180deg, rgba(20,13,8,0.02), rgba(20,13,8,0.22)),
+        url("../assets/solitaire/scenes/solitaire-bakery-interior.png") center / cover no-repeat,
+        linear-gradient(180deg, #f2d28c 0 42%, #6b3924 43% 52%, #bf8750 53% 100%);
+}
+
+.scene-wreck .scene-prop,
+.scene-station .scene-prop,
+.scene-phone .scene-prop,
+.scene-sign .scene-prop,
+.scene-burrow .scene-prop,
+.scene-bakery .scene-prop,
+.scene-bakery-inside .scene-prop{
+    display:none;
 }
 
 .scene-cars::before{
