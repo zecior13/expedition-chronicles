@@ -612,6 +612,10 @@ function showScreen(id){
         renderElimPhotoPuzzle();
     }
 
+    if(id === "sesriemMorningScreen"){
+        renderSesriemMorning();
+    }
+
     if(id === "walvisChronicleScreen"){
         updateWalvisChronicle();
     }
@@ -2608,7 +2612,7 @@ function finishSesriemCamp(){
     hydrateSesriemCamp();
 
     if(localStorage.getItem("sesriemCampCompleted") === "true"){
-        showScreen("mapScreen");
+        showScreen("sesriemMorningScreen");
         return;
     }
 
@@ -2639,6 +2643,37 @@ function finishSesriemCamp(){
     saveSesriemCampState();
     renderSesriemCamp();
     updateSesriemState();
+    showScreen("sesriemMorningScreen");
+}
+
+function renderSesriemMorning(){
+    hydrateSesriemCamp();
+
+    const score = Number(localStorage.getItem("bigDaddyPreparationScore") || getSesriemPreparationScore());
+    const condition = getSesriemMorningCondition(score);
+    const text = document.getElementById("sesriemMorningText");
+    const stats = document.getElementById("sesriemMorningStats");
+
+    if(text){
+        const photoText = localStorage.getItem("elimDunePhotoRestored") === "true"
+            ? " Zdjęcie z Elim Dune jest uratowane i trafi do Kroniki."
+            : (localStorage.getItem("elimDuneVisited") === "true" ? " Zdjęcie z Elim Dune czeka jeszcze na złożenie." : "");
+        text.innerText = condition.text + photoText;
+    }
+
+    if(stats){
+        const rows = [
+            { label: "Woda", value: localStorage.getItem("bigDaddyWater") || sesriemCampState.water },
+            { label: "Siły", value: localStorage.getItem("bigDaddyEnergy") || sesriemCampState.energy },
+            { label: "Sprzęt", value: localStorage.getItem("bigDaddyGear") || sesriemCampState.gear },
+            { label: "Orientacja", value: localStorage.getItem("bigDaddyRoute") || sesriemCampState.route },
+            { label: "Wynik przygotowania", value: score }
+        ];
+
+        stats.innerHTML = rows.map(row=>
+            "<div><span>" + row.label + "</span><strong>" + row.value + "</strong></div>"
+        ).join("");
+    }
 }
 
 function resetSesriemCamp(){

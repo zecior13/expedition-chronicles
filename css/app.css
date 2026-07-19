@@ -4290,8 +4290,9 @@ button:disabled{
 .camp-action-card{
     position:relative;
     min-width:0;
-    min-height:96px;
-    padding:10px 10px 9px;
+    min-height:92px;
+    padding:9px 76px 9px 10px;
+    overflow:visible;
 
     border:1px solid rgba(255,255,255,0.26);
     border-radius:16px;
@@ -4320,10 +4321,13 @@ button:disabled{
 }
 
 .camp-cost{
+    position:absolute;
+    right:10px;
+    top:9px;
     display:inline-flex;
     align-items:center;
-    min-height:22px;
-    padding:3px 8px;
+    min-height:20px;
+    padding:3px 7px;
     border-radius:99px;
     color:#fff8df;
     background:#102b3f;
@@ -4333,7 +4337,7 @@ button:disabled{
 }
 
 .camp-action-card strong{
-    margin-top:6px;
+    margin-top:0;
     color:#102b3f;
     font-size:0.86rem;
     line-height:1.05;
@@ -4348,7 +4352,7 @@ button:disabled{
 }
 
 .camp-action-card em{
-    margin-top:6px;
+    margin-top:5px;
     color:#0f879f;
     font-size:0.6rem;
     line-height:1.15;
@@ -4357,7 +4361,7 @@ button:disabled{
 }
 
 .camp-action-card b{
-    margin-top:4px;
+    margin-top:3px;
     color:#8f6422;
     font-size:0.58rem;
     line-height:1.15;
@@ -4424,8 +4428,10 @@ button:disabled{
     grid-template-rows:auto 1fr auto;
     gap:8px;
     width:100%;
+    max-width:100%;
     height:100%;
     padding:8px;
+    overflow:hidden;
     background:
         radial-gradient(circle at 72% 18%, rgba(217,164,65,0.18), transparent 34%),
         linear-gradient(180deg, #fffaf0, #eadbbd);
@@ -4439,12 +4445,24 @@ button:disabled{
     grid-template-columns:auto 1fr auto;
     gap:8px;
     align-items:center;
+    min-width:0;
+    max-width:100%;
     padding:8px;
     border:1px solid rgba(16,43,63,0.12);
     border-radius:16px;
     color:#102b3f;
     background:rgba(255,255,255,0.88);
     box-shadow:0 14px 28px rgba(72,47,19,0.12);
+}
+
+.elim-puzzle-topbar > div{
+    min-width:0;
+    overflow:hidden;
+}
+
+.elim-puzzle-topbar > div,
+.elim-puzzle-panel p{
+    overflow-wrap:anywhere;
 }
 
 .elim-puzzle-topbar button,
@@ -4471,6 +4489,8 @@ button:disabled{
 
 .elim-puzzle-stage{
     min-height:0;
+    min-width:0;
+    max-width:100%;
     display:grid;
     grid-template-rows:auto 84px;
     gap:8px;
@@ -4486,7 +4506,7 @@ button:disabled{
     grid-template-rows:repeat(4, 1fr);
     aspect-ratio:1.5 / 1;
     width:100%;
-    width:min(100%, calc((100svh - 238px) * 1.5));
+    width:min(100%, calc(100vw - 16px), calc((100svh - 238px) * 1.5));
     max-width:100%;
     max-height:100%;
     max-height:calc(100svh - 238px);
@@ -4557,6 +4577,8 @@ button:disabled{
     display:flex;
     gap:7px;
     overflow:auto;
+    min-width:0;
+    max-width:100%;
     padding:8px;
     border:1px solid rgba(16,43,63,0.12);
     border-radius:18px;
@@ -4574,6 +4596,86 @@ button:disabled{
     font-size:0.66rem;
     line-height:1.2;
     font-weight:850;
+}
+
+#sesriemMorningScreen.active{
+    display:block;
+    padding:0;
+    overflow:hidden;
+    text-align:left;
+    background:#17212b;
+}
+
+.sesriem-morning-shell{
+    position:relative;
+    display:flex;
+    align-items:flex-end;
+    width:100%;
+    height:100%;
+    padding:18px;
+    background:
+        linear-gradient(180deg, rgba(16,43,63,0.26), rgba(16,43,63,0.88)),
+        radial-gradient(circle at 50% 28%, rgba(255,255,255,0.72), rgba(255,255,255,0.10) 28%, transparent 54%),
+        url("../assets/sesriem/sesriem-camp-sunset.png") center / cover no-repeat,
+        #263744;
+}
+
+.sesriem-morning-card{
+    width:100%;
+    padding:18px;
+    border:1px solid rgba(255,255,255,0.24);
+    border-radius:24px;
+    color:#fff8df;
+    background:rgba(16,43,63,0.86);
+    backdrop-filter:blur(14px);
+    box-shadow:0 22px 48px rgba(0,0,0,0.32);
+}
+
+.sesriem-morning-card h1{
+    margin:4px 0 10px;
+    color:#ffffff;
+    font-size:1.7rem;
+    line-height:1;
+}
+
+.sesriem-morning-card p:not(.app-kicker){
+    margin:0;
+    color:#ffe9b1;
+    font-size:0.84rem;
+    line-height:1.34;
+    font-weight:850;
+}
+
+.sesriem-morning-stats{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:8px;
+    margin:14px 0;
+}
+
+.sesriem-morning-stats div{
+    padding:10px;
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:16px;
+    background:rgba(255,255,255,0.12);
+}
+
+.sesriem-morning-stats span,
+.sesriem-morning-stats strong{
+    display:block;
+}
+
+.sesriem-morning-stats span{
+    color:#f6d78e;
+    font-size:0.56rem;
+    font-weight:950;
+    text-transform:uppercase;
+}
+
+.sesriem-morning-stats strong{
+    margin-top:3px;
+    color:#ffffff;
+    font-size:1.05rem;
 }
 
 /* Windhoek history puzzle reset: fixed board, fixed tiles, no inherited button scaling. */
