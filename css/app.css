@@ -3406,6 +3406,489 @@ button:disabled{
     font-size:0.9rem;
 }
 
+#solitaireScreen.active{
+    display:block;
+    padding:0;
+    gap:0;
+    overflow:hidden;
+    text-align:left;
+    background:#1a120d;
+}
+
+.solitaire-game-shell{
+    position:relative;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#1a120d;
+}
+
+#solitaireScreen .solitaire-hud{
+    position:absolute;
+    z-index:20;
+    left:10px;
+    right:10px;
+    top:10px;
+
+    display:grid;
+    grid-template-columns:64px 1fr 58px 52px;
+    gap:7px;
+}
+
+#solitaireScreen .solitaire-hud div,
+#solitaireScreen .solitaire-exit-button{
+    min-width:0;
+    min-height:48px;
+    padding:7px 8px;
+
+    border:1px solid rgba(255,255,255,0.20);
+    border-radius:14px;
+
+    color:#fff6dc;
+    background:rgba(16,43,63,0.82);
+    backdrop-filter:blur(10px);
+
+    text-align:center;
+    box-shadow:0 10px 22px rgba(0,0,0,0.22);
+}
+
+#solitaireScreen .solitaire-exit-button{
+    width:auto;
+    font-size:0.76rem;
+}
+
+#solitaireScreen .solitaire-hud strong{
+    color:#ffffff;
+    font-size:0.78rem;
+    line-height:1.05;
+}
+
+#solitaireScreen .solitaire-hud small{
+    color:#f6d78e;
+    font-size:0.52rem;
+}
+
+#solitaireScreen .solitaire-board{
+    width:100%;
+    height:100%;
+    max-height:none;
+    min-height:0;
+    aspect-ratio:auto;
+
+    border:0;
+    border-radius:0;
+
+    background:
+        radial-gradient(circle at 48% 62%, rgba(255,218,146,0.06), transparent 22%),
+        linear-gradient(180deg, rgba(20,13,8,0.06), rgba(20,13,8,0.38)),
+        url("../assets/solitaire/solitaire-board-01.png") center / cover no-repeat,
+        #8b5f38;
+
+    box-shadow:none;
+}
+
+#solitaireScreen .solitaire-board::after{
+    background:
+        radial-gradient(circle at 50% 48%, transparent 46%, rgba(20,13,8,0.22) 88%),
+        linear-gradient(180deg, rgba(20,13,8,0.18), transparent 20%, transparent 72%, rgba(20,13,8,0.72));
+}
+
+#solitaireScreen .solitaire-player{
+    width:28px;
+    height:38px;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+    transition:left 0.32s ease, top 0.32s ease;
+}
+
+#solitaireScreen .solitaire-player::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:0;
+
+    width:12px;
+    height:12px;
+    border:2px solid rgba(255,235,177,0.98);
+    border-radius:50%;
+
+    background:#d18a43;
+    transform:translateX(-50%);
+    box-shadow:0 3px 8px rgba(0,0,0,0.36);
+}
+
+#solitaireScreen .solitaire-player::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:12px;
+
+    width:18px;
+    height:24px;
+
+    border-radius:9px 9px 6px 6px;
+
+    background:
+        linear-gradient(90deg, transparent 0 16%, #f2d071 17% 32%, transparent 33% 67%, #f2d071 68% 83%, transparent 84%),
+        linear-gradient(180deg, #12324a, #0d2030);
+    transform:translateX(-50%);
+
+    box-shadow:
+        0 0 0 2px rgba(255,255,255,0.18),
+        0 8px 14px rgba(0,0,0,0.42);
+}
+
+#solitaireScreen .solitaire-location-layer{
+    z-index:8;
+}
+
+#solitaireScreen .solitaire-location{
+    min-width:0;
+    width:42px;
+    height:42px;
+    padding:0;
+
+    border:1px solid rgba(255,238,186,0.74);
+    border-radius:50%;
+
+    color:#fff5d6;
+    background:
+        radial-gradient(circle at 38% 30%, rgba(255,255,255,0.34), transparent 22%),
+        linear-gradient(180deg, rgba(28,39,45,0.92), rgba(13,22,28,0.92));
+
+    font-size:0;
+    box-shadow:
+        0 0 0 4px rgba(255,210,112,0.14),
+        0 8px 18px rgba(0,0,0,0.34);
+}
+
+#solitaireScreen .solitaire-location::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border-radius:50%;
+    background:#d9a441;
+}
+
+#solitaireScreen .solitaire-location span{
+    position:absolute;
+    left:50%;
+    top:45px;
+
+    min-width:70px;
+    padding:4px 6px;
+
+    border-radius:999px;
+
+    color:#1f221e;
+    background:rgba(255,246,218,0.88);
+    transform:translateX(-50%);
+
+    font-size:0.55rem;
+    line-height:1;
+    font-weight:950;
+    text-align:center;
+    text-transform:none;
+    box-shadow:0 6px 12px rgba(0,0,0,0.18);
+}
+
+#solitaireScreen .solitaire-location.active{
+    transform:translate(-50%, -50%) scale(1.12);
+}
+
+#solitaireScreen .solitaire-location.solved{
+    border-color:rgba(178,255,218,0.86);
+}
+
+#solitaireScreen .solitaire-location.solved::before{
+    background:#1f8b72;
+}
+
+.marker-jeep::before{ clip-path:polygon(10% 48%, 28% 28%, 74% 28%, 92% 52%, 88% 72%, 16% 72%); }
+.marker-pump::before{ clip-path:polygon(28% 12%, 72% 12%, 72% 88%, 28% 88%); }
+.marker-phone::before{ clip-path:polygon(28% 8%, 72% 8%, 78% 88%, 22% 88%); }
+.marker-sign::before{ clip-path:polygon(16% 24%, 78% 24%, 88% 48%, 78% 72%, 16% 72%); }
+.marker-car::before,
+.marker-cars::before{ clip-path:polygon(8% 48%, 25% 26%, 76% 26%, 94% 50%, 88% 72%, 13% 72%); }
+.marker-burrow::before{ clip-path:ellipse(46% 26% at 50% 62%); }
+.marker-bakery::before{ clip-path:polygon(12% 42%, 50% 12%, 88% 42%, 82% 88%, 18% 88%); }
+
+.solitaire-map-legend{
+    position:absolute;
+    z-index:22;
+    left:12px;
+    right:12px;
+    bottom:12px;
+
+    display:grid;
+    grid-template-columns:1fr 74px 74px;
+    gap:8px;
+    align-items:stretch;
+}
+
+.solitaire-map-legend p,
+.solitaire-map-legend button{
+    min-width:0;
+    min-height:52px;
+    margin:0;
+    padding:10px;
+
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:16px;
+
+    color:#fff8df;
+    background:rgba(16,43,63,0.84);
+    backdrop-filter:blur(10px);
+
+    font-size:0.72rem;
+    line-height:1.2;
+    font-weight:850;
+    box-shadow:0 10px 22px rgba(0,0,0,0.24);
+}
+
+.solitaire-map-legend button{
+    color:#102b3f;
+    background:linear-gradient(180deg, #ffe49a, #d8a13c);
+    font-size:0.75rem;
+}
+
+.solitaire-scene-overlay{
+    position:absolute;
+    z-index:40;
+    inset:0;
+
+    display:none;
+
+    background:#160f0a;
+}
+
+.solitaire-scene-overlay.active{
+    display:block;
+}
+
+#solitaireScreen .solitaire-scene-panel{
+    width:100%;
+    height:100%;
+    min-height:0;
+    padding:0;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+}
+
+.solitaire-scene-stage{
+    position:relative;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+
+    background:#a96d38;
+}
+
+.solitaire-scene-stage::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:0;
+    background:
+        radial-gradient(circle at 62% 24%, rgba(255,235,177,0.32), transparent 18%),
+        linear-gradient(180deg, #f1c979 0 36%, #bd7b3f 37% 70%, #6b3d28 100%);
+}
+
+.solitaire-scene-stage::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at 50% 48%, transparent 44%, rgba(20,10,4,0.30) 100%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.30));
+}
+
+.scene-wreck::before{
+    background:
+        radial-gradient(circle at 62% 18%, rgba(255,225,154,0.32), transparent 18%),
+        linear-gradient(180deg, transparent 0 20%, #507d91 21% 52%, transparent 53%),
+        linear-gradient(100deg, transparent 0 9%, #213746 10% 22%, transparent 23%),
+        linear-gradient(80deg, transparent 0 55%, #1e2e35 56% 68%, transparent 69%),
+        linear-gradient(180deg, #ddaa62 0 34%, #97603a 35% 100%);
+}
+
+.scene-station::before{
+    background:
+        radial-gradient(circle at 18% 70%, #1a313c 0 9%, transparent 10%),
+        linear-gradient(90deg, #1c3442 0 34%, transparent 35%),
+        linear-gradient(180deg, transparent 0 18%, #d7ba83 19% 32%, #2d3c42 33% 72%, transparent 73%),
+        linear-gradient(180deg, #e3bb70, #87543a);
+}
+
+.scene-phone::before{
+    background:
+        linear-gradient(90deg, transparent 0 28%, #c54d39 29% 72%, transparent 73%),
+        linear-gradient(180deg, transparent 0 18%, rgba(255,245,207,0.62) 19% 76%, transparent 77%),
+        linear-gradient(180deg, #e3bc76, #7a4631);
+}
+
+.scene-sign::before{
+    background:
+        linear-gradient(88deg, transparent 0 36%, #4d3c2f 37% 41%, transparent 42%),
+        linear-gradient(180deg, transparent 0 20%, #d3a252 21% 40%, transparent 41%),
+        linear-gradient(180deg, #ecc67b, #845039);
+}
+
+.scene-burrow::before{
+    background:
+        radial-gradient(ellipse at 30% 62%, #2b1d15 0 8%, transparent 9%),
+        radial-gradient(ellipse at 58% 70%, #2b1d15 0 10%, transparent 11%),
+        radial-gradient(circle at 76% 35%, rgba(255,231,162,0.36), transparent 18%),
+        linear-gradient(180deg, #efc97e, #9f653f);
+}
+
+.scene-bakery::before{
+    background:
+        radial-gradient(ellipse at 52% 78%, #f2b944 0 8%, transparent 9%),
+        linear-gradient(90deg, transparent 0 31%, #4b2d22 32% 62%, transparent 63%),
+        linear-gradient(180deg, transparent 0 18%, #f3d89d 19% 78%, #80533b 79%),
+        linear-gradient(180deg, #ddb16d, #815039);
+}
+
+.scene-cars::before{
+    background:
+        radial-gradient(ellipse at 25% 48%, #293c44 0 14%, transparent 15%),
+        radial-gradient(ellipse at 62% 55%, #7d442d 0 16%, transparent 17%),
+        linear-gradient(180deg, #e5bd75, #7f4b33);
+}
+
+.scene-arrival::before{
+    background:
+        radial-gradient(ellipse at 22% 70%, #163241 0 16%, transparent 17%),
+        linear-gradient(70deg, transparent 0 44%, rgba(255,247,210,0.34) 45% 56%, transparent 57%),
+        linear-gradient(180deg, #e6bd72, #8c5638);
+}
+
+.solitaire-scene-close{
+    position:absolute;
+    z-index:8;
+    left:12px;
+    top:12px;
+
+    width:74px;
+    min-width:0;
+    padding:10px 8px;
+
+    border-radius:14px;
+
+    color:#102b3f;
+    background:rgba(255,246,218,0.92);
+
+    font-size:0.78rem;
+}
+
+.solitaire-scene-title{
+    position:absolute;
+    z-index:7;
+    left:12px;
+    right:12px;
+    bottom:88px;
+
+    padding:14px;
+
+    border:1px solid rgba(255,255,255,0.24);
+    border-radius:18px;
+
+    color:#fff6dc;
+    background:rgba(16,43,63,0.82);
+    backdrop-filter:blur(10px);
+    box-shadow:0 12px 28px rgba(0,0,0,0.28);
+}
+
+.solitaire-scene-title strong,
+.solitaire-scene-title span{
+    display:block;
+}
+
+.solitaire-scene-title strong{
+    margin-bottom:5px;
+    color:#ffffff;
+    font-size:1.05rem;
+    line-height:1.08;
+}
+
+.solitaire-scene-title span{
+    font-size:0.8rem;
+    line-height:1.28;
+    font-weight:800;
+}
+
+#solitaireScreen .solitaire-inventory{
+    position:absolute;
+    z-index:8;
+    left:12px;
+    right:12px;
+    bottom:18px;
+
+    padding:10px;
+    border-radius:16px;
+    background:rgba(255,246,218,0.90);
+    box-shadow:0 10px 22px rgba(0,0,0,0.18);
+}
+
+.solitaire-object{
+    position:absolute;
+    z-index:6;
+    min-width:0;
+    padding:0;
+
+    border:1px solid rgba(255,232,154,0.16);
+    border-radius:14px;
+
+    background:rgba(255,232,154,0.02);
+    box-shadow:none;
+}
+
+.solitaire-object span{
+    position:absolute;
+    left:50%;
+    bottom:-24px;
+
+    padding:4px 7px;
+
+    border-radius:999px;
+
+    color:#102b3f;
+    background:rgba(255,246,218,0.92);
+    transform:translateX(-50%);
+
+    font-size:0.55rem;
+    font-weight:950;
+    white-space:nowrap;
+
+    opacity:0;
+    pointer-events:none;
+}
+
+.solitaire-object:active,
+.solitaire-object:hover,
+.solitaire-object.done{
+    border-color:rgba(255,232,154,0.78);
+    background:rgba(255,232,154,0.12);
+    box-shadow:0 0 0 4px rgba(255,210,112,0.16);
+}
+
+.solitaire-object:active span,
+.solitaire-object:hover span,
+.solitaire-object.done span{
+    opacity:1;
+}
+
+.solitaire-object.collected{
+    opacity:0.42;
+}
+
 /* Windhoek history puzzle reset: fixed board, fixed tiles, no inherited button scaling. */
 #windhoekHistoryScreen{
     gap:8px;
