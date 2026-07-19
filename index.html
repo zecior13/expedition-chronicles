@@ -287,11 +287,11 @@
           <small id="windhoekHistoryStatus">Muzeum i oś czasu</small>
         </span>
       </button>
-      <button class="activity-card" onclick="startWindhoekBaboons()">
-        <span class="activity-icon">🧭</span>
+      <button class="activity-card" onclick="startWindhoekPacking()">
+        <span class="activity-icon">🚙</span>
         <span>
-          <strong>Baboons at the Edge</strong>
-          <small id="windhoekBaboonsStatus">Wyjazd z miasta i pierwsza lekcja dzikiej natury</small>
+          <strong>Pack the 4x4</strong>
+          <small id="windhoekPackingStatus">Bagażnik, dach i sprzęt na drogę</small>
         </span>
       </button>
     </div>
@@ -341,39 +341,44 @@
     </div>
   </section>
 
-  <section id="windhoekBaboonsScreen" class="screen windhoek-activity-screen">
+  <section id="windhoekPackingScreen" class="screen windhoek-activity-screen">
     <div class="region-hero windhoek-hero">
-      <p class="app-kicker">Windhoek · Rogatki miasta</p>
-      <h1>Pawiany przy drodze</h1>
-      <h2>Na wyjeździe z miasta pojawia się pierwsza dzika ekipa. Trzeba zareagować rozsądnie.</h2>
+      <p class="app-kicker">Windhoek · Logistyka</p>
+      <h1>Pack the 4x4</h1>
+      <h2>Spakuj wyprawowy samochód tak, żeby kluczowy sprzęt zmieścił się przed wyjazdem na pustynię.</h2>
     </div>
 
-    <div class="decision-card baboon-card active-baboon-card">
-      <div class="baboon-playfield">
-        <div class="baboon-road"></div>
-        <div id="baboonJeep" class="baboon-jeep-token">🚙</div>
-        <div id="baboonFoodIcon" class="baboon-food-token">🧺</div>
-        <div id="baboonOne" class="baboon-token">🐒</div>
-        <div id="baboonTwo" class="baboon-token small">🐒</div>
-        <div id="baboonMoodIcon" class="baboon-alert-token">👀</div>
+    <div class="packing-card">
+      <div class="packing-stage">
+        <div class="packing-jeep-shell">
+          <div class="packing-roof-rack"></div>
+          <div id="packingBoard" class="packing-board"></div>
+        </div>
+        <div class="packing-palette">
+          <div class="packing-palette-header">
+            <strong>Sprzęt</strong>
+            <button class="packing-tool-button" onclick="rotatePackingItem()">Obróć</button>
+          </div>
+          <div id="packingItems" class="packing-items"></div>
+        </div>
       </div>
-      <div class="baboon-status-grid">
-        <div><strong id="baboonSafetyValue">0</strong><small>Bezpieczeństwo</small></div>
-        <div><strong id="baboonRespectValue">0</strong><small>Szacunek</small></div>
-        <div><strong id="baboonControlValue">0</strong><small>Kontrola</small></div>
+      <div class="packing-status-grid">
+        <div><strong id="packingProgressValue">0 / 7</strong><small>Spakowane</small></div>
+        <div><strong id="packingWeightValue">0 kg</strong><small>Ładunek</small></div>
+        <div><strong id="packingFitValue">OK</strong><small>Układ</small></div>
       </div>
-      <p id="windhoekBaboonsPrompt" class="decision-prompt">Pawiany obserwują samochód przy rogatkach Windhoek.</p>
-      <div id="windhoekBaboonsChoices" class="baboon-action-grid"></div>
+      <p id="windhoekPackingPrompt" class="decision-prompt">Wybierz element po prawej, obróć go w razie potrzeby i dotknij miejsca w bagażniku.</p>
     </div>
 
     <div class="card activity-feedback-card">
-      <p class="app-kicker">Decyzja</p>
-      <p id="windhoekBaboonsMessage">Pawiany patrzą na samochód, a koszyk z przekąskami wygląda podejrzanie interesująco.</p>
+      <p class="app-kicker">Logistyka</p>
+      <p id="windhoekPackingMessage">Najcięższe rzeczy lepiej trzymać nisko, a kluczowy sprzęt musi być dostępny po drodze.</p>
     </div>
 
     <div class="bottom-nav">
       <button class="small-button secondary" onclick="showScreen('windhoekScreen')">Wróć</button>
-      <button id="windhoekBaboonsCompleteButton" class="small-button" onclick="advanceWindhoekBaboonStage()">Ruszaj dalej</button>
+      <button class="small-button secondary" onclick="resetWindhoekPacking()">Reset</button>
+      <button id="windhoekPackingCompleteButton" class="small-button" onclick="completeWindhoekPacking()">Gotowe</button>
     </div>
   </section>
 

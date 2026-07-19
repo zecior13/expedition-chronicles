@@ -198,16 +198,9 @@ let windhoekHistoryChoices = [];
 let draggedHistoryEventId = null;
 let historyPointerDrag = null;
 let historyLastPointerDrop = 0;
-let windhoekBaboonStage = 0;
-let windhoekBaboonState = {
-    safety: 0,
-    respect: 0,
-    control: 0,
-    selected: false,
-    mistakes: 0,
-    foodSecured: false,
-    lastActionWrong: false
-};
+let packingSelectedItemId = null;
+let packingRotated = false;
+let packingPlacements = {};
 
 const namibiaHistoryEvents = [
     { id: "coast-contact", year: "1480s", imageNumber: "01", block: "Pierwsze kontakty", title: "Europejscy żeglarze opisują zdradliwe wybrzeże", detail: "Atlantyckie wybrzeże staje się znane europejskim wyprawom, choć interior przez długi czas pozostaje poza ich kontrolą." },
@@ -248,32 +241,19 @@ const shuffledHistoryEventIds = [
     "herero-nama-war"
 ];
 
-const baboonStages = [
-    {
-        prompt: "Stado przecina drogę. Samochód jedzie za Tobą, a młode pawiany są przy poboczu.",
-        correctAction: "slow",
-        success: "Dobrze. Zwalniasz, dajesz sygnał za sobą i odzyskujesz kontrolę nad sceną.",
-        danger: "Pawiany robią się nerwowe, a dystans szybko znika."
-    },
-    {
-        prompt: "Jeden pawian zauważa koszyk z przekąskami i podchodzi bliżej okna.",
-        correctAction: "secure",
-        success: "Koszyk znika z widoku. Pawian traci motywację do negocjacji przez szybę.",
-        danger: "Jedzenie na widoku zamienia ciekawość w bardzo konkretny plan."
-    },
-    {
-        prompt: "Na końcu stada młody pawian zatrzymuje się przy drodze. Trzeba wybrać moment odjazdu.",
-        correctAction: "wait",
-        success: "Czekasz sekundę dłużej. Droga jest czysta, a wyprawa rusza bez konfliktu.",
-        danger: "Pośpiech prowokuje ostatni zwrot akcji tuż przed wyjazdem."
-    }
-];
+const packingGrid = {
+    cols: 6,
+    rows: 8
+};
 
-const baboonActions = [
-    { id: "slow", label: "Zwolnij", stats: { safety: 2, respect: 1, control: 2 }, mood: "✅" },
-    { id: "secure", label: "Schowaj jedzenie", stats: { safety: 1, respect: 2, control: 2 }, mood: "🧺" },
-    { id: "wait", label: "Poczekaj", stats: { safety: 2, respect: 2, control: 1 }, mood: "🌿" },
-    { id: "honk", label: "Klakson", stats: { safety: -1, respect: -2, control: -1 }, mood: "⚠️" }
+const packingItems = [
+    { id: "water", name: "Woda", short: "Woda", w: 2, h: 2, weight: 28, tone: "blue" },
+    { id: "cooler", name: "Lodówka", short: "Lod.", w: 3, h: 2, weight: 22, tone: "teal" },
+    { id: "tent", name: "Namiot", short: "Namiot", w: 3, h: 1, weight: 12, tone: "gold" },
+    { id: "bags", name: "Torby", short: "Torby", w: 2, h: 2, weight: 18, tone: "rust" },
+    { id: "tools", name: "Narzędzia", short: "Tools", w: 2, h: 1, weight: 14, tone: "navy" },
+    { id: "medkit", name: "Apteczka", short: "Med", w: 1, h: 1, weight: 3, tone: "red" },
+    { id: "camera", name: "Aparat", short: "Foto", w: 1, h: 1, weight: 2, tone: "slate" }
 ];
 
 let flamingoRunning = false;
@@ -370,8 +350,8 @@ function showScreen(id){
         renderWindhoekHistory();
     }
 
-    if(id === "windhoekBaboonsScreen"){
-        updateWindhoekBaboonScreen();
+    if(id === "windhoekPackingScreen"){
+        renderWindhoekPacking();
     }
 
     if(id === "walvisChronicleScreen"){
@@ -700,7 +680,7 @@ function updateWindhoekState(){
     const hero = getExpeditionHero(getSavedHeroId());
     const started = localStorage.getItem("windhoekStarted") === "true";
     const historyDone = localStorage.getItem("windhoekHistoryCompleted") === "true";
-    const baboonsDone = localStorage.getItem("windhoekBaboonsCompleted") === "true";
+    const packingDone = localStorage.getItem("windhoekPackingCompleted") === "true";
     const windhoekDone = localStorage.getItem("windhoekCompleted") === "true";
 
     if(mapLocation){
@@ -739,7 +719,7 @@ function updateWindhoekState(){
 
     const prepStatus = document.getElementById("windhoekPrepStatus");
     const historyStatus = document.getElementById("windhoekHistoryStatus");
-    const baboonsStatus = document.getElementById("windhoekBaboonsStatus");
+    const packingStatus = document.getElementById("windhoekPackingStatus");
     const departButton = document.getElementById("windhoekDepartButton");
     const prepButton = document.getElementById("windhoekPrepButton");
 
@@ -755,8 +735,8 @@ function updateWindhoekState(){
         historyStatus.innerText = historyDone ? "✓ ukończone" : "Muzeum i oś czasu";
     }
 
-    if(baboonsStatus){
-        baboonsStatus.innerText = baboonsDone ? "✓ ukończone" : "Wyjazd z miasta i pierwsza lekcja dzikiej natury";
+    if(packingStatus){
+        packingStatus.innerText = packingDone ? "✓ ukończone" : "Bagażnik, dach i sprzęt na drogę";
     }
 
     if(departButton){
@@ -1222,153 +1202,254 @@ function resetWindhoekHistory(){
     updateWindhoekState();
 }
 
-function startWindhoekBaboons(){
-    windhoekBaboonStage = 0;
-    windhoekBaboonState = {
-        safety: 0,
-        respect: 0,
-        control: 0,
-        selected: false,
-        mistakes: 0,
-        foodSecured: false,
-        lastActionWrong: false
-    };
-    showScreen("windhoekBaboonsScreen");
+function startWindhoekPacking(){
+    hydrateWindhoekPacking();
+    showScreen("windhoekPackingScreen");
 }
 
-function updateWindhoekBaboonScreen(){
-    const message = document.getElementById("windhoekBaboonsMessage");
-    const completeButton = document.getElementById("windhoekBaboonsCompleteButton");
-    const prompt = document.getElementById("windhoekBaboonsPrompt");
-    const choices = document.getElementById("windhoekBaboonsChoices");
-    const safety = document.getElementById("baboonSafetyValue");
-    const respect = document.getElementById("baboonRespectValue");
-    const control = document.getElementById("baboonControlValue");
-    const mood = document.getElementById("baboonMoodIcon");
-    const playfield = document.querySelector(".baboon-playfield");
-    const food = document.getElementById("baboonFoodIcon");
-    const completed = localStorage.getItem("windhoekBaboonsCompleted") === "true";
-    const stage = baboonStages[windhoekBaboonStage];
+function hydrateWindhoekPacking(){
+    const saved = localStorage.getItem("windhoekPackingPlacements");
 
-    if(safety){
-        safety.innerText = windhoekBaboonState.safety;
+    if(!saved){
+        packingPlacements = {};
+        packingSelectedItemId = packingItems[0].id;
+        packingRotated = false;
+        return;
     }
 
-    if(respect){
-        respect.innerText = windhoekBaboonState.respect;
+    try{
+        packingPlacements = JSON.parse(saved) || {};
+    }catch(error){
+        packingPlacements = {};
     }
 
-    if(control){
-        control.innerText = windhoekBaboonState.control;
+    packingSelectedItemId = getUnpackedItems()[0]?.id || null;
+    packingRotated = false;
+}
+
+function renderWindhoekPacking(){
+    const board = document.getElementById("packingBoard");
+    const items = document.getElementById("packingItems");
+    const message = document.getElementById("windhoekPackingMessage");
+    const completeButton = document.getElementById("windhoekPackingCompleteButton");
+    const progress = document.getElementById("packingProgressValue");
+    const weight = document.getElementById("packingWeightValue");
+    const fit = document.getElementById("packingFitValue");
+
+    if(!board || !items){
+        return;
     }
 
-    if(mood && !windhoekBaboonState.selected){
-        mood.innerText = windhoekBaboonStage >= baboonStages.length ? "✅" : "👀";
+    if(!packingSelectedItemId && getUnpackedItems().length){
+        hydrateWindhoekPacking();
     }
 
-    if(playfield){
-        playfield.dataset.stage = String(Math.min(windhoekBaboonStage, baboonStages.length - 1));
-        playfield.classList.toggle("resolved", windhoekBaboonState.selected || completed);
-        playfield.classList.toggle("completed", completed);
-        playfield.classList.toggle("warning", windhoekBaboonState.lastActionWrong === true);
+    const packedCount = Object.keys(packingPlacements).length;
+    const totalWeight = packingItems.reduce((sum, item)=>packingPlacements[item.id] ? sum + item.weight : sum, 0);
+
+    board.innerHTML = renderPackingCells() + renderPlacedPackingItems();
+    items.innerHTML = getUnpackedItems().map(renderPackingPaletteItem).join("") || "<div class=\"packing-empty-palette\">Wszystko jest w aucie.</div>";
+
+    if(progress){
+        progress.innerText = packedCount + " / " + packingItems.length;
     }
 
-    if(food){
-        food.classList.toggle("secured", windhoekBaboonState.foodSecured || completed);
+    if(weight){
+        weight.innerText = totalWeight + " kg";
     }
 
-    if(prompt && stage){
-        prompt.innerText = stage.prompt;
-    }
-
-    if(choices){
-        if(completed){
-            choices.innerHTML = "<div class=\"baboon-summary\">Lekcja zaliczona: dystans, brak dokarmiania i spokój przy dzikich zwierzętach.</div>";
-        }else if(stage){
-            choices.innerHTML = baboonActions.map(action=>
-                "<button class=\"baboon-choice\" onclick=\"resolveBaboonChoice('" + action.id + "')\"" + (windhoekBaboonState.selected ? " disabled" : "") + ">" + action.label + "</button>"
-            ).join("");
-        }else{
-            choices.innerHTML = "";
-        }
-    }
-
-    if(message && completed){
-        message.innerText = "Jedzenie zabezpieczone, pawiany zostają przy drodze, a wyprawa może ruszać dalej.";
+    if(fit){
+        fit.innerText = packedCount === packingItems.length ? "Gotowe" : "Układaj";
     }
 
     if(completeButton){
-        completeButton.disabled = !windhoekBaboonState.selected && !completed;
+        const completed = localStorage.getItem("windhoekPackingCompleted") === "true";
+        completeButton.disabled = packedCount !== packingItems.length && !completed;
         completeButton.classList.toggle("disabled-button", completeButton.disabled);
-        completeButton.innerText = completed ? "Ruszaj dalej" : "Dalej";
+        completeButton.innerText = completed ? "Ruszaj dalej" : "Gotowe";
+    }
+
+    if(message && localStorage.getItem("windhoekPackingCompleted") === "true"){
+        message.innerText = "Samochód jest spakowany. Woda, sprzęt i najważniejsze rzeczy mają swoje miejsce.";
     }
 }
 
-function resolveBaboonChoice(choice){
-    const stage = baboonStages[windhoekBaboonStage];
-    const message = document.getElementById("windhoekBaboonsMessage");
-    const mood = document.getElementById("baboonMoodIcon");
-    const selected = baboonActions.find(item=>item.id === choice);
+function renderPackingCells(){
+    let html = "";
 
-    if(!stage || windhoekBaboonState.selected){
-        return;
-    }
-
-    if(!selected){
-        return;
-    }
-
-    const isCorrect = selected.id === stage.correctAction;
-    const multiplier = isCorrect ? 1 : 0.7;
-
-    windhoekBaboonState.safety += Math.round(selected.stats.safety * multiplier);
-    windhoekBaboonState.respect += Math.round(selected.stats.respect * multiplier);
-    windhoekBaboonState.control += Math.round(selected.stats.control * multiplier);
-    windhoekBaboonState.lastActionWrong = !isCorrect;
-
-    if(isCorrect){
-        windhoekBaboonState.selected = true;
-
-        if(selected.id === "secure"){
-            windhoekBaboonState.foodSecured = true;
+    for(let row = 0; row < packingGrid.rows; row++){
+        for(let col = 0; col < packingGrid.cols; col++){
+            html += "<button class=\"packing-cell\" data-row=\"" + row + "\" data-col=\"" + col + "\" onclick=\"placeSelectedPackingItem(" + row + ", " + col + ")\"></button>";
         }
-    }else{
-        windhoekBaboonState.mistakes = (windhoekBaboonState.mistakes || 0) + 1;
     }
+
+    return html;
+}
+
+function renderPlacedPackingItems(){
+    return packingItems.map(item=>{
+        const placement = packingPlacements[item.id];
+
+        if(!placement){
+            return "";
+        }
+
+        const size = getPackingItemSize(item, placement.rotated);
+        return "<button class=\"packing-piece placed tone-" + item.tone + "\" style=\"grid-column:" + (placement.col + 1) + " / span " + size.w + "; grid-row:" + (placement.row + 1) + " / span " + size.h + "\" onclick=\"removePackingItem('" + item.id + "')\">" +
+            "<span>" + item.short + "</span>" +
+        "</button>";
+    }).join("");
+}
+
+function renderPackingPaletteItem(item){
+    const selected = item.id === packingSelectedItemId ? " selected" : "";
+    const size = getPackingItemSize(item, item.id === packingSelectedItemId ? packingRotated : false);
+
+    return "<button class=\"packing-palette-item tone-" + item.tone + selected + "\" onclick=\"selectPackingItem('" + item.id + "')\">" +
+        "<span>" + item.name + "</span>" +
+        "<small>" + size.w + "x" + size.h + " · " + item.weight + " kg</small>" +
+    "</button>";
+}
+
+function getUnpackedItems(){
+    return packingItems.filter(item=>!packingPlacements[item.id]);
+}
+
+function selectPackingItem(id){
+    packingSelectedItemId = id;
+    packingRotated = false;
+    renderWindhoekPacking();
+}
+
+function rotatePackingItem(){
+    if(!packingSelectedItemId){
+        return;
+    }
+
+    const item = getPackingItem(packingSelectedItemId);
+
+    if(!item || item.w === item.h){
+        return;
+    }
+
+    packingRotated = !packingRotated;
+    renderWindhoekPacking();
+}
+
+function placeSelectedPackingItem(row, col){
+    const item = getPackingItem(packingSelectedItemId);
+    const message = document.getElementById("windhoekPackingMessage");
+
+    if(!item || packingPlacements[item.id]){
+        return;
+    }
+
+    if(!canPlacePackingItem(item, row, col, packingRotated)){
+        if(message){
+            message.innerText = "Ten element nie mieści się tutaj. Obróć go albo poszukaj wolniejszego miejsca.";
+        }
+
+        return;
+    }
+
+    packingPlacements[item.id] = { row, col, rotated: packingRotated };
+    localStorage.setItem("windhoekPackingPlacements", JSON.stringify(packingPlacements));
+    localStorage.removeItem("windhoekPackingCompleted");
+
+    const nextItem = getUnpackedItems()[0];
+    packingSelectedItemId = nextItem ? nextItem.id : null;
+    packingRotated = false;
 
     if(message){
-        message.innerText = isCorrect ? stage.success : stage.danger + " Spróbuj inną akcję.";
+        message.innerText = "Sprzęt wskoczył na miejsce. Układaj dalej, żeby nic nie latało po bagażniku.";
     }
 
-    if(mood){
-        mood.innerText = isCorrect ? selected.mood : "⚠️";
-    }
-
-    updateWindhoekBaboonScreen();
+    renderWindhoekPacking();
     updateWindhoekState();
 }
 
-function advanceWindhoekBaboonStage(){
-    if(localStorage.getItem("windhoekBaboonsCompleted") === "true"){
-        completeWindhoekDeparture();
-        return;
-    }
-
-    if(!windhoekBaboonState.selected){
-        updateWindhoekBaboonScreen();
-        return;
-    }
-
-    windhoekBaboonStage += 1;
-    windhoekBaboonState.selected = false;
-    windhoekBaboonState.lastActionWrong = false;
-
-    if(windhoekBaboonStage >= baboonStages.length){
-        localStorage.setItem("windhoekBaboonsCompleted", "true");
-    }
-
-    updateWindhoekBaboonScreen();
+function removePackingItem(id){
+    delete packingPlacements[id];
+    packingSelectedItemId = id;
+    packingRotated = false;
+    localStorage.setItem("windhoekPackingPlacements", JSON.stringify(packingPlacements));
+    localStorage.removeItem("windhoekPackingCompleted");
+    renderWindhoekPacking();
     updateWindhoekState();
+}
+
+function resetWindhoekPacking(){
+    packingPlacements = {};
+    packingSelectedItemId = packingItems[0].id;
+    packingRotated = false;
+    localStorage.removeItem("windhoekPackingPlacements");
+    localStorage.removeItem("windhoekPackingCompleted");
+
+    const message = document.getElementById("windhoekPackingMessage");
+
+    if(message){
+        message.innerText = "Bagażnik pusty. Zacznij od największych elementów i zostaw małe rzeczy na koniec.";
+    }
+
+    renderWindhoekPacking();
+    updateWindhoekState();
+}
+
+function completeWindhoekPacking(){
+    const message = document.getElementById("windhoekPackingMessage");
+
+    if(Object.keys(packingPlacements).length !== packingItems.length){
+        if(message){
+            message.innerText = "Jeszcze nie. Wszystkie kluczowe elementy muszą wejść do auta.";
+        }
+
+        renderWindhoekPacking();
+        return;
+    }
+
+    localStorage.setItem("windhoekPackingCompleted", "true");
+    localStorage.setItem("windhoekPackingPlacements", JSON.stringify(packingPlacements));
+
+    if(message){
+        message.innerText = "Auto gotowe: woda nisko, sprzęt zabezpieczony, można ruszać z Windhoek.";
+    }
+
+    renderWindhoekPacking();
+    updateWindhoekState();
+}
+
+function getPackingItem(id){
+    return packingItems.find(item=>item.id === id);
+}
+
+function getPackingItemSize(item, rotated){
+    return rotated ? { w: item.h, h: item.w } : { w: item.w, h: item.h };
+}
+
+function canPlacePackingItem(item, row, col, rotated){
+    const size = getPackingItemSize(item, rotated);
+
+    if(col + size.w > packingGrid.cols || row + size.h > packingGrid.rows){
+        return false;
+    }
+
+    for(const placedId in packingPlacements){
+        const placedItem = getPackingItem(placedId);
+        const placed = packingPlacements[placedId];
+        const placedSize = getPackingItemSize(placedItem, placed.rotated);
+
+        const overlaps =
+            col < placed.col + placedSize.w &&
+            col + size.w > placed.col &&
+            row < placed.row + placedSize.h &&
+            row + size.h > placed.row;
+
+        if(overlaps){
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function completeWindhoekDeparture(){
@@ -1377,8 +1458,8 @@ function completeWindhoekDeparture(){
         return;
     }
 
-    if(localStorage.getItem("windhoekBaboonsCompleted") !== "true"){
-        startWindhoekBaboons();
+    if(localStorage.getItem("windhoekPackingCompleted") !== "true"){
+        startWindhoekPacking();
         return;
     }
 
