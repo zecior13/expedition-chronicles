@@ -57,6 +57,144 @@ const guardianMinRenderedSize = 24;
 const guardianPreferredRenderedSize = 39;
 const guardianMaxRenderedSize = 56;
 
+const expeditionBaseStats = {
+    kondycja: 3,
+    szybkosc: 3,
+    odpornosc: 3,
+    uwaznosc: 3,
+    organizacja: 3,
+    spokoj: 3
+};
+
+const expeditionProfileChoices = {
+    headgear: {
+        hat: {
+            label: "Kapelusz pustynny",
+            stats: { odpornosc: 1, spokoj: 1 }
+        },
+        cap: {
+            label: "Czapka z daszkiem",
+            stats: { szybkosc: 1, uwaznosc: 1 }
+        }
+    },
+    waterLoad: {
+        light: {
+            label: "Lekki zapas wody",
+            stats: { szybkosc: 2, kondycja: 1, odpornosc: -1 }
+        },
+        balanced: {
+            label: "Zbalansowany zapas",
+            stats: { kondycja: 1, organizacja: 1 }
+        },
+        heavy: {
+            label: "Dużo wody",
+            stats: { odpornosc: 2, spokoj: 1, szybkosc: -1 }
+        }
+    },
+    boots: {
+        trekking: {
+            label: "Buty trekkingowe",
+            stats: { kondycja: 1, odpornosc: 1 }
+        },
+        light: {
+            label: "Lekkie buty",
+            stats: { szybkosc: 1, kondycja: 1 }
+        }
+    },
+    toolkit: {
+        binoculars: {
+            label: "Lornetka",
+            stats: { uwaznosc: 2 }
+        },
+        notebook: {
+            label: "Notatnik",
+            stats: { uwaznosc: 1, spokoj: 1 }
+        },
+        multitool: {
+            label: "Multitool",
+            stats: { organizacja: 2 }
+        }
+    }
+};
+
+const expeditionStatLabels = {
+    kondycja: "Kondycja",
+    szybkosc: "Szybkość",
+    odpornosc: "Odporność",
+    uwaznosc: "Uważność",
+    organizacja: "Organizacja",
+    spokoj: "Spokój"
+};
+
+const expeditionHeroes = [
+    {
+        id: "driver",
+        name: "Kapitan 4x4",
+        tagline: "Mięśnie, spokój i kluczyki.",
+        description: "Trochę zbyt pewny siebie, ale kiedy droga znika pod piaskiem, nagle wszyscy siedzą cicho i patrzą na niego. Mocny w jeździe, presji i sytuacjach za kierownicą.",
+        image: "assets/characters/hero-driver.png",
+        stats: { kondycja: 4, szybkosc: 4, odpornosc: 3, uwaznosc: 2, organizacja: 3, spokoj: 4 }
+    },
+    {
+        id: "tracker",
+        name: "Tropicielka Szczegółów",
+        tagline: "Widziała ślad, zanim był śladem.",
+        description: "Zauważa kropkę na piasku z odległości, z której inni widzą tylko piasek. Świetna w tropieniu, safari i ukrytych wskazówkach.",
+        image: "assets/characters/hero-tracker.png",
+        stats: { kondycja: 3, szybkosc: 3, odpornosc: 4, uwaznosc: 5, organizacja: 2, spokoj: 3 }
+    },
+    {
+        id: "logistician",
+        name: "Mistrz Logistyki",
+        tagline: "Ma plan B, C i podpisany woreczek na kable.",
+        description: "Dobroduszny człowiek-checklista. Nosi za dużo, ale kiedy robi się gorąco, wszyscy nagle pytają, gdzie jest woda i powerbank.",
+        image: "assets/characters/hero-logistician.png",
+        stats: { kondycja: 3, szybkosc: 2, odpornosc: 4, uwaznosc: 3, organizacja: 5, spokoj: 4 }
+    },
+    {
+        id: "wanderer",
+        name: "Wytrwały Wędrowiec",
+        tagline: "Jeszcze tylko jedna wydma.",
+        description: "Suchy jak wiatr, uparty jak szlak. Najlepszy tam, gdzie trzeba iść, wspinać się i nie marudzić przed śniadaniem.",
+        image: "assets/characters/hero-wanderer.png",
+        stats: { kondycja: 5, szybkosc: 3, odpornosc: 4, uwaznosc: 3, organizacja: 2, spokoj: 3 }
+    },
+    {
+        id: "chronicler",
+        name: "Kronikarka Szlaku",
+        tagline: "Każda przygoda ma dobry akapit.",
+        description: "Ma notes, aparat i niebezpieczną zdolność pamiętania, kto co powiedział trzy dni temu. Mocna w kulturze, historii i finale Kroniki.",
+        image: "assets/characters/hero-chronicler.png",
+        stats: { kondycja: 2, szybkosc: 3, odpornosc: 3, uwaznosc: 5, organizacja: 4, spokoj: 4 }
+    },
+    {
+        id: "daredevil",
+        name: "Ryzykant Adrenaliny",
+        tagline: "Najpierw zjazd, potem pytania.",
+        description: "Widzi stromą wydmę i pyta tylko, z której strony jest szybciej. Świetny w quadach, sandboardingu, pościgach i szybkich decyzjach.",
+        image: "assets/characters/hero-daredevil.png",
+        stats: { kondycja: 4, szybkosc: 5, odpornosc: 2, uwaznosc: 2, organizacja: 2, spokoj: 2 }
+    },
+    {
+        id: "chatterbox",
+        name: "Negocjator Opowieści",
+        tagline: "Zagada nawet cenę figurki.",
+        description: "Gada, pyta, śmieje się, gubi notatki i wraca z najlepszą historią. Mało zorganizowany, ale genialny przy ludziach i targowaniu.",
+        image: "assets/characters/hero-chatterbox.png",
+        stats: { kondycja: 2, szybkosc: 3, odpornosc: 2, uwaznosc: 4, organizacja: 1, spokoj: 5 }
+    },
+    {
+        id: "diva",
+        name: "Safari Diva",
+        tagline: "Czy tu jest basen?",
+        description: "Przyjechała jak do lodge'u z widokiem, a trafiła na kurz, camp i wydmy. Zaskakująco dobra w rozmowach, komforcie i robieniu wrażenia.",
+        image: "assets/characters/hero-diva.png",
+        stats: { kondycja: 1, szybkosc: 2, odpornosc: 2, uwaznosc: 4, organizacja: 3, spokoj: 5 }
+    }
+];
+
+let selectedHeroId = "driver";
+
 let flamingoRunning = false;
 let flamingoOffset = 0;
 let flamingoSceneWidth = 0;
@@ -126,11 +264,24 @@ function showScreen(id){
     document.getElementById(id).classList.add("active");
 
     updateWalvisBayMapState();
+    updateWindhoekState();
 
     if(id === "mapScreen"){
         setupNamibiaMap();
         mapInitialPanReady = false;
         updateNamibiaMap();
+    }
+
+    if(id === "heroSelectScreen"){
+        renderHeroRoster();
+    }
+
+    if(id === "expeditionProfileScreen"){
+        updateExpeditionProfilePreview();
+    }
+
+    if(id === "windhoekScreen"){
+        updateWindhoekState();
     }
 
     if(id === "walvisChronicleScreen"){
@@ -159,7 +310,305 @@ function savePlayers(){
     document.getElementById("expeditionTitle").innerText =
         localStorage.getItem("expeditionName");
 
+    showScreen("heroSelectScreen");
+}
+
+function getExpeditionHero(heroId){
+    return expeditionHeroes.find(hero=>hero.id === heroId) || expeditionHeroes[0];
+}
+
+function getSavedHeroId(){
+    return localStorage.getItem("expeditionHeroId") || selectedHeroId || "driver";
+}
+
+function renderHeroRoster(){
+    const roster = document.getElementById("heroRoster");
+
+    if(!roster){
+        return;
+    }
+
+    selectedHeroId = getSavedHeroId();
+
+    roster.innerHTML = expeditionHeroes.map(hero=>
+        "<button class=\"hero-card" + (hero.id === selectedHeroId ? " selected" : "") + "\" onclick=\"selectHeroProfile('" + hero.id + "')\">" +
+            "<span class=\"hero-card-image\" style=\"background-image:url('" + hero.image + "')\"></span>" +
+            "<span class=\"hero-card-copy\">" +
+                "<strong>" + hero.name + "</strong>" +
+                "<small>" + hero.tagline + "</small>" +
+            "</span>" +
+        "</button>"
+    ).join("");
+
+    updateSelectedHeroPreview();
+}
+
+function selectHeroProfile(heroId){
+    selectedHeroId = heroId;
+
+    for(const card of document.querySelectorAll(".hero-card")){
+        card.classList.remove("selected");
+    }
+
+    const selectedIndex = expeditionHeroes.findIndex(hero=>hero.id === heroId);
+    const selectedCard = document.querySelectorAll(".hero-card")[selectedIndex];
+
+    if(selectedCard){
+        selectedCard.classList.add("selected");
+    }
+
+    updateSelectedHeroPreview();
+}
+
+function updateSelectedHeroPreview(){
+    const hero = getExpeditionHero(selectedHeroId);
+    const portrait = document.getElementById("selectedHeroPortrait");
+    const name = document.getElementById("selectedHeroName");
+    const description = document.getElementById("selectedHeroDescription");
+
+    if(portrait){
+        portrait.style.backgroundImage = "url('" + hero.image + "')";
+    }
+
+    if(name){
+        name.innerText = hero.name;
+    }
+
+    if(description){
+        description.innerText = hero.description;
+    }
+
+    renderStatsGrid(document.getElementById("selectedHeroStats"), hero.stats);
+}
+
+function saveHeroProfile(){
+    const hero = getExpeditionHero(selectedHeroId);
+
+    localStorage.setItem("expeditionHeroId", hero.id);
+    localStorage.setItem("expeditionHeroName", hero.name);
+    localStorage.setItem("expeditionHeroImage", hero.image);
+    localStorage.setItem("expeditionHeroDescription", hero.description);
+
+    showScreen("expeditionProfileScreen");
+}
+
+function getCheckedProfileValue(groupName){
+    const selected = document.querySelector("input[name=\"" + groupName + "\"]:checked");
+
+    return selected ? selected.value : "";
+}
+
+function getCurrentExpeditionChoices(){
+    return {
+        headgear: getCheckedProfileValue("headgear") || "hat",
+        waterLoad: getCheckedProfileValue("waterLoad") || "balanced",
+        boots: getCheckedProfileValue("boots") || "trekking",
+        toolkit: getCheckedProfileValue("toolkit") || "binoculars"
+    };
+}
+
+function calculateExpeditionStats(choices){
+    const hero = getExpeditionHero(getSavedHeroId());
+    const stats = { ...(hero.stats || expeditionBaseStats) };
+
+    for(const groupName of Object.keys(choices)){
+        const option = expeditionProfileChoices[groupName] && expeditionProfileChoices[groupName][choices[groupName]];
+
+        if(!option){
+            continue;
+        }
+
+        for(const statName of Object.keys(option.stats)){
+            stats[statName] = Math.max(1, Math.min(6, stats[statName] + option.stats[statName]));
+        }
+    }
+
+    return stats;
+}
+
+function getExpeditionArchetype(stats){
+    const heroName = localStorage.getItem("expeditionHeroName");
+
+    if(heroName){
+        return heroName;
+    }
+
+    const ordered = Object.keys(stats).sort((a, b)=>stats[b] - stats[a]);
+    const top = ordered[0];
+    const second = ordered[1];
+
+    if(top === "odpornosc" && second === "spokoj"){
+        return "Pustynny Twardziel";
+    }
+
+    if(top === "szybkosc"){
+        return "Szybki Zwiadowca";
+    }
+
+    if(top === "uwaznosc"){
+        return "Tropiciel Szczegółów";
+    }
+
+    if(top === "organizacja"){
+        return "Mistrz Logistyki";
+    }
+
+    if(top === "spokoj"){
+        return "Opanowany Negocjator";
+    }
+
+    if(top === "kondycja"){
+        return "Wytrwały Wędrowiec";
+    }
+
+    return "Zbalansowany Odkrywca";
+}
+
+function renderStatsGrid(container, stats){
+    if(!container){
+        return;
+    }
+
+    container.innerHTML = Object.keys(expeditionStatLabels).map(statName=>{
+        const value = stats[statName] || 0;
+        const dots = Array.from({ length: 6 }, (_, index)=>
+            "<span class=\"" + (index < value ? "filled" : "") + "\"></span>"
+        ).join("");
+
+        return (
+            "<div class=\"stat-chip\">" +
+                "<strong>" + expeditionStatLabels[statName] + "</strong>" +
+                "<div class=\"stat-dots\">" + dots + "</div>" +
+            "</div>"
+        );
+    }).join("");
+}
+
+function updateExpeditionProfilePreview(){
+    hydrateExpeditionProfileForm();
+
+    const choices = getCurrentExpeditionChoices();
+    const stats = calculateExpeditionStats(choices);
+    const archetype = getExpeditionArchetype(stats);
+    const hero = getExpeditionHero(getSavedHeroId());
+
+    const archetypeElement = document.getElementById("expeditionArchetype");
+    const loadoutElement = document.getElementById("expeditionHeroLoadout");
+
+    if(archetypeElement){
+        archetypeElement.innerText = archetype;
+    }
+
+    if(loadoutElement){
+        loadoutElement.innerText = hero.name + " + ekwipunek startowy";
+    }
+
+    renderStatsGrid(document.getElementById("expeditionStatsPreview"), stats);
+}
+
+function hydrateExpeditionProfileForm(){
+    if(hydrateExpeditionProfileForm.done){
+        return;
+    }
+
+    const savedChoices = localStorage.getItem("expeditionProfileChoices");
+
+    if(!savedChoices){
+        hydrateExpeditionProfileForm.done = true;
+        return;
+    }
+
+    try{
+        const choices = JSON.parse(savedChoices);
+
+        for(const groupName of Object.keys(choices)){
+            const input = document.querySelector("input[name=\"" + groupName + "\"][value=\"" + choices[groupName] + "\"]");
+
+            if(input){
+                input.checked = true;
+            }
+        }
+    }catch(error){
+        // Keep default expedition choices if old save data is malformed.
+    }
+
+    hydrateExpeditionProfileForm.done = true;
+}
+
+function saveExpeditionProfile(){
+    const choices = getCurrentExpeditionChoices();
+    const stats = calculateExpeditionStats(choices);
+    const archetype = getExpeditionArchetype(stats);
+    const hero = getExpeditionHero(getSavedHeroId());
+
+    localStorage.setItem("expeditionProfileChoices", JSON.stringify(choices));
+    localStorage.setItem("expeditionStats", JSON.stringify(stats));
+    localStorage.setItem("expeditionArchetype", archetype);
+    localStorage.setItem("expeditionHeroName", hero.name);
+    localStorage.setItem("expeditionHeroImage", hero.image);
+    localStorage.setItem("expeditionHeroDescription", hero.description);
+    localStorage.setItem("windhoekStarted", "true");
+
+    updateWindhoekState();
     showScreen("mapScreen");
+}
+
+function getSavedExpeditionStats(){
+    const savedStats = localStorage.getItem("expeditionStats");
+
+    if(!savedStats){
+        return calculateExpeditionStats(getCurrentExpeditionChoices());
+    }
+
+    try{
+        return JSON.parse(savedStats);
+    }catch(error){
+        return calculateExpeditionStats(getCurrentExpeditionChoices());
+    }
+}
+
+function updateWindhoekState(){
+    const mapLocation = document.getElementById("windhoekMapLocation");
+    const mapStatus = document.getElementById("windhoekMapStatus");
+    const stats = getSavedExpeditionStats();
+    const archetype = localStorage.getItem("expeditionArchetype") || getExpeditionArchetype(stats);
+    const hero = getExpeditionHero(getSavedHeroId());
+    const started = localStorage.getItem("windhoekStarted") === "true";
+
+    if(mapLocation){
+        mapLocation.classList.toggle("in-progress", started);
+    }
+
+    if(mapStatus){
+        mapStatus.innerText = started ? archetype : "Start wyprawy";
+    }
+
+    const windhoekArchetype = document.getElementById("windhoekArchetype");
+
+    if(windhoekArchetype){
+        windhoekArchetype.innerText = archetype;
+    }
+
+    const windhoekPortrait = document.getElementById("windhoekHeroPortrait");
+    const windhoekDescription = document.getElementById("windhoekHeroDescription");
+
+    if(windhoekPortrait){
+        windhoekPortrait.style.backgroundImage = "url('" + (localStorage.getItem("expeditionHeroImage") || hero.image) + "')";
+    }
+
+    if(windhoekDescription){
+        windhoekDescription.innerText = localStorage.getItem("expeditionHeroDescription") || hero.description;
+    }
+
+    renderStatsGrid(document.getElementById("windhoekStatsGrid"), stats);
+}
+
+function openWindhoek(){
+    showScreen("windhoekScreen");
+}
+
+function openCurrentRegion(){
+    openWindhoek();
 }
 
 function openWalvisBay(){

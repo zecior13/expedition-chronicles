@@ -63,7 +63,125 @@
         <span>0/1 pieczęci</span>
       </div>
     </div>
-    <button onclick="savePlayers()">Rozpocznij Wyprawę</button>
+    <button onclick="savePlayers()">Wybierz bohatera</button>
+  </section>
+
+  <section id="heroSelectScreen" class="screen hero-select-screen">
+    <div class="profile-builder-hero">
+      <p class="app-kicker">Dzień 1 · Windhoek</p>
+      <h1>Bohater Wyprawy</h1>
+      <h2>Wybierz styl podróżnika. Postać będzie towarzyszyć Ci przez całą Namibia Quest.</h2>
+    </div>
+
+    <div class="hero-roster" id="heroRoster"></div>
+
+    <div class="profile-preview-card hero-preview-card">
+      <div class="selected-hero-portrait" id="selectedHeroPortrait"></div>
+      <div>
+        <p class="app-kicker">Wybrany profil</p>
+        <h3 id="selectedHeroName">Kierowca 4x4</h3>
+        <p id="selectedHeroDescription">Pewna ręka na szutrze, dobra mina do złej drogi.</p>
+      </div>
+      <div class="stat-grid compact" id="selectedHeroStats"></div>
+    </div>
+
+    <button onclick="saveHeroProfile()">Dalej: ekwipunek</button>
+  </section>
+
+  <section id="expeditionProfileScreen" class="screen expedition-profile-screen">
+    <div class="profile-builder-hero">
+      <p class="app-kicker">Dzień 1 · Windhoek</p>
+      <h1>Ekwipunek Bohatera</h1>
+      <h2>Wyposażenie lekko zmienia bazowe cechy postaci. Każdy build zostaje grywalny.</h2>
+    </div>
+
+    <div class="profile-builder">
+      <div class="profile-step-card">
+        <p class="app-kicker">Słońce</p>
+        <h3>Nakrycie głowy</h3>
+        <div class="choice-grid">
+          <label class="profile-choice">
+            <input type="radio" name="headgear" value="hat" checked onchange="updateExpeditionProfilePreview()">
+            <span>Kapelusz pustynny</span>
+            <small>Więcej odporności na upał.</small>
+          </label>
+          <label class="profile-choice">
+            <input type="radio" name="headgear" value="cap" onchange="updateExpeditionProfilePreview()">
+            <span>Czapka z daszkiem</span>
+            <small>Lżej i szybciej w ruchu.</small>
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-step-card">
+        <p class="app-kicker">Plecak</p>
+        <h3>Zapas wody</h3>
+        <div class="choice-grid">
+          <label class="profile-choice">
+            <input type="radio" name="waterLoad" value="light" onchange="updateExpeditionProfilePreview()">
+            <span>Lekki zapas</span>
+            <small>Szybkość kosztem marginesu w upale.</small>
+          </label>
+          <label class="profile-choice">
+            <input type="radio" name="waterLoad" value="balanced" checked onchange="updateExpeditionProfilePreview()">
+            <span>Zbalansowany zapas</span>
+            <small>Bezpieczny wybór na początek.</small>
+          </label>
+          <label class="profile-choice">
+            <input type="radio" name="waterLoad" value="heavy" onchange="updateExpeditionProfilePreview()">
+            <span>Dużo wody</span>
+            <small>Odporność kosztem szybkości.</small>
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-step-card">
+        <p class="app-kicker">Ruch</p>
+        <h3>Buty</h3>
+        <div class="choice-grid">
+          <label class="profile-choice">
+            <input type="radio" name="boots" value="trekking" checked onchange="updateExpeditionProfilePreview()">
+            <span>Buty trekkingowe</span>
+            <small>Stabilność na skałach i wydmach.</small>
+          </label>
+          <label class="profile-choice">
+            <input type="radio" name="boots" value="light" onchange="updateExpeditionProfilePreview()">
+            <span>Lekkie buty</span>
+            <small>Więcej tempa w krótkich akcjach.</small>
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-step-card">
+        <p class="app-kicker">Narzędzie</p>
+        <h3>Co masz pod ręką?</h3>
+        <div class="choice-grid">
+          <label class="profile-choice">
+            <input type="radio" name="toolkit" value="binoculars" checked onchange="updateExpeditionProfilePreview()">
+            <span>Lornetka</span>
+            <small>Lepsze tropy, zwierzęta i szczegóły.</small>
+          </label>
+          <label class="profile-choice">
+            <input type="radio" name="toolkit" value="notebook" onchange="updateExpeditionProfilePreview()">
+            <span>Notatnik</span>
+            <small>Rozmowy, historia i Kronika.</small>
+          </label>
+          <label class="profile-choice">
+            <input type="radio" name="toolkit" value="multitool" onchange="updateExpeditionProfilePreview()">
+            <span>Multitool</span>
+            <small>Pakowanie, camp i sytuacje techniczne.</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-preview-card">
+      <div class="profile-archetype" id="expeditionArchetype">Zbalansowany Odkrywca</div>
+      <div class="loadout-summary" id="expeditionHeroLoadout">Kierowca 4x4 + ekwipunek</div>
+      <div class="stat-grid" id="expeditionStatsPreview"></div>
+    </div>
+
+    <button onclick="saveExpeditionProfile()">Rozpocznij trasę</button>
   </section>
 
   <section id="mapScreen" class="screen">
@@ -93,7 +211,11 @@
           <div class="map-guardian visible artwork-guardian daan-viljoen-guardian" data-x="78" data-y="51"></div>
           <div class="map-guardian visible artwork-guardian ceremony-guardian" data-x="84" data-y="80"></div>
         </div>
-        <div class="location locked map-region" data-x="66" data-y="62"><span class="route-dot">1</span> Windhoek</div>
+        <div id="windhoekMapLocation" class="location map-location map-region windhoek-region" data-x="66" data-y="62" onclick="openWindhoek()">
+          <span class="route-dot">1</span>
+          <span class="map-location-title">Windhoek</span>
+          <span id="windhoekMapStatus" class="map-location-status">Start wyprawy</span>
+        </div>
         <div class="location locked map-region" data-x="39" data-y="66"><span class="route-dot">2</span> Sesriem</div>
         <div class="location locked map-region" data-x="42" data-y="72"><span class="route-dot">3</span> Big Daddy</div>
         <div class="location locked map-region" data-x="29" data-y="43"><span class="route-dot">4</span> Swakopmund</div>
@@ -115,8 +237,62 @@
     </div>
 
     <div class="bottom-nav">
-      <button class="small-button" onclick="openWalvisBay()">Region</button>
+      <button class="small-button" onclick="openCurrentRegion()">Region</button>
       <button class="small-button secondary" onclick="showScreen('walvisChronicleScreen')">Kronika</button>
+    </div>
+  </section>
+
+  <section id="windhoekScreen" class="screen windhoek-screen">
+    <div class="region-hero windhoek-hero">
+      <p class="app-kicker">Region 01</p>
+      <h1>Windhoek</h1>
+      <h2>Logistyka, pierwsza kolacja i decyzje, które zaczynają całą wyprawę.</h2>
+    </div>
+
+    <div class="card expedition-loadout-card">
+      <p class="app-kicker">Twój styl</p>
+      <h3 id="windhoekArchetype">Zbalansowany Odkrywca</h3>
+      <div class="windhoek-hero-line">
+        <div class="mini-hero-portrait" id="windhoekHeroPortrait"></div>
+        <p id="windhoekHeroDescription">Twój bohater wyprawy jest gotowy na drogę.</p>
+      </div>
+      <div class="stat-grid compact" id="windhoekStatsGrid"></div>
+    </div>
+
+    <div class="activity-list">
+      <button class="activity-card" onclick="showScreen('expeditionProfileScreen'); updateExpeditionProfilePreview()">
+        <span class="activity-icon">🎒</span>
+        <span>
+          <strong>Expedition Prep</strong>
+          <small>Profil postaci i pierwszy ekwipunek</small>
+        </span>
+      </button>
+      <div class="activity-card locked-activity">
+        <span class="activity-icon">🥩</span>
+        <span>
+          <strong>First Game Steak</strong>
+          <small>Wkrótce: pierwszy wieczór w Windhoek</small>
+        </span>
+      </div>
+      <div class="activity-card locked-activity">
+        <span class="activity-icon">🏛️</span>
+        <span>
+          <strong>Historia Namibii</strong>
+          <small>Wkrótce: muzeum i oś czasu</small>
+        </span>
+      </div>
+      <div class="activity-card locked-activity">
+        <span class="activity-icon">🧭</span>
+        <span>
+          <strong>Baboons at the Edge</strong>
+          <small>Wkrótce: wyjazd z miasta</small>
+        </span>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="small-button secondary" onclick="showScreen('mapScreen')">Mapa</button>
+      <button class="small-button" onclick="openWalvisBay()">Dalej</button>
     </div>
   </section>
 
