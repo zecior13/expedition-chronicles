@@ -215,7 +215,7 @@ let elimPuzzleSelectedPieceId = null;
 let elimPuzzleDragGhost = null;
 let elimPuzzleSuppressClick = false;
 
-const SESRIEM_EVENING_TOTAL_TIME = 6;
+const SESRIEM_EVENING_TOTAL_TIME = 5;
 const ELIM_PHOTO_PUZZLE_COLS = 5;
 const ELIM_PHOTO_PUZZLE_ROWS = 4;
 const ELIM_PHOTO_PUZZLE_IMAGE = "assets/sesriem/elim-dune-sunset-photo.jpg";
@@ -225,70 +225,70 @@ const sesriemCampActions = [
     {
         id: "water_cache",
         title: "Zabezpiecz wodę",
-        subtitle: "Kanistry idą w cień, a poranne butelki trafiają pod rękę.",
+        subtitle: "Kanistry w cień, butelki pod rękę.",
         cost: 1,
         effects: { water: 3, gear: 1 },
-        consequence: "Więcej wody zmniejszy presję upału przy podejściu pod Big Daddy.",
+        consequence: "Big Daddy: mniej presji upału.",
         message: "Woda jest w cieniu i gotowa na poranek. To nudna decyzja, czyli dokładnie taka, która ratuje dzień na pustyni."
     },
     {
         id: "dawn_pack",
         title: "Spakuj plecak świtowy",
-        subtitle: "Czołówka, aparaty, bluzy na mgłę i rzeczy do Sossusvlei.",
-        cost: 1,
-        effects: { gear: 3, route: 1 },
+        subtitle: "Czołówka, aparat, bluzy, prowiant.",
+        cost: 2,
+        effects: { gear: 4, route: 1 },
         statBonus: { stat: "organizacja", threshold: 5, effects: { gear: 1 }, text: " Dobra organizacja dodaje jeszcze jeden punkt sprzętu." },
-        consequence: "Dobry sprzęt zmniejszy poranny chaos i pomoże na trasie do Deadvlei.",
+        consequence: "Big Daddy: mniej chaosu o świcie.",
         message: "Plecak świtowy jest gotowy. O poranku nie będzie gorączkowego szukania czołówki pod śpiworem."
     },
     {
         id: "route_notes",
         title: "Rozpisz mglisty wyjazd",
-        subtitle: "Godzina pobudki, brama, tankowanie, wejście na Deadvlei.",
-        cost: 1,
+        subtitle: "Pobudka, brama, mgła, wejście.",
+        cost: 2,
         effects: { route: 3, gear: 1 },
         statBonus: { stat: "uwaznosc", threshold: 5, effects: { route: 1 }, text: " Uważność pomaga wyłapać ryzyko porannej mgły." },
-        consequence: "Orientacja pomoże, gdy rano obóz i droga będą tonąć we mgle.",
+        consequence: "Poranek: lepsza orientacja we mgle.",
         message: "Plan wyjazdu jest zapisany. Mgła nadal będzie klimatyczna, ale mniej zdradliwa."
     },
     {
         id: "braai",
         title: "Pierwszy braai",
-        subtitle: "Grill, mięso, rozmowy i prawdziwy wieczór na campingu.",
+        subtitle: "Grill, mięso, ogień i camping.",
         cost: 2,
         effects: { energy: 2, morale: 3, water: -1 },
-        consequence: "Morale rośnie, ale tracisz czas i trochę wody.",
+        consequence: "Morale rośnie, zapas czasu spada.",
         message: "Braai robi robotę. Ekipa jest najedzona i szczęśliwsza, choć wieczór zrobił się krótszy."
     },
     {
         id: "early_sleep",
         title: "Idź spać wcześnie",
-        subtitle: "Bez bohaterskich rozmów do północy. Pobudka będzie brutalna.",
+        subtitle: "Bez rozmów do północy. Pobudka boli.",
         cost: 2,
         effects: { energy: 4, morale: -1 },
         statBonus: { stat: "spokoj", threshold: 5, effects: { energy: 1 }, text: " Spokój pomaga naprawdę odpocząć." },
-        consequence: "Więcej sił na wydmę, ale mniej klimatu wieczoru.",
+        consequence: "Big Daddy: więcej sił, mniej klimatu.",
         message: "Sen wygrywa z ambicją. Rano nogi powinny podziękować."
     },
     {
         id: "elim_dune",
         title: "Elim Dune na zachód",
-        subtitle: "Wyjście na wydmę, złote światło i zdjęcie do Kroniki.",
-        cost: 2,
+        subtitle: "Zachód słońca i zdjęcie do Kroniki.",
+        cost: 3,
         effects: { morale: 4, energy: -1, water: -1 },
         statBonus: { stat: "kondycja", threshold: 5, effects: { energy: 1 }, text: " Dobra kondycja łagodzi koszt podejścia." },
         unlocksPhoto: true,
-        consequence: "Odblokuje dodatkową układankę zdjęcia, ale zabiera czas i siły przed Big Daddy.",
+        consequence: "Bonus do Kroniki, duży koszt czasu.",
         message: "Zachód na Elim Dune był wart wysiłku. Niestety w nocy szakale pogryzły odbitkę: zdjęcie trzeba będzie złożyć."
     },
     {
         id: "cool_down",
         title: "Schłódź ekipę po upale",
-        subtitle: "Cień, mokre chusty, porządek przy namiocie i spokojniejszy puls.",
+        subtitle: "Cień, mokre chusty, spokojny puls.",
         cost: 1,
         effects: { heat: 3, energy: 1 },
         statBonus: { stat: "odpornosc", threshold: 5, effects: { heat: 1 }, text: " Odporność pomaga lepiej znieść pustynny dzień." },
-        consequence: "Mniejsza kara za upał kolejnego dnia.",
+        consequence: "Big Daddy: mniejsza kara za upał.",
         message: "Temperatura w głowie trochę spada. To może być różnica między zachwytem a marszem zombie."
     }
 ];
@@ -561,6 +561,8 @@ kayakImage.onload = function(){
 kayakImage.src = "assets/kayak.svg";
 
 function showScreen(id){
+    cleanupTransientGameLayers();
+
     document.querySelectorAll(".screen").forEach(screen=>{
         screen.classList.remove("active");
     });
@@ -612,6 +614,13 @@ function showScreen(id){
 
     if(id === "walvisChronicleScreen"){
         updateWalvisChronicle();
+    }
+}
+
+function cleanupTransientGameLayers(){
+    if(elimPuzzleDragGhost){
+        elimPuzzleDragGhost.remove();
+        elimPuzzleDragGhost = null;
     }
 }
 
@@ -2676,14 +2685,14 @@ function getSesriemPreparationScore(){
 }
 
 function getSesriemMorningCondition(score){
-    if(score >= 34){
+    if(score >= 32){
         return {
             id: "excellent",
             text: "Świetny obóz. Rano macie wodę, sprzęt, energię i plan na mgłę. Big Daddy będzie trudny, ale startujecie z realną przewagą."
         };
     }
 
-    if(score >= 26){
+    if(score >= 24){
         return {
             id: "ready",
             text: "Dobry obóz. Nie wszystko jest idealne, ale poranek powinien być pod kontrolą. Big Daddy dostanie uczciwą walkę."
@@ -2707,7 +2716,7 @@ function updateSesriemMeters(){
     }
 
     if(time){
-        time.innerText = String(sesriemCampState.timeLeft);
+        time.innerText = sesriemCampState.timeLeft + "/" + SESRIEM_EVENING_TOTAL_TIME;
     }
 
     if(water){
@@ -2762,7 +2771,11 @@ function hydrateElimPhotoPuzzle(){
         elimPuzzleState = null;
     }
 
-    if(!elimPuzzleState || !Array.isArray(elimPuzzleState.slots) || !Array.isArray(elimPuzzleState.tray)){
+    if(!elimPuzzleState ||
+        !Array.isArray(elimPuzzleState.slots) ||
+        !Array.isArray(elimPuzzleState.tray) ||
+        elimPuzzleState.slots.length !== ELIM_PHOTO_PUZZLE_COLS * ELIM_PHOTO_PUZZLE_ROWS
+    ){
         elimPuzzleState = {
             slots: Array(ELIM_PHOTO_PUZZLE_COLS * ELIM_PHOTO_PUZZLE_ROWS).fill(null),
             tray: [...elimPuzzleInitialTray],
