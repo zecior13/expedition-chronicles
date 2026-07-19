@@ -242,18 +242,31 @@ const shuffledHistoryEventIds = [
 ];
 
 const packingGrid = {
-    cols: 6,
-    rows: 8
+    cols: 5,
+    rows: 7
 };
 
 const packingItems = [
-    { id: "water", name: "Woda", short: "Woda", w: 2, h: 2, weight: 28, tone: "blue" },
-    { id: "cooler", name: "Lodówka", short: "Lod.", w: 3, h: 2, weight: 22, tone: "teal" },
-    { id: "tent", name: "Namiot", short: "Namiot", w: 3, h: 1, weight: 12, tone: "gold" },
-    { id: "bags", name: "Torby", short: "Torby", w: 2, h: 2, weight: 18, tone: "rust" },
-    { id: "tools", name: "Narzędzia", short: "Tools", w: 2, h: 1, weight: 14, tone: "navy" },
-    { id: "medkit", name: "Apteczka", short: "Med", w: 1, h: 1, weight: 3, tone: "red" },
-    { id: "camera", name: "Aparat", short: "Foto", w: 1, h: 1, weight: 2, tone: "slate" }
+    { id: "water", name: "Woda", short: "Woda", w: 2, h: 2, weight: 28, tone: "blue", rule: "heavy" },
+    { id: "cooler", name: "Lodówka", short: "Lod.", w: 3, h: 2, weight: 22, tone: "teal", rule: "heavy" },
+    { id: "tent", name: "Namiot", short: "Namiot", w: 3, h: 1, weight: 12, tone: "gold", rule: "long" },
+    { id: "bags", name: "Torby", short: "Torby", w: 2, h: 2, weight: 18, tone: "rust", rule: "neutral" },
+    { id: "duffel", name: "Druga torba", short: "Torba", w: 2, h: 2, weight: 16, tone: "sand", rule: "neutral" },
+    { id: "tools", name: "Narzędzia", short: "Tools", w: 2, h: 1, weight: 14, tone: "navy", rule: "heavy" },
+    { id: "medkit", name: "Apteczka", short: "Med", w: 1, h: 1, weight: 3, tone: "red", rule: "access" },
+    { id: "camera", name: "Aparat", short: "Foto", w: 1, h: 1, weight: 2, tone: "slate", rule: "access" },
+    { id: "snacks", name: "Prowiant", short: "Food", w: 2, h: 1, weight: 6, tone: "sand", rule: "access" }
+];
+
+const packingBlockedCells = [
+    "0,0",
+    "0,4",
+    "1,0",
+    "1,4",
+    "5,0",
+    "5,4",
+    "6,0",
+    "6,4"
 ];
 
 let flamingoRunning = false;
@@ -1246,6 +1259,7 @@ function renderWindhoekPacking(){
 
     const packedCount = Object.keys(packingPlacements).length;
     const totalWeight = packingItems.reduce((sum, item)=>packingPlacements[item.id] ? sum + item.weight : sum, 0);
+    const quality = getPackingQuality();
 
     board.innerHTML = renderPackingCells() + renderPlacedPackingItems();
     items.innerHTML = getUnpackedItems().map(renderPackingPaletteItem).join("") || "<div class=\"packing-empty-palette\">Wszystko jest w aucie.</div>";
@@ -1259,12 +1273,12 @@ function renderWindhoekPacking(){
     }
 
     if(fit){
-        fit.innerText = packedCount === packingItems.length ? "Gotowe" : "Układaj";
+        fit.innerText = quality.ok ? "OK" : quality.label;
     }
 
     if(completeButton){
         const completed = localStorage.getItem("windhoekPackingCompleted") === "true";
-        completeButton.disabled = packedCount !== packingItems.length && !completed;
+        completeButton.disabled = (!quality.ok || packedCount !== packingItems.length) && !completed;
         completeButton.classList.toggle("disabled-button", completeButton.disabled);
         completeButton.innerText = completed ? "Ruszaj dalej" : "Gotowe";
     }
@@ -1279,7 +1293,8 @@ function renderPackingCells(){
 
     for(let row = 0; row < packingGrid.rows; row++){
         for(let col = 0; col < packingGrid.cols; col++){
-            html += "<button class=\"packing-cell\" data-row=\"" + row + "\" data-col=\"" + col + "\" onclick=\"placeSelectedPackingItem(" + row + ", " + col + ")\"></button>";
+            const blocked = isPackingCellBlocked(row, col);
+            html += "<button class=\"packing-cell" + (blocked ? " blocked" : "") + "\" style=\"grid-column:" + (col + 1) + "; grid-row:" + (row + 1) + "\" data-row=\"" + row + "\" data-col=\"" + col + "\" onclick=\"placeSelectedPackingItem(" + row + ", " + col + ")\">" + (blocked ? "<span></span>" : "") + "</button>";
         }
     }
 
@@ -1307,7 +1322,7 @@ function renderPackingPaletteItem(item){
 
     return "<button class=\"packing-palette-item tone-" + item.tone + selected + "\" onclick=\"selectPackingItem('" + item.id + "')\">" +
         "<span>" + item.name + "</span>" +
-        "<small>" + size.w + "x" + size.h + " · " + item.weight + " kg</small>" +
+        "<small>" + size.w + "x" + size.h + " · " + item.weight + " kg · " + getPackingRuleLabel(item.rule) + "</small>" +
     "</button>";
 }
 
@@ -1318,6 +1333,13 @@ function getUnpackedItems(){
 function selectPackingItem(id){
     packingSelectedItemId = id;
     packingRotated = false;
+    const message = document.getElementById("windhoekPackingMessage");
+
+    if(message){
+        const item = getPackingItem(id);
+        message.innerText = item.name + ": dotknięte pole będzie lewym górnym rogiem elementu.";
+    }
+
     renderWindhoekPacking();
 }
 
@@ -1333,6 +1355,13 @@ function rotatePackingItem(){
     }
 
     packingRotated = !packingRotated;
+    const message = document.getElementById("windhoekPackingMessage");
+
+    if(message){
+        const size = getPackingItemSize(item, packingRotated);
+        message.innerText = item.name + " obrócone: teraz zajmuje " + size.w + "x" + size.h + ". Dotknięte pole to lewy górny róg.";
+    }
+
     renderWindhoekPacking();
 }
 
@@ -1344,9 +1373,17 @@ function placeSelectedPackingItem(row, col){
         return;
     }
 
+    if(isPackingCellBlocked(row, col)){
+        if(message){
+            message.innerText = "To miejsce blokuje nadkole albo konstrukcja bagażnika. Wybierz jasne pole jako lewy górny róg.";
+        }
+
+        return;
+    }
+
     if(!canPlacePackingItem(item, row, col, packingRotated)){
         if(message){
-            message.innerText = "Ten element nie mieści się tutaj. Obróć go albo poszukaj wolniejszego miejsca.";
+            message.innerText = "Nie mieści się od tego pola. Dotknięte pole jest lewym górnym rogiem elementu.";
         }
 
         return;
@@ -1361,7 +1398,7 @@ function placeSelectedPackingItem(row, col){
     packingRotated = false;
 
     if(message){
-        message.innerText = "Sprzęt wskoczył na miejsce. Układaj dalej, żeby nic nie latało po bagażniku.";
+        message.innerText = item.name + " leży od pola rząd " + (row + 1) + ", kolumna " + (col + 1) + ". Teraz wybierz kolejny element.";
     }
 
     renderWindhoekPacking();
@@ -1398,9 +1435,20 @@ function resetWindhoekPacking(){
 function completeWindhoekPacking(){
     const message = document.getElementById("windhoekPackingMessage");
 
+    const quality = getPackingQuality();
+
     if(Object.keys(packingPlacements).length !== packingItems.length){
         if(message){
             message.innerText = "Jeszcze nie. Wszystkie kluczowe elementy muszą wejść do auta.";
+        }
+
+        renderWindhoekPacking();
+        return;
+    }
+
+    if(!quality.ok){
+        if(message){
+            message.innerText = quality.message;
         }
 
         renderWindhoekPacking();
@@ -1422,6 +1470,18 @@ function getPackingItem(id){
     return packingItems.find(item=>item.id === id);
 }
 
+function getPackingRuleLabel(rule){
+    if(rule === "heavy"){
+        return "nisko";
+    }
+
+    if(rule === "access"){
+        return "pod ręką";
+    }
+
+    return "dowolnie";
+}
+
 function getPackingItemSize(item, rotated){
     return rotated ? { w: item.h, h: item.w } : { w: item.w, h: item.h };
 }
@@ -1431,6 +1491,14 @@ function canPlacePackingItem(item, row, col, rotated){
 
     if(col + size.w > packingGrid.cols || row + size.h > packingGrid.rows){
         return false;
+    }
+
+    for(let cellRow = row; cellRow < row + size.h; cellRow++){
+        for(let cellCol = col; cellCol < col + size.w; cellCol++){
+            if(isPackingCellBlocked(cellRow, cellCol)){
+                return false;
+            }
+        }
     }
 
     for(const placedId in packingPlacements){
@@ -1450,6 +1518,34 @@ function canPlacePackingItem(item, row, col, rotated){
     }
 
     return true;
+}
+
+function isPackingCellBlocked(row, col){
+    return packingBlockedCells.includes(row + "," + col);
+}
+
+function getPackingQuality(){
+    if(Object.keys(packingPlacements).length !== packingItems.length){
+        return { ok: false, label: "Układaj", message: "Spakuj wszystkie elementy." };
+    }
+
+    for(const item of packingItems){
+        const placement = packingPlacements[item.id];
+
+        if(!placement){
+            return { ok: false, label: "Braki", message: "Brakuje elementu: " + item.name + "." };
+        }
+
+        if(item.rule === "heavy" && placement.row < 3){
+            return { ok: false, label: "Ciężar", message: item.name + " jest za wysoko. Ciężkie rzeczy trzymaj nisko, żeby auto było stabilne." };
+        }
+
+        if(item.rule === "access" && placement.row > 3){
+            return { ok: false, label: "Dostęp", message: item.name + " jest za głęboko. Rzeczy potrzebne w drodze zostaw bliżej góry bagażnika." };
+        }
+    }
+
+    return { ok: true, label: "OK", message: "Układ jest stabilny i praktyczny." };
 }
 
 function completeWindhoekDeparture(){

@@ -2126,8 +2126,8 @@ button{
     z-index:1;
 
     display:grid;
-    grid-template-columns:repeat(6, 1fr);
-    grid-template-rows:repeat(8, 1fr);
+    grid-template-columns:repeat(5, 1fr);
+    grid-template-rows:repeat(7, 1fr);
     gap:3px;
 
     height:300px;
@@ -2143,6 +2143,8 @@ button{
 }
 
 .packing-cell{
+    position:relative;
+
     min-width:0;
     width:100%;
     height:100%;
@@ -2154,8 +2156,49 @@ button{
     background:rgba(255,255,255,0.025);
 }
 
+.packing-cell::before{
+    content:"";
+    position:absolute;
+    left:3px;
+    top:3px;
+
+    width:5px;
+    height:5px;
+
+    border-radius:50%;
+
+    background:rgba(217,164,65,0.30);
+}
+
 .packing-cell:active{
     background:rgba(217,164,65,0.18);
+}
+
+.packing-cell.blocked{
+    border-style:solid;
+    border-color:rgba(255,255,255,0.04);
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.04), transparent),
+        rgba(0,0,0,0.28);
+    pointer-events:auto;
+}
+
+.packing-cell.blocked::before{
+    display:none;
+}
+
+.packing-cell.blocked span{
+    display:block;
+    width:100%;
+    height:100%;
+    border-radius:5px;
+    background:repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.08) 0,
+        rgba(255,255,255,0.08) 3px,
+        transparent 3px,
+        transparent 7px
+    );
 }
 
 .packing-piece{
