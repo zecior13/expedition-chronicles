@@ -1313,33 +1313,39 @@ button{
 }
 
 .history-workbench{
-    width:min(100%, 350px);
+    width:min(100%, 920px);
+    min-height:560px;
 
     display:grid;
-    gap:12px;
+    grid-template-columns:132px 1fr;
+    gap:22px;
+
+    padding:24px;
+
+    border:1px solid rgba(16,43,63,0.12);
+    border-radius:18px;
+
+    background:#ffffff;
+
+    box-shadow:
+        0 22px 48px rgba(16,43,63,0.12),
+        inset 0 0 0 1px rgba(255,255,255,0.82);
 }
 
 .history-panel{
-    padding:14px;
+    min-width:0;
+    padding:0;
 
-    border:1px solid rgba(111,75,42,0.18);
-    border-radius:22px;
-
-    background:
-        linear-gradient(180deg, rgba(255,253,242,0.98), rgba(247,229,190,0.94));
-
-    box-shadow:
-        0 12px 26px rgba(80,52,24,0.12),
-        inset 0 0 0 1px rgba(255,255,255,0.68);
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
 }
 
 .history-panel-title{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    align-items:flex-start;
+    display:block;
 
-    margin-bottom:10px;
+    margin-bottom:12px;
 
     text-align:left;
 }
@@ -1351,6 +1357,10 @@ button{
 }
 
 .history-panel-title small{
+    display:block;
+
+    margin-top:3px;
+
     color:#6d6457;
 
     font-size:0.72rem;
@@ -1359,22 +1369,38 @@ button{
 }
 
 .history-event-pool{
-    max-height:265px;
-    overflow-y:auto;
+    position:relative;
 
-    display:grid;
-    gap:8px;
+    height:480px;
+    overflow:hidden;
 
-    padding-right:4px;
+    display:block;
+
+    border:1px dashed rgba(16,43,63,0.12);
+    border-radius:18px;
+
+    background:
+        radial-gradient(circle at 18% 18%, rgba(217,164,65,0.09), transparent 24%),
+        radial-gradient(circle at 80% 72%, rgba(25,121,154,0.08), transparent 24%),
+        #ffffff;
 }
 
 .history-timeline-slots{
-    min-height:180px;
-    max-height:360px;
-    overflow-y:auto;
+    min-height:480px;
+    max-height:480px;
+    overflow:visible;
 
     display:grid;
-    gap:8px;
+    grid-template-rows:repeat(10, 1fr);
+    gap:7px;
+
+    padding:12px 8px 12px 12px;
+
+    border:2px solid rgba(39,59,87,0.42);
+    border-radius:22px;
+
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,247,239,0.98));
 }
 
 .history-tile,
@@ -1393,7 +1419,31 @@ button{
 }
 
 .history-tile{
-    padding:12px 14px;
+    padding:8px;
+}
+
+.scattered-history-tile{
+    position:absolute;
+    left:var(--tile-x);
+    top:var(--tile-y);
+
+    width:clamp(152px, 30%, 230px);
+
+    transform:translate(-50%, -50%) rotate(var(--tile-rotate, -1deg));
+    touch-action:none;
+    cursor:grab;
+}
+
+.scattered-history-tile:nth-child(2n){
+    --tile-rotate:1.4deg;
+}
+
+.scattered-history-tile:nth-child(3n){
+    --tile-rotate:-2deg;
+}
+
+.scattered-history-tile.drag-source{
+    opacity:0.45;
 }
 
 .history-tile span,
@@ -1412,9 +1462,7 @@ button{
 .history-timeline-item strong{
     display:block;
 
-    margin-top:4px;
-
-    font-size:0.85rem;
+    font-size:0.78rem;
     line-height:1.22;
 }
 
@@ -1426,7 +1474,7 @@ button{
 
     color:#5e6970;
 
-    font-size:0.72rem;
+    font-size:0.66rem;
     line-height:1.3;
     font-weight:750;
 }
@@ -1437,7 +1485,26 @@ button{
     gap:8px;
     align-items:center;
 
-    padding:10px;
+    padding:6px;
+
+    position:relative;
+}
+
+.history-timeline-item::before{
+    content:"";
+    position:absolute;
+    left:-21px;
+    top:50%;
+
+    width:12px;
+    height:12px;
+
+    border:2px solid rgba(255,255,255,0.92);
+    border-radius:50%;
+
+    background:linear-gradient(180deg, #e1ad46, #a96a2d);
+    transform:translateY(-50%);
+    box-shadow:0 3px 8px rgba(80,52,24,0.20);
 }
 
 .history-event-copy{
@@ -1446,14 +1513,14 @@ button{
 
 .history-tile-actions{
     display:grid;
-    grid-template-columns:repeat(3, 30px);
+    grid-template-columns:repeat(3, 23px);
     gap:4px;
 }
 
 .history-tile-actions button{
-    width:30px;
+    width:23px;
     min-width:0;
-    height:30px;
+    height:23px;
 
     padding:0;
     border-radius:50%;
@@ -1461,23 +1528,425 @@ button{
     font-size:0.75rem;
 }
 
-.history-empty-slot{
-    display:flex;
-    min-height:132px;
+.history-tile-main{
+    display:grid;
+    grid-template-columns:54px 1fr;
+    gap:8px;
     align-items:center;
 
-    padding:16px;
+    margin-top:6px;
+}
 
-    border:1px dashed rgba(16,43,63,0.22);
+.history-image-slot{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:54px;
+    height:54px;
+
+    border-radius:12px;
+    overflow:hidden;
+
+    color:rgba(255,255,255,0.92);
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.22), transparent 35%),
+        linear-gradient(145deg, #18364b, #be7a3b);
+    background-size:cover;
+    background-position:center;
+
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:0.85rem;
+    font-weight:900;
+
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.22);
+}
+
+.history-image-slot em{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:24px;
+    height:24px;
+
+    border-radius:50%;
+
+    color:#ffffff;
+    background:rgba(16,43,63,0.62);
+
+    font-style:normal;
+    font-size:0.7rem;
+    text-shadow:0 1px 3px rgba(0,0,0,0.35);
+}
+
+.history-empty-slot{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+
+    min-height:0;
+
+    border:1px dashed rgba(39,59,87,0.36);
+    border-radius:14px;
+
+    color:rgba(39,59,87,0.72);
+    background:rgba(255,255,255,0.72);
+
+    font-size:0.72rem;
+    line-height:1;
+    font-weight:850;
+}
+
+.history-empty-slot span{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:24px;
+    height:24px;
+
+    border-radius:50%;
+
+    color:#ffffff;
+    background:rgba(39,59,87,0.40);
+}
+
+.history-empty-slot small{
+    color:rgba(39,59,87,0.58);
+
+    font-size:0.58rem;
+    font-weight:850;
+}
+
+.history-complete-note{
+    min-height:96px;
+    display:flex;
+    align-items:center;
+
+    padding:14px;
     border-radius:18px;
 
-    color:#6a6f72;
-    background:rgba(255,255,255,0.48);
+    color:#123347;
+    background:linear-gradient(135deg, rgba(255,245,207,0.96), rgba(216,235,226,0.88));
 
-    font-size:0.82rem;
+    font-size:0.86rem;
     line-height:1.35;
-    font-weight:800;
+    font-weight:850;
     text-align:left;
+}
+
+.history-solved .history-timeline-slots{
+    border-left-color:rgba(25,121,154,0.72);
+    border-color:rgba(25,121,154,0.72);
+}
+
+.history-solved .history-timeline-item{
+    border-color:rgba(25,121,154,0.24);
+    background:linear-gradient(135deg, rgba(255,255,252,0.98), rgba(224,242,232,0.90));
+}
+
+.history-solved .history-timeline-item::before{
+    background:linear-gradient(180deg, #2a9f93, #12617f);
+}
+
+.history-solved .history-tile-actions{
+    display:none;
+}
+
+.history-drag-ghost{
+    position:fixed;
+    z-index:1000;
+
+    pointer-events:none;
+    opacity:0.92;
+    transform:rotate(2deg) scale(1.03);
+    box-shadow:0 18px 34px rgba(16,43,63,0.22);
+}
+
+.history-continue-button{
+    display:none;
+}
+
+.history-continue-button.visible{
+    display:inline-flex;
+}
+
+@media (max-width:380px){
+    .history-workbench{
+        grid-template-columns:96px 1fr;
+        min-height:500px;
+        padding:14px;
+        gap:10px;
+    }
+
+    .history-event-pool{
+        height:420px;
+    }
+
+    .history-timeline-slots{
+        min-height:420px;
+        max-height:420px;
+        padding:8px 5px 8px 9px;
+    }
+
+    .scattered-history-tile{
+        width:132px;
+    }
+
+    .history-tile-main{
+        grid-template-columns:42px 1fr;
+    }
+
+    .history-image-slot{
+        width:42px;
+        height:42px;
+    }
+
+    .history-tile small,
+    .history-timeline-item small{
+        display:none;
+    }
+
+    .history-tile strong,
+    .history-timeline-item strong{
+        font-size:0.68rem;
+    }
+}
+
+#windhoekHistoryScreen{
+    gap:8px;
+    padding:12px 10px;
+    overflow:hidden;
+}
+
+#windhoekHistoryScreen .region-hero{
+    padding:12px 14px;
+    border-radius:18px;
+}
+
+#windhoekHistoryScreen .region-hero h1{
+    font-size:1.42rem;
+}
+
+#windhoekHistoryScreen .region-hero h2{
+    max-width:none;
+    font-size:0.74rem;
+    line-height:1.22;
+}
+
+#windhoekHistoryScreen .activity-feedback-card{
+    width:min(100%, 350px);
+    padding:12px 14px;
+    border-radius:18px;
+}
+
+#windhoekHistoryScreen .activity-feedback-card p:not(.app-kicker){
+    margin-top:4px;
+    font-size:0.78rem;
+    line-height:1.28;
+}
+
+#windhoekHistoryScreen .bottom-nav{
+    margin-top:0;
+    padding:8px;
+    gap:8px;
+}
+
+#windhoekHistoryScreen .bottom-nav button{
+    min-width:0;
+    padding:11px 12px;
+    border-radius:14px;
+    font-size:0.88rem;
+}
+
+#windhoekHistoryScreen .history-workbench{
+    width:min(100%, 350px);
+    height:min(48vh, 410px);
+    min-height:360px;
+    grid-template-columns:86px 1fr;
+    gap:10px;
+    padding:12px;
+}
+
+#windhoekHistoryScreen .history-panel-title{
+    margin-bottom:6px;
+}
+
+#windhoekHistoryScreen .history-panel-title strong{
+    font-size:0.72rem;
+}
+
+#windhoekHistoryScreen .history-panel-title small{
+    font-size:0.54rem;
+    line-height:1.15;
+}
+
+#windhoekHistoryScreen .history-event-pool,
+#windhoekHistoryScreen .history-timeline-slots{
+    height:calc(100% - 32px);
+    min-height:0;
+    max-height:none;
+}
+
+#windhoekHistoryScreen .history-timeline-slots{
+    gap:4px;
+    padding:7px 5px 7px 8px;
+    border-radius:16px;
+}
+
+#windhoekHistoryScreen .scattered-history-tile{
+    width:112px;
+    min-height:68px;
+}
+
+#windhoekHistoryScreen .history-tile{
+    padding:6px;
+}
+
+#windhoekHistoryScreen .history-tile span,
+#windhoekHistoryScreen .history-timeline-item span{
+    font-size:0.48rem;
+}
+
+#windhoekHistoryScreen .history-tile strong,
+#windhoekHistoryScreen .history-timeline-item strong{
+    font-size:0.58rem;
+}
+
+#windhoekHistoryScreen .history-tile small,
+#windhoekHistoryScreen .history-timeline-item small{
+    display:none;
+}
+
+#windhoekHistoryScreen .history-timeline-item{
+    grid-template-columns:1fr;
+    gap:3px;
+    padding:4px;
+}
+
+#windhoekHistoryScreen .history-timeline-item::before{
+    left:-15px;
+    width:9px;
+    height:9px;
+}
+
+#windhoekHistoryScreen .history-tile-main{
+    grid-template-columns:32px 1fr;
+    gap:5px;
+    margin-top:4px;
+}
+
+#windhoekHistoryScreen .history-image-slot{
+    width:32px;
+    height:32px;
+    border-radius:9px;
+}
+
+#windhoekHistoryScreen .history-image-slot em{
+    width:18px;
+    height:18px;
+    font-size:0.56rem;
+}
+
+#windhoekHistoryScreen .history-tile-actions{
+    display:flex;
+    justify-content:center;
+    gap:3px;
+}
+
+#windhoekHistoryScreen .history-tile-actions button{
+    width:21px;
+    height:21px;
+    font-size:0.64rem;
+}
+
+#windhoekHistoryScreen .history-empty-slot{
+    gap:3px;
+    border-radius:10px;
+    font-size:0.58rem;
+}
+
+#windhoekHistoryScreen .history-empty-slot span{
+    width:20px;
+    height:20px;
+}
+
+#windhoekHistoryScreen .history-empty-slot small{
+    display:none;
+}
+
+@media (min-width:760px){
+    #windhoekHistoryScreen{
+        overflow:auto;
+    }
+
+    #windhoekHistoryScreen .history-workbench{
+        width:min(100%, 820px);
+        height:520px;
+        grid-template-columns:150px 1fr;
+        padding:24px;
+        gap:28px;
+    }
+
+    #windhoekHistoryScreen .history-panel-title{
+        margin-bottom:12px;
+    }
+
+    #windhoekHistoryScreen .history-panel-title strong{
+        font-size:0.95rem;
+    }
+
+    #windhoekHistoryScreen .history-panel-title small{
+        font-size:0.72rem;
+    }
+
+    #windhoekHistoryScreen .history-event-pool,
+    #windhoekHistoryScreen .history-timeline-slots{
+        height:calc(100% - 46px);
+    }
+
+    #windhoekHistoryScreen .scattered-history-tile{
+        width:200px;
+        min-height:92px;
+    }
+
+    #windhoekHistoryScreen .history-tile-main{
+        grid-template-columns:54px 1fr;
+        gap:8px;
+    }
+
+    #windhoekHistoryScreen .history-image-slot{
+        width:54px;
+        height:54px;
+    }
+
+    #windhoekHistoryScreen .history-tile span,
+    #windhoekHistoryScreen .history-timeline-item span{
+        font-size:0.72rem;
+    }
+
+    #windhoekHistoryScreen .history-tile strong,
+    #windhoekHistoryScreen .history-timeline-item strong{
+        font-size:0.78rem;
+    }
+
+    #windhoekHistoryScreen .history-tile small,
+    #windhoekHistoryScreen .history-timeline-item small{
+        display:block;
+    }
+
+    #windhoekHistoryScreen .history-timeline-item{
+        grid-template-columns:1fr auto;
+        padding:8px;
+    }
+
+    #windhoekHistoryScreen .history-tile-actions button{
+        width:26px;
+        height:26px;
+        font-size:0.75rem;
+    }
 }
 
 .timeline-item{
@@ -1650,6 +2119,187 @@ button{
     font-size:0.86rem;
     line-height:1.35;
     font-weight:850;
+}
+
+.active-baboon-card{
+    width:min(100%, 350px);
+}
+
+.baboon-playfield{
+    position:relative;
+
+    height:210px;
+    overflow:hidden;
+
+    border-radius:22px;
+
+    background:
+        radial-gradient(circle at 82% 18%, rgba(217,164,65,0.22), transparent 28%),
+        linear-gradient(180deg, rgba(216,235,226,0.95), rgba(244,220,170,0.92));
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.72),
+        inset 0 -30px 42px rgba(111,75,42,0.12);
+}
+
+.baboon-road{
+    position:absolute;
+    left:50%;
+    top:-20px;
+
+    width:108px;
+    height:260px;
+
+    border-left:2px dashed rgba(255,255,255,0.60);
+    border-right:2px solid rgba(82,68,48,0.12);
+
+    background:
+        linear-gradient(90deg, rgba(80,76,66,0.12), rgba(255,255,255,0.10), rgba(80,76,66,0.10)),
+        rgba(118,112,92,0.16);
+
+    transform:translateX(-50%) rotate(-8deg);
+}
+
+.baboon-jeep-token,
+.baboon-food-token,
+.baboon-token,
+.baboon-alert-token{
+    position:absolute;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,0.86);
+
+    box-shadow:
+        0 10px 18px rgba(16,43,63,0.14),
+        inset 0 0 0 1px rgba(255,255,255,0.72);
+
+    transition:
+        left 260ms ease,
+        top 260ms ease,
+        transform 260ms ease,
+        opacity 220ms ease,
+        filter 220ms ease;
+}
+
+.baboon-jeep-token{
+    left:20%;
+    top:62%;
+
+    width:58px;
+    height:58px;
+
+    font-size:2rem;
+    transform:translate(-50%, -50%) rotate(-5deg);
+}
+
+.baboon-food-token{
+    left:24%;
+    top:40%;
+
+    width:42px;
+    height:42px;
+
+    font-size:1.28rem;
+}
+
+.baboon-token{
+    left:71%;
+    top:34%;
+
+    width:50px;
+    height:50px;
+
+    font-size:1.55rem;
+}
+
+.baboon-token.small{
+    left:64%;
+    top:60%;
+
+    width:40px;
+    height:40px;
+
+    font-size:1.22rem;
+}
+
+.baboon-alert-token{
+    right:18px;
+    top:18px;
+
+    width:38px;
+    height:38px;
+
+    font-size:1.1rem;
+}
+
+.baboon-playfield[data-stage="1"] .baboon-token{
+    left:56%;
+    top:40%;
+}
+
+.baboon-playfield[data-stage="1"] .baboon-token.small{
+    left:71%;
+    top:54%;
+}
+
+.baboon-playfield[data-stage="2"] .baboon-token{
+    left:78%;
+    top:48%;
+}
+
+.baboon-playfield[data-stage="2"] .baboon-token.small{
+    left:72%;
+    top:24%;
+}
+
+.baboon-playfield.resolved .baboon-jeep-token{
+    left:36%;
+}
+
+.baboon-playfield.completed .baboon-jeep-token{
+    left:78%;
+    top:55%;
+}
+
+.baboon-playfield.completed .baboon-token,
+.baboon-playfield.completed .baboon-token.small{
+    opacity:0.55;
+    filter:saturate(0.75);
+}
+
+.baboon-food-token.secured{
+    opacity:0;
+    transform:translateY(-8px) scale(0.72);
+}
+
+.baboon-playfield.warning{
+    animation:baboonWarning 220ms ease-in-out 2;
+}
+
+@keyframes baboonWarning{
+    0%{ transform:translateX(0); }
+    35%{ transform:translateX(-4px); }
+    70%{ transform:translateX(4px); }
+    100%{ transform:translateX(0); }
+}
+
+.baboon-action-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+
+.baboon-action-grid .baboon-choice{
+    padding:11px 10px;
+
+    text-align:center;
+    font-size:0.78rem;
+    font-weight:900;
 }
 
 .departure-card{
@@ -2295,6 +2945,431 @@ button:disabled{
 .map-stop.unlocked{
     opacity:1;
     pointer-events:auto;
+}
+
+.map-travel-jeep{
+    position:absolute;
+    z-index:4;
+    left:66%;
+    top:62%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:46px;
+    height:46px;
+
+    border-radius:50%;
+
+    background:rgba(255,246,215,0.92);
+    transform:translate(-50%, -50%) scale(0);
+
+    font-size:1.55rem;
+    opacity:0;
+    pointer-events:none;
+
+    box-shadow:
+        0 0 0 4px rgba(217,164,65,0.22),
+        0 10px 18px rgba(71,48,28,0.24);
+}
+
+.map-travel-jeep.active{
+    opacity:1;
+    animation:windhoekToSolitaire 4s cubic-bezier(0.24, 0.76, 0.34, 1) forwards;
+}
+
+@keyframes windhoekToSolitaire{
+    0%{
+        left:66%;
+        top:62%;
+        transform:translate(-50%, -50%) scale(0.2) rotate(-8deg);
+    }
+    15%{
+        transform:translate(-50%, -50%) scale(1) rotate(-5deg);
+    }
+    72%{
+        left:50%;
+        top:64%;
+        transform:translate(-50%, -50%) scale(1) rotate(-12deg);
+    }
+    100%{
+        left:50%;
+        top:64%;
+        transform:translate(-50%, -50%) scale(0.86) rotate(-12deg);
+    }
+}
+
+/* Windhoek history puzzle reset: fixed board, fixed tiles, no inherited button scaling. */
+#windhoekHistoryScreen{
+    gap:8px;
+    padding:10px;
+    overflow:hidden;
+}
+
+#windhoekHistoryScreen .region-hero{
+    width:min(100%, 350px);
+    padding:12px 14px;
+    border-radius:18px;
+}
+
+#windhoekHistoryScreen .region-hero h1{
+    font-size:1.38rem;
+    line-height:1;
+}
+
+#windhoekHistoryScreen .region-hero h2{
+    max-width:none;
+    font-size:0.72rem;
+    line-height:1.2;
+}
+
+#windhoekHistoryScreen .history-workbench{
+    width:min(100%, 350px);
+    height:380px;
+    min-height:0;
+    display:grid;
+    grid-template-columns:92px 1fr;
+    gap:10px;
+    padding:12px;
+    border:1px solid rgba(16,43,63,0.10);
+    border-radius:18px;
+    background:#ffffff;
+    box-shadow:0 14px 30px rgba(16,43,63,0.12);
+}
+
+#windhoekHistoryScreen .history-panel{
+    min-width:0;
+    height:100%;
+    padding:0;
+    border:0;
+    background:transparent;
+    box-shadow:none;
+}
+
+#windhoekHistoryScreen .history-panel-title{
+    height:34px;
+    margin:0;
+    text-align:left;
+}
+
+#windhoekHistoryScreen .history-panel-title strong{
+    display:block;
+    color:var(--navy);
+    font-size:0.68rem;
+    line-height:1.05;
+    font-weight:900;
+}
+
+#windhoekHistoryScreen .history-panel-title small{
+    display:block;
+    margin-top:2px;
+    color:#77674f;
+    font-size:0.5rem;
+    line-height:1.05;
+    font-weight:850;
+}
+
+#windhoekHistoryScreen .history-timeline-slots,
+#windhoekHistoryScreen .history-event-pool{
+    height:334px;
+    min-height:0;
+    max-height:none;
+    overflow:hidden;
+}
+
+#windhoekHistoryScreen .history-timeline-slots{
+    display:grid;
+    grid-template-rows:repeat(10, 1fr);
+    gap:4px;
+    padding:7px 5px;
+    border:2px solid rgba(39,59,87,0.32);
+    border-radius:16px;
+    background:#fffefe;
+}
+
+#windhoekHistoryScreen .history-event-pool{
+    position:relative;
+    border:1px dashed rgba(39,59,87,0.18);
+    border-radius:16px;
+    background:#ffffff;
+}
+
+#windhoekHistoryScreen .history-tile,
+#windhoekHistoryScreen .history-timeline-item{
+    width:100%;
+    min-width:0;
+    margin:0;
+    padding:0;
+    border:1px solid rgba(16,43,63,0.12);
+    border-radius:10px;
+    color:var(--navy);
+    background:rgba(255,255,255,0.96);
+    box-shadow:0 5px 10px rgba(16,43,63,0.08);
+    text-align:left;
+    overflow:hidden;
+}
+
+#windhoekHistoryScreen .scattered-history-tile{
+    position:absolute;
+    left:var(--tile-x);
+    top:var(--tile-y);
+    width:104px;
+    height:48px;
+    min-height:0;
+    min-width:0;
+    transform:translate(-50%, -50%) rotate(var(--tile-rotate, -1deg));
+    touch-action:none;
+    cursor:grab;
+}
+
+#windhoekHistoryScreen .history-timeline-item{
+    height:100%;
+    display:flex;
+    align-items:center;
+    position:relative;
+}
+
+#windhoekHistoryScreen .history-timeline-item::before{
+    display:none;
+}
+
+#windhoekHistoryScreen .history-event-copy{
+    width:100%;
+    min-width:0;
+}
+
+#windhoekHistoryScreen .history-tile span,
+#windhoekHistoryScreen .history-timeline-item span{
+    display:block;
+    padding:3px 5px 0;
+    color:#9d671e;
+    font-size:0.42rem;
+    line-height:1;
+    font-weight:900;
+    text-transform:uppercase;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+#windhoekHistoryScreen .history-tile-main{
+    display:grid;
+    grid-template-columns:24px 1fr;
+    gap:4px;
+    align-items:center;
+    margin:0;
+    padding:3px 5px 5px;
+}
+
+#windhoekHistoryScreen .history-image-slot{
+    width:24px;
+    height:24px;
+    border-radius:7px;
+    background-size:cover;
+    background-position:center;
+}
+
+#windhoekHistoryScreen .history-image-slot em{
+    width:15px;
+    height:15px;
+    font-size:0.48rem;
+}
+
+#windhoekHistoryScreen .history-tile strong,
+#windhoekHistoryScreen .history-timeline-item strong{
+    display:-webkit-box;
+    color:var(--navy);
+    font-size:0.52rem;
+    line-height:1.08;
+    font-weight:900;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+}
+
+#windhoekHistoryScreen .history-tile small,
+#windhoekHistoryScreen .history-timeline-item small,
+#windhoekHistoryScreen .history-tile-actions{
+    display:none;
+}
+
+#windhoekHistoryScreen .history-empty-slot{
+    min-height:0;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px dashed rgba(39,59,87,0.26);
+    border-radius:10px;
+    background:#ffffff;
+}
+
+#windhoekHistoryScreen .history-empty-slot span{
+    width:19px;
+    height:19px;
+    font-size:0.58rem;
+    color:#ffffff;
+    background:rgba(39,59,87,0.42);
+}
+
+#windhoekHistoryScreen .history-empty-slot small{
+    display:none;
+}
+
+#windhoekHistoryScreen .activity-feedback-card{
+    width:min(100%, 350px);
+    max-height:74px;
+    overflow:hidden;
+    padding:10px 14px;
+    border-radius:16px;
+}
+
+#windhoekHistoryScreen .activity-feedback-card p:not(.app-kicker){
+    margin-top:3px;
+    font-size:0.74rem;
+    line-height:1.18;
+}
+
+#windhoekHistoryScreen .bottom-nav{
+    width:min(100%, 350px);
+    display:flex;
+    gap:8px;
+    margin-top:0;
+    padding:8px;
+}
+
+#windhoekHistoryScreen .bottom-nav button{
+    flex:1 1 0;
+    min-width:0;
+    padding:10px 8px;
+    border-radius:14px;
+    font-size:0.78rem;
+}
+
+#windhoekHistoryScreen.history-solved .history-workbench{
+    grid-template-columns:1fr;
+    height:430px;
+}
+
+#windhoekHistoryScreen.history-solved .history-timeline-panel{
+    display:none;
+}
+
+#windhoekHistoryScreen.history-solved .history-event-pool{
+    height:380px;
+    overflow:auto;
+    padding:10px;
+    border-style:solid;
+}
+
+#windhoekHistoryScreen .history-complete-note{
+    display:grid;
+    gap:8px;
+    padding:0;
+    background:transparent;
+    box-shadow:none;
+}
+
+#windhoekHistoryScreen .history-complete-note article{
+    display:grid;
+    grid-template-columns:42px 1fr;
+    gap:8px;
+    align-items:center;
+    padding:8px;
+    border:1px solid rgba(16,43,63,0.08);
+    border-radius:12px;
+    background:#fffaf0;
+}
+
+#windhoekHistoryScreen .history-complete-note img{
+    width:42px;
+    height:42px;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+#windhoekHistoryScreen .history-complete-note span,
+#windhoekHistoryScreen .history-complete-note strong,
+#windhoekHistoryScreen .history-complete-note small{
+    display:block;
+}
+
+#windhoekHistoryScreen .history-complete-note span{
+    color:#9d671e;
+    font-size:0.58rem;
+    font-weight:900;
+    text-transform:uppercase;
+}
+
+#windhoekHistoryScreen .history-complete-note strong{
+    color:var(--navy);
+    font-size:0.78rem;
+    line-height:1.14;
+}
+
+#windhoekHistoryScreen .history-complete-note small{
+    color:#58666f;
+    font-size:0.66rem;
+    line-height:1.24;
+    font-weight:750;
+}
+
+@media (min-width:760px){
+    #windhoekHistoryScreen{
+        overflow:auto;
+    }
+
+    #windhoekHistoryScreen .history-workbench{
+        width:min(100%, 820px);
+        height:520px;
+        grid-template-columns:150px 1fr;
+        gap:28px;
+        padding:24px;
+    }
+
+    #windhoekHistoryScreen .history-panel-title{
+        height:46px;
+    }
+
+    #windhoekHistoryScreen .history-panel-title strong{
+        font-size:0.95rem;
+    }
+
+    #windhoekHistoryScreen .history-panel-title small{
+        font-size:0.72rem;
+    }
+
+    #windhoekHistoryScreen .history-timeline-slots,
+    #windhoekHistoryScreen .history-event-pool{
+        height:426px;
+    }
+
+    #windhoekHistoryScreen .scattered-history-tile{
+        width:180px;
+        height:74px;
+    }
+
+    #windhoekHistoryScreen .history-tile-main{
+        grid-template-columns:46px 1fr;
+        padding:5px 8px 8px;
+    }
+
+    #windhoekHistoryScreen .history-image-slot{
+        width:46px;
+        height:46px;
+    }
+
+    #windhoekHistoryScreen .history-tile span,
+    #windhoekHistoryScreen .history-timeline-item span{
+        font-size:0.62rem;
+        padding:6px 8px 0;
+    }
+
+    #windhoekHistoryScreen .history-tile strong,
+    #windhoekHistoryScreen .history-timeline-item strong{
+        font-size:0.72rem;
+    }
 }
 
 .map-region::after{

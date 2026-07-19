@@ -216,6 +216,7 @@
           <strong>Solitaire</strong>
           <small id="solitaireMapStatus">Po wyjeździe z Windhoek</small>
         </button>
+        <div id="windhoekTravelJeep" class="map-travel-jeep" aria-hidden="true">🚙</div>
         <div id="windhoekMapLocation" class="location map-location map-region windhoek-region" data-x="66" data-y="62" onclick="openWindhoek()">
           <span class="route-dot">1</span>
           <span class="map-location-title">Windhoek</span>
@@ -309,26 +310,26 @@
     </div>
 
     <div class="history-workbench">
+      <div class="history-panel history-timeline-panel">
+        <div class="history-panel-title">
+          <strong>Drabinka historii</strong>
+          <small id="historyTimelineProgress">0 / 10 wydarzeń</small>
+        </div>
+        <div id="historyTimelineSlots" class="history-timeline-slots" ondragover="allowHistoryDrop(event)" ondrop="dropHistoryEvent(event)"></div>
+      </div>
+
       <div class="history-panel">
         <div class="history-panel-title">
           <strong>Kafle wydarzeń</strong>
-          <small>Przeciągnij albo stuknij kafel.</small>
+          <small>Bez dat. Najpierw wyczuj kolejność historii.</small>
         </div>
         <div id="historyEventPool" class="history-event-pool"></div>
-      </div>
-
-      <div class="history-panel history-timeline-panel">
-        <div class="history-panel-title">
-          <strong>Twoja oś czasu</strong>
-          <small id="historyTimelineProgress">0 / 20 wydarzeń</small>
-        </div>
-        <div id="historyTimelineSlots" class="history-timeline-slots" ondragover="allowHistoryDrop(event)" ondrop="dropHistoryEvent(event)"></div>
       </div>
     </div>
 
     <div class="card activity-feedback-card">
       <p class="app-kicker">Muzeum</p>
-      <p id="windhoekHistoryOrder">Zbuduj oś z 20 wydarzeń.</p>
+      <p id="windhoekHistoryOrder">Zbuduj oś z 10 wydarzeń.</p>
       <p id="windhoekHistoryMessage">Najpierw zbierz kafle na osi, potem poprawiaj kolejność strzałkami i sprawdź wynik.</p>
     </div>
 
@@ -336,6 +337,7 @@
       <button class="small-button secondary" onclick="resetWindhoekHistory()">Reset</button>
       <button class="small-button" onclick="checkWindhoekHistory()">Sprawdź</button>
       <button class="small-button secondary" onclick="showScreen('windhoekScreen')">Wróć</button>
+      <button id="windhoekHistoryContinueButton" class="small-button history-continue-button" onclick="showScreen('windhoekScreen')">Ruszamy</button>
     </div>
   </section>
 
@@ -346,11 +348,14 @@
       <h2>Na wyjeździe z miasta pojawia się pierwsza dzika ekipa. Trzeba zareagować rozsądnie.</h2>
     </div>
 
-    <div class="decision-card baboon-card">
-      <div class="decision-scene baboon-scene">
-        <span class="baboon-jeep">🚙</span>
-        <span id="baboonFoodIcon">🧺</span>
-        <span id="baboonMoodIcon">👀</span>
+    <div class="decision-card baboon-card active-baboon-card">
+      <div class="baboon-playfield">
+        <div class="baboon-road"></div>
+        <div id="baboonJeep" class="baboon-jeep-token">🚙</div>
+        <div id="baboonFoodIcon" class="baboon-food-token">🧺</div>
+        <div id="baboonOne" class="baboon-token">🐒</div>
+        <div id="baboonTwo" class="baboon-token small">🐒</div>
+        <div id="baboonMoodIcon" class="baboon-alert-token">👀</div>
       </div>
       <div class="baboon-status-grid">
         <div><strong id="baboonSafetyValue">0</strong><small>Bezpieczeństwo</small></div>
@@ -358,7 +363,7 @@
         <div><strong id="baboonControlValue">0</strong><small>Kontrola</small></div>
       </div>
       <p id="windhoekBaboonsPrompt" class="decision-prompt">Pawiany obserwują samochód przy rogatkach Windhoek.</p>
-      <div id="windhoekBaboonsChoices" class="baboon-choice-grid"></div>
+      <div id="windhoekBaboonsChoices" class="baboon-action-grid"></div>
     </div>
 
     <div class="card activity-feedback-card">
@@ -368,7 +373,7 @@
 
     <div class="bottom-nav">
       <button class="small-button secondary" onclick="showScreen('windhoekScreen')">Wróć</button>
-      <button id="windhoekBaboonsCompleteButton" class="small-button" onclick="advanceWindhoekBaboonStage()">Dalej</button>
+      <button id="windhoekBaboonsCompleteButton" class="small-button" onclick="advanceWindhoekBaboonStage()">Ruszaj dalej</button>
     </div>
   </section>
 
