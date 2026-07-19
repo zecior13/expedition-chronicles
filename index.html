@@ -211,6 +211,11 @@
           <div class="map-guardian visible artwork-guardian daan-viljoen-guardian" data-x="78" data-y="51"></div>
           <div class="map-guardian visible artwork-guardian ceremony-guardian" data-x="84" data-y="80"></div>
         </div>
+        <button id="solitaireMapLocation" class="map-stop route-encounter locked" data-x="50" data-y="64" onclick="openSolitaire()">
+          <span>🍎</span>
+          <strong>Solitaire</strong>
+          <small id="solitaireMapStatus">Po wyjeździe z Windhoek</small>
+        </button>
         <div id="windhoekMapLocation" class="location map-location map-region windhoek-region" data-x="66" data-y="62" onclick="openWindhoek()">
           <span class="route-dot">1</span>
           <span class="map-location-title">Windhoek</span>
@@ -260,39 +265,155 @@
     </div>
 
     <div class="activity-list">
-      <button class="activity-card" onclick="showScreen('expeditionProfileScreen'); updateExpeditionProfilePreview()">
+      <button id="windhoekPrepButton" class="activity-card" onclick="openExpeditionPrep()">
         <span class="activity-icon">🎒</span>
         <span>
           <strong>Expedition Prep</strong>
-          <small>Profil postaci i pierwszy ekwipunek</small>
+          <small id="windhoekPrepStatus">Profil postaci i pierwszy ekwipunek</small>
         </span>
       </button>
       <div class="activity-card locked-activity">
         <span class="activity-icon">🥩</span>
         <span>
           <strong>First Game Steak</strong>
-          <small>Wkrótce: pierwszy wieczór w Windhoek</small>
+          <small>Klimat prologu: pierwsza kolacja z dziczyzną</small>
         </span>
       </div>
-      <div class="activity-card locked-activity">
+      <button class="activity-card" onclick="startWindhoekHistory()">
         <span class="activity-icon">🏛️</span>
         <span>
           <strong>Historia Namibii</strong>
-          <small>Wkrótce: muzeum i oś czasu</small>
+          <small id="windhoekHistoryStatus">Muzeum i oś czasu</small>
         </span>
-      </div>
-      <div class="activity-card locked-activity">
+      </button>
+      <button class="activity-card" onclick="startWindhoekBaboons()">
         <span class="activity-icon">🧭</span>
         <span>
           <strong>Baboons at the Edge</strong>
-          <small>Wkrótce: wyjazd z miasta</small>
+          <small id="windhoekBaboonsStatus">Wyjazd z miasta i pierwsza lekcja dzikiej natury</small>
         </span>
-      </div>
+      </button>
     </div>
 
     <div class="bottom-nav">
       <button class="small-button secondary" onclick="showScreen('mapScreen')">Mapa</button>
-      <button class="small-button" onclick="openWalvisBay()">Dalej</button>
+      <button id="windhoekDepartButton" class="small-button" onclick="completeWindhoekDeparture()">Wyjedź z Windhoek</button>
+    </div>
+  </section>
+
+  <section id="windhoekHistoryScreen" class="screen windhoek-activity-screen">
+    <div class="region-hero windhoek-hero">
+      <p class="app-kicker">Windhoek · Muzeum</p>
+      <h1>Historia Namibii</h1>
+      <h2>Ułóż wydarzenia od najstarszego do najnowszego. To kontekst kraju, przez który jedziemy.</h2>
+    </div>
+
+    <div class="history-workbench">
+      <div class="history-panel">
+        <div class="history-panel-title">
+          <strong>Kafle wydarzeń</strong>
+          <small>Przeciągnij albo stuknij kafel.</small>
+        </div>
+        <div id="historyEventPool" class="history-event-pool"></div>
+      </div>
+
+      <div class="history-panel history-timeline-panel">
+        <div class="history-panel-title">
+          <strong>Twoja oś czasu</strong>
+          <small id="historyTimelineProgress">0 / 20 wydarzeń</small>
+        </div>
+        <div id="historyTimelineSlots" class="history-timeline-slots" ondragover="allowHistoryDrop(event)" ondrop="dropHistoryEvent(event)"></div>
+      </div>
+    </div>
+
+    <div class="card activity-feedback-card">
+      <p class="app-kicker">Muzeum</p>
+      <p id="windhoekHistoryOrder">Zbuduj oś z 20 wydarzeń.</p>
+      <p id="windhoekHistoryMessage">Najpierw zbierz kafle na osi, potem poprawiaj kolejność strzałkami i sprawdź wynik.</p>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="small-button secondary" onclick="resetWindhoekHistory()">Reset</button>
+      <button class="small-button" onclick="checkWindhoekHistory()">Sprawdź</button>
+      <button class="small-button secondary" onclick="showScreen('windhoekScreen')">Wróć</button>
+    </div>
+  </section>
+
+  <section id="windhoekBaboonsScreen" class="screen windhoek-activity-screen">
+    <div class="region-hero windhoek-hero">
+      <p class="app-kicker">Windhoek · Rogatki miasta</p>
+      <h1>Pawiany przy drodze</h1>
+      <h2>Na wyjeździe z miasta pojawia się pierwsza dzika ekipa. Trzeba zareagować rozsądnie.</h2>
+    </div>
+
+    <div class="decision-card baboon-card">
+      <div class="decision-scene baboon-scene">
+        <span class="baboon-jeep">🚙</span>
+        <span id="baboonFoodIcon">🧺</span>
+        <span id="baboonMoodIcon">👀</span>
+      </div>
+      <div class="baboon-status-grid">
+        <div><strong id="baboonSafetyValue">0</strong><small>Bezpieczeństwo</small></div>
+        <div><strong id="baboonRespectValue">0</strong><small>Szacunek</small></div>
+        <div><strong id="baboonControlValue">0</strong><small>Kontrola</small></div>
+      </div>
+      <p id="windhoekBaboonsPrompt" class="decision-prompt">Pawiany obserwują samochód przy rogatkach Windhoek.</p>
+      <div id="windhoekBaboonsChoices" class="baboon-choice-grid"></div>
+    </div>
+
+    <div class="card activity-feedback-card">
+      <p class="app-kicker">Decyzja</p>
+      <p id="windhoekBaboonsMessage">Pawiany patrzą na samochód, a koszyk z przekąskami wygląda podejrzanie interesująco.</p>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="small-button secondary" onclick="showScreen('windhoekScreen')">Wróć</button>
+      <button id="windhoekBaboonsCompleteButton" class="small-button" onclick="advanceWindhoekBaboonStage()">Dalej</button>
+    </div>
+  </section>
+
+  <section id="windhoekDepartureScreen" class="screen windhoek-activity-screen departure-screen">
+    <div class="region-hero windhoek-hero">
+      <p class="app-kicker">Droga 01 → 02</p>
+      <h1>Windhoek za nami</h1>
+      <h2>Auto jest spakowane. Przed nami Solitaire, szarlotka, wraki i droga do Sesriem.</h2>
+    </div>
+
+    <div class="departure-card">
+      <div class="departure-road" aria-hidden="true">
+        <div class="departure-dunes"></div>
+        <div class="departure-jeep">
+          <span class="jeep-body">🚙</span>
+          <span class="jeep-luggage">▣ ▣</span>
+        </div>
+      </div>
+      <p class="app-kicker">Odblokowano</p>
+      <h3>Solitaire Apple Pie Outpost</h3>
+      <p>Krótki przystanek na pustkowiu: rdza, stare auta, ziemne wiewiórki i legendarna szarlotka przed dalszą drogą.</p>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="small-button secondary" onclick="showScreen('mapScreen')">Mapa</button>
+      <button class="small-button" onclick="openSolitaire()">Jedź do Solitaire</button>
+    </div>
+  </section>
+
+  <section id="solitaireScreen" class="screen windhoek-activity-screen solitaire-screen">
+    <div class="region-hero windhoek-hero">
+      <p class="app-kicker">Route Encounter</p>
+      <h1>Solitaire</h1>
+      <h2>Postapokaliptyczny przystanek z wrakami, starą stacją i szarlotką, której nikt nie omija.</h2>
+    </div>
+
+    <div class="card">
+      <p class="app-kicker">Następny prototyp</p>
+      <h3>Apple Pie Rust Maze</h3>
+      <p>Tu zrobimy osobną aktywną mini-grę: kręcenie się po małej osadzie, ścieżki między wrakami, ziemne wiewiórki i finał przy szarlotce.</p>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="small-button secondary" onclick="showScreen('mapScreen')">Mapa</button>
+      <button class="small-button" onclick="showScreen('windhoekDepartureScreen')">Powrót</button>
     </div>
   </section>
 

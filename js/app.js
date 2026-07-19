@@ -194,6 +194,88 @@ const expeditionHeroes = [
 ];
 
 let selectedHeroId = "driver";
+let windhoekHistoryChoices = [];
+let draggedHistoryEventId = null;
+let windhoekBaboonStage = 0;
+let windhoekBaboonState = {
+    safety: 0,
+    respect: 0,
+    control: 0,
+    selected: false
+};
+
+const namibiaHistoryEvents = [
+    { id: "coast-contact", year: "1480s", block: "Pierwsze kontakty", title: "Europejscy żeglarze docierają do wybrzeża", detail: "Portugalskie wyprawy opisują zdradliwe atlantyckie wybrzeże dzisiejszej Namibii." },
+    { id: "orlam-herero", year: "1800s", block: "Społeczności i handel", title: "Migracje i napięcia w interiorze", detail: "Społeczności Nama, Orlam, Herero i Damara funkcjonują w świecie handlu, sojuszy i konfliktów." },
+    { id: "rhein-mission", year: "1840s", block: "Społeczności i handel", title: "Misje i stacje handlowe w głębi kraju", detail: "Europejskie misje i handel coraz mocniej wpływają na lokalne relacje polityczne." },
+    { id: "german-protectorate", year: "1884", block: "Kolonia niemiecka", title: "Niemcy ogłaszają protektorat", detail: "Powstaje Niemiecka Afryka Południowo-Zachodnia." },
+    { id: "windhoek-fort", year: "1890", block: "Kolonia niemiecka", title: "Windhoek staje się centrum administracji", detail: "Budowa kolonialnych struktur wzmacnia kontrolę nad szlakami i ziemią." },
+    { id: "rinderpest-land", year: "1897", block: "Kolonia niemiecka", title: "Kryzys bydła i ziemi", detail: "Epidemie, długi i nacisk osadników pogłębiają utratę ziem przez lokalne społeczności." },
+    { id: "herero-nama-war", year: "1904", block: "Kolonia niemiecka", title: "Powstanie Herero i Nama", detail: "Wybucha opór przeciw niemieckiej władzy kolonialnej." },
+    { id: "genocide", year: "1904-1908", block: "Kolonia niemiecka", title: "Ludobójstwo Herero i Nama", detail: "Niemiecka kampania eksterminacyjna staje się jednym z najciemniejszych rozdziałów historii kraju." },
+    { id: "south-africa-occupies", year: "1915", block: "Rządy RPA", title: "Wojska RPA zajmują kolonię", detail: "W czasie I wojny światowej kończy się bezpośrednia niemiecka administracja." },
+    { id: "league-mandate", year: "1920", block: "Rządy RPA", title: "Mandat Ligi Narodów dla RPA", detail: "Afryka Południowa otrzymuje mandat nad terytorium i zarządza nim przez kolejne dekady." },
+    { id: "un-dispute", year: "1946", block: "Droga do oporu", title: "ONZ odrzuca aneksję", detail: "Po II wojnie światowej narasta międzynarodowy spór o status terytorium." },
+    { id: "old-location", year: "1959", block: "Droga do oporu", title: "Old Location Uprising w Windhoek", detail: "Protest przeciw przymusowym przesiedleniom staje się symbolem oporu." },
+    { id: "swapo-founded", year: "1960", block: "Droga do oporu", title: "Powstaje SWAPO", detail: "Organizacja staje się najważniejszym ruchem walki o niepodległość Namibii." },
+    { id: "armed-struggle", year: "1966", block: "Walka o niepodległość", title: "Początek walki zbrojnej", detail: "Starcie pod Omugulugwombashe zapoczątkowuje długą wojnę wyzwoleńczą." },
+    { id: "un-ends-mandate", year: "1966", block: "Walka o niepodległość", title: "ONZ kończy mandat RPA", detail: "Zgromadzenie Ogólne ONZ uznaje dalszą administrację RPA za nieuprawnioną." },
+    { id: "icj-opinion", year: "1971", block: "Walka o niepodległość", title: "Opinia MTS przeciw obecności RPA", detail: "Międzynarodowy Trybunał Sprawiedliwości uznaje obecność RPA w Namibii za nielegalną." },
+    { id: "resolution-435", year: "1978", block: "Walka o niepodległość", title: "Rezolucja 435 Rady Bezpieczeństwa ONZ", detail: "Plan ONZ wyznacza ramy przejścia do niepodległości." },
+    { id: "tripartite-accords", year: "1988", block: "Niepodległość", title: "Porozumienia otwierają drogę do wyborów", detail: "Uzgodnienia regionalne pozwalają uruchomić proces nadzorowany przez ONZ." },
+    { id: "untag-elections", year: "1989", block: "Niepodległość", title: "UNTAG i pierwsze wolne wybory", detail: "Misja ONZ nadzoruje wybory do zgromadzenia konstytucyjnego." },
+    { id: "independence", year: "1990", block: "Niepodległość", title: "Namibia odzyskuje niepodległość", detail: "21 marca Namibia staje się niepodległym państwem, a Sam Nujoma pierwszym prezydentem." }
+];
+
+const shuffledHistoryEventIds = [
+    "resolution-435",
+    "german-protectorate",
+    "old-location",
+    "coast-contact",
+    "genocide",
+    "untag-elections",
+    "league-mandate",
+    "swapo-founded",
+    "orlam-herero",
+    "tripartite-accords",
+    "rhein-mission",
+    "south-africa-occupies",
+    "icj-opinion",
+    "windhoek-fort",
+    "armed-struggle",
+    "independence",
+    "un-dispute",
+    "herero-nama-war",
+    "rinderpest-land",
+    "un-ends-mandate"
+];
+
+const baboonStages = [
+    {
+        prompt: "Przy rogatkach Windhoek grupa pawianów przecina drogę. Za Tobą ciężarówka, przed Tobą młode przy poboczu.",
+        choices: [
+            { id: "slow-secure", label: "Zwolnij, włącz awaryjne i daj im przejść", result: "Auto trzyma dystans. Pawiany przechodzą, a za Tobą nikt nie musi nagle hamować.", safety: 2, respect: 2, control: 1, mood: "✅" },
+            { id: "honk", label: "Zatrąb, żeby szybciej uciekły", result: "Hałas robi chaos. Dorosły samiec odwraca się w stronę auta, a sytuacja robi się nerwowa.", safety: -1, respect: -1, control: 1, mood: "⚠️" },
+            { id: "rush", label: "Przejedź szybko, zanim wejdą na drogę", result: "To wygląda jak skrót, ale tracisz kontrolę nad dystansem. Dzika natura nie lubi pośpiechu.", safety: -2, respect: -1, control: -1, mood: "❌" }
+        ]
+    },
+    {
+        prompt: "Koszyk z przekąskami leży z tyłu, a jeden pawian podchodzi bliżej okna.",
+        choices: [
+            { id: "lock-food", label: "Zamknij okno i schowaj jedzenie", result: "Dobra logistyka. Pawian traci zainteresowanie, a prowiant zostaje dla ludzi.", safety: 1, respect: 2, control: 2, mood: "🧺" },
+            { id: "photo-open", label: "Otwórz szybę, żeby zrobić lepsze zdjęcie", result: "Zdjęcie może byłoby dobre, ale ciekawość pawiana rośnie szybciej niż ostrość aparatu.", safety: -1, respect: 0, control: -2, mood: "👀" },
+            { id: "share-snack", label: "Rzuć chrupka, żeby go odciągnąć", result: "Nigdy. Dokarmianie uczy pawiany napadania na kolejne auta i robi problem wszystkim.", safety: -2, respect: -2, control: -1, mood: "🚫" }
+        ]
+    },
+    {
+        prompt: "Na końcu stada młody pawian zatrzymuje się przy poboczu. Kierowca musi podjąć ostatnią decyzję.",
+        choices: [
+            { id: "wait-leave", label: "Poczekaj i rusz dopiero po oczyszczeniu drogi", result: "Spokojna decyzja. Nikt nie panikuje, a wyprawa startuje bez konfliktu.", safety: 2, respect: 2, control: 1, mood: "🌿" },
+            { id: "edge-pass", label: "Omiń powoli szerokim łukiem", result: "Da się, ale wymaga precyzji. Utrzymujesz dystans, choć adrenalina rośnie.", safety: 1, respect: 1, control: 0, mood: "🚙" },
+            { id: "wave", label: "Machaj ręką, żeby go odgonić", result: "Ruch przy szybie tylko zwiększa zainteresowanie. Lepiej mniej teatru, więcej cierpliwości.", safety: -1, respect: -1, control: -1, mood: "🙈" }
+        ]
+    }
+];
 
 let flamingoRunning = false;
 let flamingoOffset = 0;
@@ -265,6 +347,7 @@ function showScreen(id){
 
     updateWalvisBayMapState();
     updateWindhoekState();
+    updateSolitaireState();
 
     if(id === "mapScreen"){
         setupNamibiaMap();
@@ -282,6 +365,14 @@ function showScreen(id){
 
     if(id === "windhoekScreen"){
         updateWindhoekState();
+    }
+
+    if(id === "windhoekHistoryScreen"){
+        renderWindhoekHistory();
+    }
+
+    if(id === "windhoekBaboonsScreen"){
+        updateWindhoekBaboonScreen();
     }
 
     if(id === "walvisChronicleScreen"){
@@ -504,6 +595,36 @@ function updateExpeditionProfilePreview(){
     }
 
     renderStatsGrid(document.getElementById("expeditionStatsPreview"), stats);
+    setExpeditionProfileLocked(isExpeditionProfileLocked());
+}
+
+function isExpeditionProfileLocked(){
+    return localStorage.getItem("expeditionProfileLocked") === "true";
+}
+
+function setExpeditionProfileLocked(isLocked){
+    const profileScreen = document.getElementById("expeditionProfileScreen");
+    const inputs = document.querySelectorAll("#expeditionProfileScreen input");
+    const button = document.querySelector("#expeditionProfileScreen > button");
+    const hero = getExpeditionHero(getSavedHeroId());
+    const loadoutElement = document.getElementById("expeditionHeroLoadout");
+
+    if(profileScreen){
+        profileScreen.classList.toggle("profile-locked", isLocked);
+    }
+
+    for(const input of inputs){
+        input.disabled = isLocked;
+    }
+
+    if(button){
+        button.innerText = isLocked ? "Wróć do Windhoek" : "Rozpocznij trasę";
+        button.onclick = isLocked ? function(){ showScreen("windhoekScreen"); } : saveExpeditionProfile;
+    }
+
+    if(loadoutElement && isLocked){
+        loadoutElement.innerText = hero.name + " · ekwipunek zablokowany po wyjeździe z Windhoek";
+    }
 }
 
 function hydrateExpeditionProfileForm(){
@@ -536,6 +657,11 @@ function hydrateExpeditionProfileForm(){
 }
 
 function saveExpeditionProfile(){
+    if(isExpeditionProfileLocked()){
+        showScreen("windhoekScreen");
+        return;
+    }
+
     const choices = getCurrentExpeditionChoices();
     const stats = calculateExpeditionStats(choices);
     const archetype = getExpeditionArchetype(stats);
@@ -574,13 +700,23 @@ function updateWindhoekState(){
     const archetype = localStorage.getItem("expeditionArchetype") || getExpeditionArchetype(stats);
     const hero = getExpeditionHero(getSavedHeroId());
     const started = localStorage.getItem("windhoekStarted") === "true";
+    const historyDone = localStorage.getItem("windhoekHistoryCompleted") === "true";
+    const baboonsDone = localStorage.getItem("windhoekBaboonsCompleted") === "true";
+    const windhoekDone = localStorage.getItem("windhoekCompleted") === "true";
 
     if(mapLocation){
-        mapLocation.classList.toggle("in-progress", started);
+        mapLocation.classList.toggle("in-progress", started && !windhoekDone);
+        mapLocation.classList.toggle("completed", windhoekDone);
     }
 
     if(mapStatus){
-        mapStatus.innerText = started ? archetype : "Start wyprawy";
+        if(windhoekDone){
+            mapStatus.innerText = "Ukończono · droga do Solitaire";
+        }else if(started){
+            mapStatus.innerText = archetype;
+        }else{
+            mapStatus.innerText = "Start wyprawy";
+        }
     }
 
     const windhoekArchetype = document.getElementById("windhoekArchetype");
@@ -601,6 +737,48 @@ function updateWindhoekState(){
     }
 
     renderStatsGrid(document.getElementById("windhoekStatsGrid"), stats);
+
+    const prepStatus = document.getElementById("windhoekPrepStatus");
+    const historyStatus = document.getElementById("windhoekHistoryStatus");
+    const baboonsStatus = document.getElementById("windhoekBaboonsStatus");
+    const departButton = document.getElementById("windhoekDepartButton");
+    const prepButton = document.getElementById("windhoekPrepButton");
+
+    if(prepStatus){
+        prepStatus.innerText = isExpeditionProfileLocked() ? "Zablokowane po wyjeździe z Windhoek" : "Możesz jeszcze zmienić ekwipunek";
+    }
+
+    if(prepButton){
+        prepButton.classList.toggle("completed-activity", isExpeditionProfileLocked());
+    }
+
+    if(historyStatus){
+        historyStatus.innerText = historyDone ? "✓ ukończone" : "Muzeum i oś czasu";
+    }
+
+    if(baboonsStatus){
+        baboonsStatus.innerText = baboonsDone ? "✓ ukończone" : "Wyjazd z miasta i pierwsza lekcja dzikiej natury";
+    }
+
+    if(departButton){
+        departButton.innerText = windhoekDone ? "Droga do Solitaire" : "Wyjedź z Windhoek";
+    }
+}
+
+function updateSolitaireState(){
+    const solitaireLocation = document.getElementById("solitaireMapLocation");
+    const solitaireStatus = document.getElementById("solitaireMapStatus");
+    const unlocked = localStorage.getItem("solitaireUnlocked") === "true";
+
+    if(solitaireLocation){
+        solitaireLocation.classList.toggle("locked", !unlocked);
+        solitaireLocation.classList.toggle("unlocked", unlocked);
+        solitaireLocation.disabled = !unlocked;
+    }
+
+    if(solitaireStatus){
+        solitaireStatus.innerText = unlocked ? "Odblokowano" : "Po wyjeździe z Windhoek";
+    }
 }
 
 function openWindhoek(){
@@ -609,6 +787,361 @@ function openWindhoek(){
 
 function openCurrentRegion(){
     openWindhoek();
+}
+
+function openExpeditionPrep(){
+    showScreen("expeditionProfileScreen");
+    updateExpeditionProfilePreview();
+}
+
+function startWindhoekHistory(){
+    const savedOrder = localStorage.getItem("windhoekHistoryOrder");
+
+    if(savedOrder){
+        try{
+            windhoekHistoryChoices = JSON.parse(savedOrder);
+        }catch(error){
+            windhoekHistoryChoices = [];
+        }
+    }else if(localStorage.getItem("windhoekHistoryCompleted") === "true"){
+        windhoekHistoryChoices = namibiaHistoryEvents.map(event=>event.id);
+    }else{
+        windhoekHistoryChoices = [];
+    }
+
+    showScreen("windhoekHistoryScreen");
+}
+
+function chooseWindhoekHistory(choice){
+    addHistoryEvent(choice);
+}
+
+function renderWindhoekHistory(){
+    const pool = document.getElementById("historyEventPool");
+    const slots = document.getElementById("historyTimelineSlots");
+    const order = document.getElementById("windhoekHistoryOrder");
+    const progress = document.getElementById("historyTimelineProgress");
+
+    if(!pool || !slots || !order){
+        return;
+    }
+
+    const selectedIds = new Set(windhoekHistoryChoices);
+    const eventById = getHistoryEventById();
+    const availableEvents = shuffledHistoryEventIds
+        .map(id=>eventById[id])
+        .filter(event=>event && !selectedIds.has(event.id));
+
+    pool.innerHTML = availableEvents.map(event=>renderHistoryPoolTile(event)).join("");
+    slots.innerHTML = windhoekHistoryChoices
+        .map((id, index)=>eventById[id] ? renderHistoryTimelineTile(eventById[id], index) : "")
+        .join("");
+
+    if(!windhoekHistoryChoices.length){
+        slots.innerHTML = "<div class=\"history-empty-slot\">Przenieś tutaj wydarzenia, a potem ułóż je od najstarszego do najnowszego.</div>";
+    }
+
+    if(progress){
+        progress.innerText = windhoekHistoryChoices.length + " / " + namibiaHistoryEvents.length + " wydarzeń";
+    }
+
+    order.innerText = windhoekHistoryChoices.length
+        ? "Na osi: " + windhoekHistoryChoices.length + " wydarzeń. Pełne sprawdzenie wymaga wszystkich kafli."
+        : "Zbuduj oś z 20 wydarzeń.";
+}
+
+function getHistoryEventById(){
+    return namibiaHistoryEvents.reduce((events, event)=>{
+        events[event.id] = event;
+        return events;
+    }, {});
+}
+
+function renderHistoryPoolTile(event){
+    return "<button class=\"history-tile\" draggable=\"true\" ondragstart=\"dragHistoryEvent(event, '" + event.id + "')\" onclick=\"addHistoryEvent('" + event.id + "')\">" +
+        "<span>" + event.year + "</span>" +
+        "<strong>" + event.title + "</strong>" +
+        "<small>" + event.block + "</small>" +
+    "</button>";
+}
+
+function renderHistoryTimelineTile(event, index){
+    return "<div class=\"history-timeline-item\" draggable=\"true\" ondragstart=\"dragHistoryEvent(event, '" + event.id + "')\" ondragover=\"allowHistoryDrop(event)\" ondrop=\"dropHistoryEvent(event, " + index + ")\">" +
+        "<div class=\"history-event-copy\">" +
+            "<span>" + (index + 1) + ". " + event.year + " · " + event.block + "</span>" +
+            "<strong>" + event.title + "</strong>" +
+            "<small>" + event.detail + "</small>" +
+        "</div>" +
+        "<div class=\"history-tile-actions\">" +
+            "<button onclick=\"moveHistoryEvent('" + event.id + "', -1)\">↑</button>" +
+            "<button onclick=\"moveHistoryEvent('" + event.id + "', 1)\">↓</button>" +
+            "<button onclick=\"removeHistoryEvent('" + event.id + "')\">↩</button>" +
+        "</div>" +
+    "</div>";
+}
+
+function addHistoryEvent(id, insertIndex){
+    if(windhoekHistoryChoices.includes(id)){
+        return;
+    }
+
+    if(typeof insertIndex === "number"){
+        windhoekHistoryChoices.splice(insertIndex, 0, id);
+    }else{
+        windhoekHistoryChoices.push(id);
+    }
+
+    saveWindhoekHistoryOrder();
+    renderWindhoekHistory();
+}
+
+function removeHistoryEvent(id){
+    windhoekHistoryChoices = windhoekHistoryChoices.filter(eventId=>eventId !== id);
+    localStorage.removeItem("windhoekHistoryCompleted");
+    saveWindhoekHistoryOrder();
+    renderWindhoekHistory();
+    updateWindhoekState();
+}
+
+function moveHistoryEvent(id, direction){
+    const currentIndex = windhoekHistoryChoices.indexOf(id);
+    const nextIndex = currentIndex + direction;
+
+    if(currentIndex < 0 || nextIndex < 0 || nextIndex >= windhoekHistoryChoices.length){
+        return;
+    }
+
+    windhoekHistoryChoices.splice(currentIndex, 1);
+    windhoekHistoryChoices.splice(nextIndex, 0, id);
+    localStorage.removeItem("windhoekHistoryCompleted");
+    saveWindhoekHistoryOrder();
+    renderWindhoekHistory();
+    updateWindhoekState();
+}
+
+function saveWindhoekHistoryOrder(){
+    localStorage.setItem("windhoekHistoryOrder", JSON.stringify(windhoekHistoryChoices));
+}
+
+function dragHistoryEvent(event, id){
+    draggedHistoryEventId = id;
+    event.dataTransfer.setData("text/plain", id);
+}
+
+function allowHistoryDrop(event){
+    event.preventDefault();
+}
+
+function dropHistoryEvent(event, insertIndex){
+    event.preventDefault();
+    const id = event.dataTransfer.getData("text/plain") || draggedHistoryEventId;
+
+    if(!id){
+        return;
+    }
+
+    const existingIndex = windhoekHistoryChoices.indexOf(id);
+
+    if(existingIndex >= 0){
+        windhoekHistoryChoices.splice(existingIndex, 1);
+
+        if(typeof insertIndex === "number" && existingIndex < insertIndex){
+            insertIndex -= 1;
+        }
+    }
+
+    addHistoryEvent(id, typeof insertIndex === "number" ? insertIndex : undefined);
+    draggedHistoryEventId = null;
+}
+
+function checkWindhoekHistory(){
+    const message = document.getElementById("windhoekHistoryMessage");
+
+    if(windhoekHistoryChoices.length < namibiaHistoryEvents.length){
+        if(message){
+            message.innerText = "Brakuje jeszcze " + (namibiaHistoryEvents.length - windhoekHistoryChoices.length) + " wydarzeń. Muzeum nie wypuszcza pół osi czasu.";
+        }
+
+        return;
+    }
+
+    const correctOrder = namibiaHistoryEvents.map(event=>event.id);
+    const firstWrongIndex = windhoekHistoryChoices.findIndex((id, index)=>id !== correctOrder[index]);
+
+    if(firstWrongIndex === -1){
+        localStorage.setItem("windhoekHistoryCompleted", "true");
+        localStorage.setItem("windhoekHistoryOrder", JSON.stringify(windhoekHistoryChoices));
+
+        if(message){
+            message.innerText = "Dobra oś. Wyprawa rusza z dużo lepszym rozumieniem kraju, a wpis trafia do Kroniki.";
+        }
+    }else if(message){
+        const expected = getHistoryEventById()[correctOrder[firstWrongIndex]];
+        message.innerText = "Coś nie gra przy pozycji " + (firstWrongIndex + 1) + ". W tym miejscu powinno być: " + expected.year + " · " + expected.title + ".";
+    }
+
+    updateWindhoekState();
+}
+
+function resetWindhoekHistory(){
+    windhoekHistoryChoices = [];
+    localStorage.removeItem("windhoekHistoryOrder");
+    localStorage.removeItem("windhoekHistoryCompleted");
+    renderWindhoekHistory();
+
+    const message = document.getElementById("windhoekHistoryMessage");
+
+    if(message){
+        message.innerText = "Ułóż wydarzenia od najstarszego do najnowszego.";
+    }
+
+    updateWindhoekState();
+}
+
+function startWindhoekBaboons(){
+    windhoekBaboonStage = 0;
+    windhoekBaboonState = {
+        safety: 0,
+        respect: 0,
+        control: 0,
+        selected: false
+    };
+    showScreen("windhoekBaboonsScreen");
+}
+
+function updateWindhoekBaboonScreen(){
+    const message = document.getElementById("windhoekBaboonsMessage");
+    const completeButton = document.getElementById("windhoekBaboonsCompleteButton");
+    const prompt = document.getElementById("windhoekBaboonsPrompt");
+    const choices = document.getElementById("windhoekBaboonsChoices");
+    const safety = document.getElementById("baboonSafetyValue");
+    const respect = document.getElementById("baboonRespectValue");
+    const control = document.getElementById("baboonControlValue");
+    const mood = document.getElementById("baboonMoodIcon");
+    const completed = localStorage.getItem("windhoekBaboonsCompleted") === "true";
+
+    if(safety){
+        safety.innerText = windhoekBaboonState.safety;
+    }
+
+    if(respect){
+        respect.innerText = windhoekBaboonState.respect;
+    }
+
+    if(control){
+        control.innerText = windhoekBaboonState.control;
+    }
+
+    if(mood && !windhoekBaboonState.selected){
+        mood.innerText = windhoekBaboonStage >= baboonStages.length ? "✅" : "👀";
+    }
+
+    if(prompt && baboonStages[windhoekBaboonStage]){
+        prompt.innerText = baboonStages[windhoekBaboonStage].prompt;
+    }
+
+    if(choices){
+        if(completed){
+            choices.innerHTML = "<div class=\"baboon-summary\">Lekcja zaliczona: dystans, brak dokarmiania i spokój przy dzikich zwierzętach.</div>";
+        }else if(baboonStages[windhoekBaboonStage]){
+            choices.innerHTML = baboonStages[windhoekBaboonStage].choices.map(choice=>
+                "<button class=\"baboon-choice\" onclick=\"resolveBaboonChoice('" + choice.id + "')\">" + choice.label + "</button>"
+            ).join("");
+        }else{
+            choices.innerHTML = "";
+        }
+    }
+
+    if(message && completed){
+        message.innerText = "Jedzenie zabezpieczone, pawiany zostają przy drodze, a wyprawa może ruszać dalej.";
+    }
+
+    if(completeButton){
+        completeButton.disabled = !windhoekBaboonState.selected && !completed;
+        completeButton.classList.toggle("disabled-button", completeButton.disabled);
+        completeButton.innerText = completed ? "Ruszaj dalej" : "Dalej";
+    }
+}
+
+function resolveBaboonChoice(choice){
+    const stage = baboonStages[windhoekBaboonStage];
+    const message = document.getElementById("windhoekBaboonsMessage");
+    const mood = document.getElementById("baboonMoodIcon");
+
+    if(!stage || windhoekBaboonState.selected){
+        return;
+    }
+
+    const selected = stage.choices.find(item=>item.id === choice);
+
+    if(!selected){
+        return;
+    }
+
+    windhoekBaboonState.safety += selected.safety;
+    windhoekBaboonState.respect += selected.respect;
+    windhoekBaboonState.control += selected.control;
+    windhoekBaboonState.selected = true;
+
+    if(message){
+        message.innerText = selected.result;
+    }
+
+    if(mood){
+        mood.innerText = selected.mood;
+    }
+
+    updateWindhoekBaboonScreen();
+    updateWindhoekState();
+}
+
+function advanceWindhoekBaboonStage(){
+    if(localStorage.getItem("windhoekBaboonsCompleted") === "true"){
+        completeWindhoekDeparture();
+        return;
+    }
+
+    if(!windhoekBaboonState.selected){
+        updateWindhoekBaboonScreen();
+        return;
+    }
+
+    windhoekBaboonStage += 1;
+    windhoekBaboonState.selected = false;
+
+    if(windhoekBaboonStage >= baboonStages.length){
+        localStorage.setItem("windhoekBaboonsCompleted", "true");
+    }
+
+    updateWindhoekBaboonScreen();
+    updateWindhoekState();
+}
+
+function completeWindhoekDeparture(){
+    if(localStorage.getItem("windhoekHistoryCompleted") !== "true"){
+        startWindhoekHistory();
+        return;
+    }
+
+    if(localStorage.getItem("windhoekBaboonsCompleted") !== "true"){
+        startWindhoekBaboons();
+        return;
+    }
+
+    localStorage.setItem("windhoekCompleted", "true");
+    localStorage.setItem("expeditionProfileLocked", "true");
+    localStorage.setItem("solitaireUnlocked", "true");
+    updateWindhoekState();
+    showScreen("windhoekDepartureScreen");
+}
+
+function openSolitaire(){
+    if(localStorage.getItem("solitaireUnlocked") !== "true"){
+        showScreen("windhoekScreen");
+        return;
+    }
+
+    showScreen("solitaireScreen");
 }
 
 function openWalvisBay(){
@@ -900,6 +1433,13 @@ function updateNamibiaMap(){
         const y = Number(region.dataset.y || 50);
         region.style.left = x + "%";
         region.style.top = y + "%";
+    }
+
+    for(const stop of layer.querySelectorAll(".map-stop")){
+        const x = Number(stop.dataset.x || 50);
+        const y = Number(stop.dataset.y || 50);
+        stop.style.left = x + "%";
+        stop.style.top = y + "%";
     }
 
     for(const guardian of layer.querySelectorAll(".map-guardian")){
