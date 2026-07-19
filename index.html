@@ -469,23 +469,49 @@
     <div class="sesriem-camp-shell">
       <div class="sesriem-camp-hud">
         <button onclick="showScreen('sesriemScreen')">Wróć</button>
-        <div><strong id="sesriemHeatValue">Upał</strong><small>Presja</small></div>
-        <div><strong id="sesriemWaterValue">Woda</strong><small>Zapas</small></div>
-        <div><strong id="sesriemEnergyValue">Energia</strong><small>Świt</small></div>
+        <div><strong id="sesriemTimeValue">6</strong><small>Czas</small></div>
+        <div><strong id="sesriemWaterValue">2</strong><small>Woda</small></div>
+        <div><strong id="sesriemEnergyValue">2</strong><small>Siły</small></div>
       </div>
 
       <div class="sesriem-camp-board">
-        <div class="camp-phase-strip" id="sesriemCampSlots"></div>
+        <div class="sesriem-evening-story">
+          <p class="app-kicker">Sesriem · wieczór przed świtem</p>
+          <h2>Noc przed Big Daddy</h2>
+          <p>Masz ograniczony wieczór na campingu. Rano wstajecie przed świtem, wjeżdżacie do Sossusvlei i idziecie na wydmy. Każda decyzja zabiera czas i zmienia zapas wody, siły, sprzęt oraz orientację w porannej mgle.</p>
+        </div>
+        <div class="sesriem-meter-grid" id="sesriemCampMeters"></div>
         <div class="camp-card-tray" id="sesriemCampCards"></div>
       </div>
 
       <div class="sesriem-camp-panel">
-        <p id="sesriemCampMessage">Ułóż plan obozu. Najpierw zabezpiecz bazę i wodę, potem braai, na końcu poranek przed wyjazdem do Sossusvlei.</p>
+        <p id="sesriemCampMessage">Zdecyduj, jak spędzasz wieczór. Nie wystarczy zrobić wszystkiego: trzeba wybrać, co naprawdę pomoże rano.</p>
         <div class="sesriem-camp-actions">
           <button onclick="resetSesriemCamp()">Reset</button>
-          <button id="sesriemCampCheckButton" onclick="checkSesriemCamp()">Sprawdź</button>
-          <button id="sesriemCampContinueButton" onclick="finishSesriemCamp()">Dalej</button>
+          <button id="elimPhotoPuzzleButton" onclick="startElimPhotoPuzzle()">Zdjęcie Elim Dune</button>
+          <button id="sesriemCampContinueButton" onclick="finishSesriemCamp()">Zakończ wieczór</button>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="elimPhotoPuzzleScreen" class="screen elim-photo-puzzle-screen">
+    <div class="elim-puzzle-shell">
+      <div class="elim-puzzle-topbar">
+        <button onclick="showScreen('sesriemCampScreen')">Wróć</button>
+        <div>
+          <strong>Elim Dune</strong>
+          <small>20 pogryzionych kawałków zdjęcia</small>
+        </div>
+        <button onclick="resetElimPhotoPuzzle()">Reset</button>
+      </div>
+      <div class="elim-puzzle-stage">
+        <div class="elim-puzzle-board" id="elimPuzzleBoard"></div>
+        <div class="elim-puzzle-tray" id="elimPuzzleTray"></div>
+      </div>
+      <div class="elim-puzzle-panel">
+        <p id="elimPuzzleMessage">Szakale zrobiły z pamiątkowego zdjęcia puzzle. Wybierz kawałek i włóż go na białą planszę. Dobre ułożenie odblokuje zdjęcie do Kroniki.</p>
+        <button id="elimPuzzleDoneButton" onclick="showScreen('sesriemCampScreen')">Wróć do obozu</button>
       </div>
     </div>
   </section>

@@ -209,25 +209,88 @@ let solitaireInventory = [];
 let solitaireFlags = [];
 let solitaireSceneFeedback = "";
 let solitaireTravelTimers = [];
-let sesriemSelectedActionId = null;
-let sesriemPlan = [];
+let sesriemCampState = null;
+let elimPuzzleState = null;
+let elimPuzzleSelectedPieceId = null;
+let elimPuzzleDragGhost = null;
+let elimPuzzleSuppressClick = false;
 
-const sesriemCampSlots = [
-    { id: "arrival", label: "Zmierzch", hint: "Gdzie śpisz?" },
-    { id: "water", label: "Upał", hint: "Co z wodą?" },
-    { id: "fire", label: "Braai", hint: "Ogień" },
-    { id: "meal", label: "Kolacja", hint: "Stek" },
-    { id: "night", label: "Noc", hint: "Regeneracja" },
-    { id: "dawn", label: "Mgła", hint: "Wyjazd" }
-];
+const SESRIEM_EVENING_TOTAL_TIME = 6;
+const ELIM_PHOTO_PUZZLE_COLS = 5;
+const ELIM_PHOTO_PUZZLE_ROWS = 4;
+const ELIM_PHOTO_PUZZLE_IMAGE = "assets/sesriem/elim-dune-sunset-photo.jpg";
+const elimPuzzleInitialTray = [13, 2, 18, 7, 0, 15, 9, 4, 11, 19, 6, 1, 16, 10, 3, 14, 8, 17, 5, 12];
 
 const sesriemCampActions = [
-    { id: "tent", label: "Rozbij namiot przy skale", short: "Namiot", slot: "arrival", water: 0, energy: 1, heat: -1 },
-    { id: "water", label: "Schowaj wodę w cieniu", short: "Woda", slot: "water", water: 2, energy: 0, heat: -2 },
-    { id: "wood", label: "Zbierz drewno na braai", short: "Drewno", slot: "fire", water: -1, energy: -1, heat: 1 },
-    { id: "braai", label: "Zrób pierwszy braai", short: "Braai", slot: "meal", water: 0, energy: 2, heat: 0 },
-    { id: "sleep", label: "Krótki sen przed świtem", short: "Sen", slot: "night", water: 0, energy: 3, heat: -1 },
-    { id: "mist", label: "Sprawdź mgłę i spakuj plecak", short: "Mgła", slot: "dawn", water: 1, energy: 1, heat: 0 }
+    {
+        id: "water_cache",
+        title: "Zabezpiecz wodę",
+        subtitle: "Kanistry idą w cień, a poranne butelki trafiają pod rękę.",
+        cost: 1,
+        effects: { water: 3, gear: 1 },
+        consequence: "Więcej wody zmniejszy presję upału przy podejściu pod Big Daddy.",
+        message: "Woda jest w cieniu i gotowa na poranek. To nudna decyzja, czyli dokładnie taka, która ratuje dzień na pustyni."
+    },
+    {
+        id: "dawn_pack",
+        title: "Spakuj plecak świtowy",
+        subtitle: "Czołówka, aparaty, bluzy na mgłę i rzeczy do Sossusvlei.",
+        cost: 1,
+        effects: { gear: 3, route: 1 },
+        statBonus: { stat: "organizacja", threshold: 5, effects: { gear: 1 }, text: " Dobra organizacja dodaje jeszcze jeden punkt sprzętu." },
+        consequence: "Dobry sprzęt zmniejszy poranny chaos i pomoże na trasie do Deadvlei.",
+        message: "Plecak świtowy jest gotowy. O poranku nie będzie gorączkowego szukania czołówki pod śpiworem."
+    },
+    {
+        id: "route_notes",
+        title: "Rozpisz mglisty wyjazd",
+        subtitle: "Godzina pobudki, brama, tankowanie, wejście na Deadvlei.",
+        cost: 1,
+        effects: { route: 3, gear: 1 },
+        statBonus: { stat: "uwaznosc", threshold: 5, effects: { route: 1 }, text: " Uważność pomaga wyłapać ryzyko porannej mgły." },
+        consequence: "Orientacja pomoże, gdy rano obóz i droga będą tonąć we mgle.",
+        message: "Plan wyjazdu jest zapisany. Mgła nadal będzie klimatyczna, ale mniej zdradliwa."
+    },
+    {
+        id: "braai",
+        title: "Pierwszy braai",
+        subtitle: "Grill, mięso, rozmowy i prawdziwy wieczór na campingu.",
+        cost: 2,
+        effects: { energy: 2, morale: 3, water: -1 },
+        consequence: "Morale rośnie, ale tracisz czas i trochę wody.",
+        message: "Braai robi robotę. Ekipa jest najedzona i szczęśliwsza, choć wieczór zrobił się krótszy."
+    },
+    {
+        id: "early_sleep",
+        title: "Idź spać wcześnie",
+        subtitle: "Bez bohaterskich rozmów do północy. Pobudka będzie brutalna.",
+        cost: 2,
+        effects: { energy: 4, morale: -1 },
+        statBonus: { stat: "spokoj", threshold: 5, effects: { energy: 1 }, text: " Spokój pomaga naprawdę odpocząć." },
+        consequence: "Więcej sił na wydmę, ale mniej klimatu wieczoru.",
+        message: "Sen wygrywa z ambicją. Rano nogi powinny podziękować."
+    },
+    {
+        id: "elim_dune",
+        title: "Elim Dune na zachód",
+        subtitle: "Wyjście na wydmę, złote światło i zdjęcie do Kroniki.",
+        cost: 2,
+        effects: { morale: 4, energy: -1, water: -1 },
+        statBonus: { stat: "kondycja", threshold: 5, effects: { energy: 1 }, text: " Dobra kondycja łagodzi koszt podejścia." },
+        unlocksPhoto: true,
+        consequence: "Odblokuje dodatkową układankę zdjęcia, ale zabiera czas i siły przed Big Daddy.",
+        message: "Zachód na Elim Dune był wart wysiłku. Niestety w nocy szakale pogryzły odbitkę: zdjęcie trzeba będzie złożyć."
+    },
+    {
+        id: "cool_down",
+        title: "Schłódź ekipę po upale",
+        subtitle: "Cień, mokre chusty, porządek przy namiocie i spokojniejszy puls.",
+        cost: 1,
+        effects: { heat: 3, energy: 1 },
+        statBonus: { stat: "odpornosc", threshold: 5, effects: { heat: 1 }, text: " Odporność pomaga lepiej znieść pustynny dzień." },
+        consequence: "Mniejsza kara za upał kolejnego dnia.",
+        message: "Temperatura w głowie trochę spada. To może być różnica między zachwytem a marszem zombie."
+    }
 ];
 
 const solitairePlaces = [
@@ -541,6 +604,10 @@ function showScreen(id){
 
     if(id === "sesriemCampScreen"){
         renderSesriemCamp();
+    }
+
+    if(id === "elimPhotoPuzzleScreen"){
+        renderElimPhotoPuzzle();
     }
 
     if(id === "walvisChronicleScreen"){
@@ -2355,211 +2422,571 @@ function startSesriemCamp(){
 }
 
 function hydrateSesriemCamp(){
+    const savedState = localStorage.getItem("sesriemCampState");
+
     try{
-        sesriemPlan = JSON.parse(localStorage.getItem("sesriemCampPlan") || "[]");
+        sesriemCampState = savedState ? JSON.parse(savedState) : null;
     }catch(error){
-        sesriemPlan = [];
+        sesriemCampState = null;
     }
 
-    if(!Array.isArray(sesriemPlan) || sesriemPlan.length !== sesriemCampSlots.length){
-        sesriemPlan = Array(sesriemCampSlots.length).fill(null);
+    if(!sesriemCampState || !Array.isArray(sesriemCampState.usedActions)){
+        sesriemCampState = getDefaultSesriemCampState();
     }
+}
 
-    if(!sesriemSelectedActionId || sesriemPlan.includes(sesriemSelectedActionId)){
-        sesriemSelectedActionId = getUnusedSesriemActions()[0]?.id || null;
-    }
+function getDefaultSesriemCampState(){
+    return {
+        timeLeft: SESRIEM_EVENING_TOTAL_TIME,
+        water: 2,
+        energy: 2,
+        gear: 1,
+        route: 0,
+        morale: 1,
+        heat: 0,
+        usedActions: [],
+        elimDuneVisited: false,
+        message: "Zdecyduj, jak spędzasz wieczór. Nie wystarczy zrobić wszystkiego: trzeba wybrać, co naprawdę pomoże rano."
+    };
 }
 
 function renderSesriemCamp(){
     hydrateSesriemCamp();
 
-    const slots = document.getElementById("sesriemCampSlots");
     const cards = document.getElementById("sesriemCampCards");
+    const message = document.getElementById("sesriemCampMessage");
     const continueButton = document.getElementById("sesriemCampContinueButton");
-    const stats = getSesriemCampStats();
-
-    if(slots){
-        slots.innerHTML = sesriemCampSlots.map((slot, index)=>renderSesriemSlot(slot, index)).join("");
-    }
+    const photoButton = document.getElementById("elimPhotoPuzzleButton");
 
     if(cards){
-        cards.innerHTML = getUnusedSesriemActions().map(renderSesriemCard).join("") || "<p class=\"camp-empty-tray\">Plan jest pełny. Sprawdź, czy pustynia go zaakceptuje.</p>";
+        cards.innerHTML = sesriemCampActions.map(renderSesriemActionCard).join("");
     }
 
-    updateSesriemMeters(stats);
+    if(message){
+        message.innerText = sesriemCampState.message;
+    }
+
+    updateSesriemMeters();
 
     if(continueButton){
-        const completed = localStorage.getItem("sesriemCampCompleted") === "true";
-        continueButton.disabled = !completed;
-        continueButton.classList.toggle("disabled-button", !completed);
+        const canFinish = sesriemCampState.timeLeft <= 0 || localStorage.getItem("sesriemCampCompleted") === "true";
+        continueButton.disabled = !canFinish;
+        continueButton.classList.toggle("disabled-button", !canFinish);
+        continueButton.innerText = localStorage.getItem("sesriemCampCompleted") === "true" ? "Ruszaj ku Big Daddy" : "Zakończ wieczór";
+    }
+
+    if(photoButton){
+        const unlocked = sesriemCampState.elimDuneVisited || localStorage.getItem("elimDuneVisited") === "true";
+        const restored = localStorage.getItem("elimDunePhotoRestored") === "true";
+        photoButton.disabled = !unlocked;
+        photoButton.classList.toggle("disabled-button", !unlocked);
+        photoButton.innerText = restored ? "Zdjęcie złożone" : "Zdjęcie Elim Dune";
     }
 }
 
-function renderSesriemSlot(slot, index){
-    const action = getSesriemAction(sesriemPlan[index]);
-    const filled = action ? " filled" : "";
-    const good = action && action.slot === slot.id ? " good" : "";
+function renderSesriemActionCard(action){
+    const used = sesriemCampState.usedActions.includes(action.id);
+    const blocked = used || sesriemCampState.timeLeft < action.cost || localStorage.getItem("sesriemCampCompleted") === "true";
+    const className = "camp-action-card" + (used ? " used" : "") + (blocked ? " blocked" : "");
+    const effects = describeSesriemEffects(getSesriemActionEffects(action));
 
-    return "<button class=\"camp-slot" + filled + good + "\" onclick=\"placeSesriemAction(" + index + ")\">" +
-        "<small>" + slot.label + "</small>" +
-        "<strong>" + (action ? action.short : slot.hint) + "</strong>" +
-        (action ? "<span onclick=\"removeSesriemAction(event, " + index + ")\">×</span>" : "") +
+    return "<button class=\"" + className + "\" onclick=\"performSesriemCampAction('" + action.id + "')\" " + (blocked ? "disabled" : "") + ">" +
+        "<span class=\"camp-cost\">" + action.cost + " czas</span>" +
+        "<strong>" + action.title + "</strong>" +
+        "<small>" + action.subtitle + "</small>" +
+        "<em>" + effects + "</em>" +
+        "<b>" + action.consequence + "</b>" +
     "</button>";
 }
 
-function renderSesriemCard(action){
-    const selected = action.id === sesriemSelectedActionId ? " selected" : "";
+function performSesriemCampAction(actionId){
+    hydrateSesriemCamp();
 
-    return "<button class=\"camp-action-card" + selected + "\" onclick=\"selectSesriemAction('" + action.id + "')\">" +
-        "<strong>" + action.short + "</strong>" +
-        "<small>" + action.label + "</small>" +
-    "</button>";
-}
+    const action = getSesriemAction(actionId);
 
-function selectSesriemAction(actionId){
-    sesriemSelectedActionId = actionId;
-    renderSesriemCamp();
-}
-
-function placeSesriemAction(slotIndex){
-    if(!sesriemSelectedActionId){
+    if(!action || sesriemCampState.usedActions.includes(actionId) || localStorage.getItem("sesriemCampCompleted") === "true"){
         return;
     }
 
-    const existing = sesriemPlan[slotIndex];
-
-    if(existing){
-        sesriemPlan[slotIndex] = sesriemSelectedActionId;
-        sesriemSelectedActionId = existing;
-    }else{
-        sesriemPlan[slotIndex] = sesriemSelectedActionId;
-        sesriemSelectedActionId = getUnusedSesriemActions()[0]?.id || null;
+    if(sesriemCampState.timeLeft < action.cost){
+        sesriemCampState.message = "Nie ma już na to czasu. Wieczór w Sesriem kończy się szybciej, niż wygląda na zegarku.";
+        renderSesriemCamp();
+        return;
     }
 
-    saveSesriemPlan();
+    const effects = getSesriemActionEffects(action);
+    sesriemCampState.timeLeft = Math.max(0, sesriemCampState.timeLeft - action.cost);
+    sesriemCampState.usedActions.push(action.id);
+    applySesriemEffects(effects);
+
+    if(action.unlocksPhoto){
+        sesriemCampState.elimDuneVisited = true;
+        localStorage.setItem("elimDuneVisited", "true");
+        localStorage.setItem("elimDunePhotoPuzzleUnlocked", "true");
+    }
+
+    sesriemCampState.message = action.message + getSesriemStatBonusText(action);
+
+    if(sesriemCampState.timeLeft <= 0){
+        sesriemCampState.message += " Wieczór się skończył. Teraz widać, z jakim przygotowaniem wchodzicie w poranek.";
+    }
+
+    saveSesriemCampState();
     renderSesriemCamp();
 }
 
-function removeSesriemAction(event, slotIndex){
-    event.stopPropagation();
-    sesriemSelectedActionId = sesriemPlan[slotIndex];
-    sesriemPlan[slotIndex] = null;
-    saveSesriemPlan();
-    renderSesriemCamp();
+function getSesriemActionEffects(action){
+    const effects = { ...(action.effects || {}) };
+    const bonus = getSesriemActionStatBonus(action);
+
+    if(bonus){
+        for(const key of Object.keys(bonus.effects)){
+            effects[key] = (effects[key] || 0) + bonus.effects[key];
+        }
+    }
+
+    return effects;
 }
 
-function checkSesriemCamp(){
+function getSesriemActionStatBonus(action){
+    const stats = getSavedExpeditionStats();
+    const bonus = action.statBonus;
+
+    if(!bonus || (stats[bonus.stat] || 0) < bonus.threshold){
+        return null;
+    }
+
+    return bonus;
+}
+
+function getSesriemStatBonusText(action){
+    const bonus = getSesriemActionStatBonus(action);
+
+    return bonus ? bonus.text : "";
+}
+
+function applySesriemEffects(effects){
+    const fields = ["water", "energy", "gear", "route", "morale", "heat"];
+
+    for(const field of fields){
+        sesriemCampState[field] = Math.max(0, Math.min(9, sesriemCampState[field] + (effects[field] || 0)));
+    }
+}
+
+function describeSesriemEffects(effects){
+    const labels = {
+        water: "woda",
+        energy: "siły",
+        gear: "sprzęt",
+        route: "orientacja",
+        morale: "morale",
+        heat: "upał"
+    };
+
+    return Object.keys(labels).map(key=>{
+        const value = effects[key] || 0;
+
+        if(value === 0){
+            return "";
+        }
+
+        return (value > 0 ? "+" : "") + value + " " + labels[key];
+    }).filter(Boolean).join(" · ");
+}
+
+function finishSesriemCamp(){
     const message = document.getElementById("sesriemCampMessage");
-    const planFull = sesriemPlan.every(Boolean);
-    const misplaced = sesriemPlan.some((actionId, index)=>{
-        const action = getSesriemAction(actionId);
-        return !action || action.slot !== sesriemCampSlots[index].id;
-    });
+    hydrateSesriemCamp();
 
-    if(!planFull){
+    if(localStorage.getItem("sesriemCampCompleted") === "true"){
+        showScreen("mapScreen");
+        return;
+    }
+
+    if(sesriemCampState.timeLeft > 0){
         if(message){
-            message.innerText = "Plan ma dziury. Na pustyni pusta godzina potrafi kosztować najwięcej.";
+            message.innerText = "Został jeszcze czas wieczoru. Wykorzystaj go albo celowo wybierz reset i inny plan.";
         }
 
         return;
     }
 
-    if(misplaced){
-        if(message){
-            message.innerText = "Coś nie gra: ogień, woda albo poranek są w złym momencie. Przestaw plan zanim zapadnie noc.";
-        }
-
-        return;
-    }
+    const score = getSesriemPreparationScore();
+    const condition = getSesriemMorningCondition(score);
 
     localStorage.setItem("sesriemCampCompleted", "true");
     localStorage.setItem("bigDaddyUnlocked", "true");
+    localStorage.setItem("bigDaddyPreparationScore", String(score));
+    localStorage.setItem("bigDaddyMorningCondition", condition.id);
+    localStorage.setItem("bigDaddyWater", String(sesriemCampState.water));
+    localStorage.setItem("bigDaddyEnergy", String(sesriemCampState.energy));
+    localStorage.setItem("bigDaddyGear", String(sesriemCampState.gear));
+    localStorage.setItem("bigDaddyRoute", String(sesriemCampState.route));
 
     if(message){
-        message.innerText = "Obóz działa: woda jest w cieniu, braai daje energię, a mglisty świt nie zaskoczy ekipy. Big Daddy czeka.";
+        message.innerText = condition.text;
     }
 
+    saveSesriemCampState();
     renderSesriemCamp();
     updateSesriemState();
 }
 
 function resetSesriemCamp(){
-    sesriemPlan = Array(sesriemCampSlots.length).fill(null);
-    sesriemSelectedActionId = sesriemCampActions[0].id;
-    localStorage.removeItem("sesriemCampPlan");
+    sesriemCampState = getDefaultSesriemCampState();
+    localStorage.removeItem("sesriemCampState");
     localStorage.removeItem("sesriemCampCompleted");
     localStorage.removeItem("bigDaddyUnlocked");
+    localStorage.removeItem("bigDaddyPreparationScore");
+    localStorage.removeItem("bigDaddyMorningCondition");
+    localStorage.removeItem("bigDaddyWater");
+    localStorage.removeItem("bigDaddyEnergy");
+    localStorage.removeItem("bigDaddyGear");
+    localStorage.removeItem("bigDaddyRoute");
+    localStorage.removeItem("elimDuneVisited");
+    localStorage.removeItem("elimDunePhotoPuzzleUnlocked");
+    localStorage.removeItem("elimDunePhotoRestored");
+    localStorage.removeItem("elimDunePhotoUnlocked");
+    localStorage.removeItem("chronicleElimDunePhoto");
+    localStorage.removeItem("elimPhotoPuzzleState");
 
     const message = document.getElementById("sesriemCampMessage");
 
     if(message){
-        message.innerText = "Obóz od początku. Pustynia nie wybacza chaosu, ale daje drugą próbę.";
+        message.innerText = sesriemCampState.message;
     }
 
     renderSesriemCamp();
     updateSesriemState();
-}
-
-function finishSesriemCamp(){
-    const message = document.getElementById("sesriemCampMessage");
-
-    if(localStorage.getItem("sesriemCampCompleted") !== "true"){
-        if(message){
-            message.innerText = "Najpierw dopnij obóz. Big Daddy nie ucieknie, ale siły mogą.";
-        }
-
-        return;
-    }
-
-    showScreen("mapScreen");
-}
-
-function getUnusedSesriemActions(){
-    return sesriemCampActions.filter(action=>!sesriemPlan.includes(action.id));
 }
 
 function getSesriemAction(actionId){
     return sesriemCampActions.find(action=>action.id === actionId);
 }
 
-function getSesriemCampStats(){
-    return sesriemPlan.reduce((stats, actionId)=>{
-        const action = getSesriemAction(actionId);
+function getSesriemPreparationScore(){
+    hydrateSesriemCamp();
 
-        if(!action){
-            return stats;
-        }
-
-        return {
-            heat: stats.heat + action.heat,
-            water: stats.water + action.water,
-            energy: stats.energy + action.energy
-        };
-    }, { heat: 5, water: 3, energy: 2 });
+    return (sesriemCampState.water * 2) +
+        (sesriemCampState.energy * 2) +
+        (sesriemCampState.gear * 2) +
+        (sesriemCampState.route * 2) +
+        sesriemCampState.morale +
+        sesriemCampState.heat;
 }
 
-function updateSesriemMeters(stats){
-    const heat = document.getElementById("sesriemHeatValue");
+function getSesriemMorningCondition(score){
+    if(score >= 34){
+        return {
+            id: "excellent",
+            text: "Świetny obóz. Rano macie wodę, sprzęt, energię i plan na mgłę. Big Daddy będzie trudny, ale startujecie z realną przewagą."
+        };
+    }
+
+    if(score >= 26){
+        return {
+            id: "ready",
+            text: "Dobry obóz. Nie wszystko jest idealne, ale poranek powinien być pod kontrolą. Big Daddy dostanie uczciwą walkę."
+        };
+    }
+
+    return {
+        id: "rough",
+        text: "Obóz zamknięty, ale plan ma słabe punkty. Big Daddy pozostaje odblokowany, tylko kolejny dzień zacznie się z karą do komfortu i zapasu sił."
+    };
+}
+
+function updateSesriemMeters(){
+    const time = document.getElementById("sesriemTimeValue");
     const water = document.getElementById("sesriemWaterValue");
     const energy = document.getElementById("sesriemEnergyValue");
+    const meterGrid = document.getElementById("sesriemCampMeters");
 
-    if(heat){
-        heat.innerText = stats.heat <= 2 ? "Nisko" : (stats.heat <= 4 ? "Średnio" : "Wysoko");
+    if(!sesriemCampState){
+        return;
+    }
+
+    if(time){
+        time.innerText = String(sesriemCampState.timeLeft);
     }
 
     if(water){
-        water.innerText = stats.water >= 5 ? "Dobry" : (stats.water >= 3 ? "OK" : "Ryzyko");
+        water.innerText = String(sesriemCampState.water);
     }
 
     if(energy){
-        energy.innerText = stats.energy >= 7 ? "Gotowi" : (stats.energy >= 4 ? "OK" : "Słabo");
+        energy.innerText = String(sesriemCampState.energy);
+    }
+
+    if(meterGrid){
+        const meters = [
+            { label: "Sprzęt", value: sesriemCampState.gear },
+            { label: "Orientacja", value: sesriemCampState.route },
+            { label: "Morale", value: sesriemCampState.morale },
+            { label: "Odporność na upał", value: sesriemCampState.heat }
+        ];
+
+        meterGrid.innerHTML = meters.map(meter=>
+            "<div class=\"sesriem-meter\">" +
+                "<span>" + meter.label + "</span>" +
+                "<strong>" + meter.value + "/9</strong>" +
+                "<i><b style=\"width:" + Math.min(100, Math.round((meter.value / 9) * 100)) + "%\"></b></i>" +
+            "</div>"
+        ).join("");
     }
 }
 
-function saveSesriemPlan(){
-    localStorage.setItem("sesriemCampPlan", JSON.stringify(sesriemPlan));
-    localStorage.removeItem("sesriemCampCompleted");
-    localStorage.removeItem("bigDaddyUnlocked");
+function saveSesriemCampState(){
+    localStorage.setItem("sesriemCampState", JSON.stringify(sesriemCampState));
+}
+
+function startElimPhotoPuzzle(){
+    hydrateSesriemCamp();
+
+    if(!sesriemCampState.elimDuneVisited && localStorage.getItem("elimDuneVisited") !== "true"){
+        sesriemCampState.message = "Najpierw trzeba naprawdę pójść na Elim Dune. Bez zachodu nie ma zdjęcia do ratowania.";
+        renderSesriemCamp();
+        return;
+    }
+
+    hydrateElimPhotoPuzzle();
+    showScreen("elimPhotoPuzzleScreen");
+}
+
+function hydrateElimPhotoPuzzle(){
+    const savedState = localStorage.getItem("elimPhotoPuzzleState");
+
+    try{
+        elimPuzzleState = savedState ? JSON.parse(savedState) : null;
+    }catch(error){
+        elimPuzzleState = null;
+    }
+
+    if(!elimPuzzleState || !Array.isArray(elimPuzzleState.slots) || !Array.isArray(elimPuzzleState.tray)){
+        elimPuzzleState = {
+            slots: Array(ELIM_PHOTO_PUZZLE_COLS * ELIM_PHOTO_PUZZLE_ROWS).fill(null),
+            tray: [...elimPuzzleInitialTray],
+            completed: localStorage.getItem("elimDunePhotoRestored") === "true"
+        };
+    }
+
+    if(elimPuzzleState.completed){
+        elimPuzzleState.slots = Array.from({ length: ELIM_PHOTO_PUZZLE_COLS * ELIM_PHOTO_PUZZLE_ROWS }, (_, index)=>index);
+        elimPuzzleState.tray = [];
+    }
+}
+
+function renderElimPhotoPuzzle(){
+    hydrateElimPhotoPuzzle();
+
+    const board = document.getElementById("elimPuzzleBoard");
+    const tray = document.getElementById("elimPuzzleTray");
+    const message = document.getElementById("elimPuzzleMessage");
+    const doneButton = document.getElementById("elimPuzzleDoneButton");
+
+    if(board){
+        board.innerHTML = elimPuzzleState.slots.map((pieceId, index)=>renderElimPuzzleSlot(pieceId, index)).join("");
+    }
+
+    if(tray){
+        tray.innerHTML = elimPuzzleState.tray.map(pieceId=>renderElimPuzzlePiece(pieceId, "tray")).join("");
+    }
+
+    if(message){
+        if(elimPuzzleState.completed){
+            message.innerText = "Zdjęcie uratowane. Zachód słońca na Elim Dune trafia do Kroniki i zostaje jako bonus z Sesriem.";
+        }else{
+            message.innerText = "Wybierz kawałek z dołu, a potem miejsce na białej planszy. Kawałki można zamieniać, aż zdjęcie znowu złoży się w całość.";
+        }
+    }
+
+    if(doneButton){
+        doneButton.innerText = elimPuzzleState.completed ? "Wróć z gotowym zdjęciem" : "Wróć do obozu";
+    }
+}
+
+function renderElimPuzzleSlot(pieceId, index){
+    const filled = pieceId !== null && pieceId !== undefined;
+    const correct = filled && pieceId === index;
+
+    return "<button class=\"elim-puzzle-slot" + (filled ? " filled" : "") + (correct ? " correct" : "") + "\" data-slot-index=\"" + index + "\" onclick=\"placeElimPuzzlePiece(" + index + ")\">" +
+        (filled ? renderElimPuzzlePiece(pieceId, "slot") : "<span></span>") +
+    "</button>";
+}
+
+function renderElimPuzzlePiece(pieceId, origin){
+    const selected = pieceId === elimPuzzleSelectedPieceId ? " selected" : "";
+    const position = getElimPuzzleBackgroundPosition(pieceId);
+
+    return "<span class=\"elim-puzzle-piece " + origin + selected + "\" onclick=\"selectElimPuzzlePiece(event, " + pieceId + ")\" onpointerdown=\"startElimPuzzleDrag(event, " + pieceId + ")\" style=\"background-image:url('" + ELIM_PHOTO_PUZZLE_IMAGE + "');background-position:" + position + ";\"></span>";
+}
+
+function getElimPuzzleBackgroundPosition(pieceId){
+    const col = pieceId % ELIM_PHOTO_PUZZLE_COLS;
+    const row = Math.floor(pieceId / ELIM_PHOTO_PUZZLE_COLS);
+    const x = col === 0 ? 0 : (col / (ELIM_PHOTO_PUZZLE_COLS - 1)) * 100;
+    const y = row === 0 ? 0 : (row / (ELIM_PHOTO_PUZZLE_ROWS - 1)) * 100;
+
+    return x + "% " + y + "%";
+}
+
+function selectElimPuzzlePiece(event, pieceId){
+    event.stopPropagation();
+
+    if(elimPuzzleSuppressClick){
+        elimPuzzleSuppressClick = false;
+        return;
+    }
+
+    elimPuzzleSelectedPieceId = pieceId;
+    renderElimPhotoPuzzle();
+}
+
+function startElimPuzzleDrag(event, pieceId){
+    if(!elimPuzzleState || elimPuzzleState.completed || event.pointerType === "mouse" && event.button !== 0){
+        return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    elimPuzzleSelectedPieceId = pieceId;
+    elimPuzzleSuppressClick = true;
+
+    const source = event.currentTarget;
+    const rect = source.getBoundingClientRect();
+    const ghost = source.cloneNode(false);
+    ghost.className = "elim-puzzle-drag-ghost";
+    ghost.style.backgroundImage = source.style.backgroundImage;
+    ghost.style.backgroundPosition = source.style.backgroundPosition;
+    ghost.style.width = rect.width + "px";
+    ghost.style.height = rect.height + "px";
+    document.body.appendChild(ghost);
+    elimPuzzleDragGhost = ghost;
+    moveElimPuzzleDragGhost(event.clientX, event.clientY);
+
+    const moveHandler = function(moveEvent){
+        moveEvent.preventDefault();
+        moveElimPuzzleDragGhost(moveEvent.clientX, moveEvent.clientY);
+    };
+
+    const upHandler = function(upEvent){
+        upEvent.preventDefault();
+        finishElimPuzzleDrag(upEvent.clientX, upEvent.clientY);
+        window.removeEventListener("pointermove", moveHandler);
+        window.removeEventListener("pointerup", upHandler);
+        window.removeEventListener("pointercancel", cancelHandler);
+    };
+
+    const cancelHandler = function(){
+        finishElimPuzzleDrag(null, null);
+        window.removeEventListener("pointermove", moveHandler);
+        window.removeEventListener("pointerup", upHandler);
+        window.removeEventListener("pointercancel", cancelHandler);
+    };
+
+    window.addEventListener("pointermove", moveHandler, { passive:false });
+    window.addEventListener("pointerup", upHandler, { passive:false });
+    window.addEventListener("pointercancel", cancelHandler);
+}
+
+function moveElimPuzzleDragGhost(clientX, clientY){
+    if(!elimPuzzleDragGhost){
+        return;
+    }
+
+    elimPuzzleDragGhost.style.left = clientX + "px";
+    elimPuzzleDragGhost.style.top = clientY + "px";
+}
+
+function finishElimPuzzleDrag(clientX, clientY){
+    if(elimPuzzleDragGhost){
+        elimPuzzleDragGhost.remove();
+        elimPuzzleDragGhost = null;
+    }
+
+    if(clientX === null || clientY === null){
+        return;
+    }
+
+    const target = document.elementFromPoint(clientX, clientY);
+    const slot = target && target.closest ? target.closest(".elim-puzzle-slot") : null;
+
+    if(slot && slot.dataset.slotIndex !== undefined){
+        placeElimPuzzlePiece(Number(slot.dataset.slotIndex));
+    }else{
+        renderElimPhotoPuzzle();
+    }
+}
+
+function placeElimPuzzlePiece(slotIndex){
+    hydrateElimPhotoPuzzle();
+
+    if(elimPuzzleState.completed){
+        return;
+    }
+
+    if(elimPuzzleSelectedPieceId === null){
+        const currentPiece = elimPuzzleState.slots[slotIndex];
+
+        if(currentPiece !== null && currentPiece !== undefined){
+            elimPuzzleSelectedPieceId = currentPiece;
+        }
+
+        renderElimPhotoPuzzle();
+        return;
+    }
+
+    const selectedPiece = elimPuzzleSelectedPieceId;
+    const previousPiece = elimPuzzleState.slots[slotIndex];
+    const currentSlotIndex = elimPuzzleState.slots.indexOf(selectedPiece);
+    const trayIndex = elimPuzzleState.tray.indexOf(selectedPiece);
+
+    if(currentSlotIndex >= 0){
+        elimPuzzleState.slots[currentSlotIndex] = previousPiece === undefined ? null : previousPiece;
+    }
+
+    if(trayIndex >= 0){
+        elimPuzzleState.tray.splice(trayIndex, 1);
+
+        if(previousPiece !== null && previousPiece !== undefined){
+            elimPuzzleState.tray.push(previousPiece);
+        }
+    }
+
+    elimPuzzleState.slots[slotIndex] = selectedPiece;
+    elimPuzzleSelectedPieceId = null;
+
+    checkElimPhotoPuzzleSolved();
+    saveElimPhotoPuzzle();
+    renderElimPhotoPuzzle();
+}
+
+function checkElimPhotoPuzzleSolved(){
+    const solved = elimPuzzleState.slots.every((pieceId, index)=>pieceId === index);
+
+    if(!solved){
+        return;
+    }
+
+    elimPuzzleState.completed = true;
+    elimPuzzleState.tray = [];
+    localStorage.setItem("elimDunePhotoRestored", "true");
+    localStorage.setItem("elimDunePhotoUnlocked", "true");
+    localStorage.setItem("chronicleElimDunePhoto", "true");
+}
+
+function resetElimPhotoPuzzle(){
+    elimPuzzleState = null;
+    elimPuzzleSelectedPieceId = null;
+    localStorage.removeItem("elimPhotoPuzzleState");
+    localStorage.removeItem("elimDunePhotoRestored");
+    localStorage.removeItem("elimDunePhotoUnlocked");
+    localStorage.removeItem("chronicleElimDunePhoto");
+    renderElimPhotoPuzzle();
+}
+
+function saveElimPhotoPuzzle(){
+    localStorage.setItem("elimPhotoPuzzleState", JSON.stringify(elimPuzzleState));
 }
 
 function openWalvisBay(){
