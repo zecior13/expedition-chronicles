@@ -222,7 +222,11 @@
           <span class="map-location-title">Windhoek</span>
           <span id="windhoekMapStatus" class="map-location-status">Start wyprawy</span>
         </div>
-        <div class="location locked map-region" data-x="39" data-y="66"><span class="route-dot">2</span> Sesriem</div>
+        <div id="sesriemMapLocation" class="location locked map-location map-region sesriem-region" data-x="39" data-y="66" onclick="openSesriem()">
+          <span class="route-dot">2</span>
+          <span class="map-location-title">Sesriem</span>
+          <span id="sesriemMapStatus" class="map-location-status">Po Solitaire</span>
+        </div>
         <div class="location locked map-region" data-x="42" data-y="72"><span class="route-dot">3</span> Big Daddy</div>
         <div class="location locked map-region" data-x="29" data-y="43"><span class="route-dot">4</span> Swakopmund</div>
         <div id="walvisMapLocation" class="location map-location map-region walvis-region" data-x="31" data-y="49" onclick="openWalvisBay()">
@@ -421,12 +425,67 @@
         <div id="solitairePlayer" class="solitaire-player"></div>
       </div>
       <div class="solitaire-map-legend">
-        <p id="solitaireMessage">Znajdź drogę do szarlotki. Wejdź do lokacji, oglądaj obiekty i szukaj klucza.</p>
+        <p id="solitaireMessage">Zatrzymujesz się w Solitaire, aby spróbować legendarnej szarlotki. Może to jednak nie być takie proste...</p>
         <button onclick="resetSolitaireEncounter()">Reset</button>
         <button id="solitaireContinueButton" onclick="finishSolitaireEncounter()">Dalej</button>
       </div>
       <div id="solitaireSceneOverlay" class="solitaire-scene-overlay">
         <div id="solitaireScenePanel" class="solitaire-scene-panel"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sesriemScreen" class="screen sesriem-screen">
+    <div class="region-hero sesriem-hero">
+      <p class="app-kicker">Region 02</p>
+      <h1>Sesriem</h1>
+      <h2>Baza przed Sossusvlei: zachód słońca, pierwszy braai, mglisty poranek i przygotowanie do Big Daddy.</h2>
+    </div>
+
+    <div class="activity-list">
+      <button class="activity-card" onclick="startSesriemCamp()">
+        <span class="activity-icon">🔥</span>
+        <span>
+          <strong>Obóz przed świtem</strong>
+          <small id="sesriemCampStatus">Survival-lite: woda, ogień, sen i mgła</small>
+        </span>
+      </button>
+      <div class="activity-card locked-activity">
+        <span class="activity-icon">🌄</span>
+        <span>
+          <strong>Big Daddy</strong>
+          <small>Odblokuje się po Sesriem</small>
+        </span>
+      </div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="small-button secondary" onclick="showScreen('mapScreen')">Mapa</button>
+      <button class="small-button" onclick="startSesriemCamp()">Rozbij obóz</button>
+    </div>
+  </section>
+
+  <section id="sesriemCampScreen" class="screen sesriem-camp-screen">
+    <div class="sesriem-camp-shell">
+      <div class="sesriem-camp-hud">
+        <button onclick="showScreen('sesriemScreen')">Wróć</button>
+        <div><strong id="sesriemHeatValue">Upał</strong><small>Presja</small></div>
+        <div><strong id="sesriemWaterValue">Woda</strong><small>Zapas</small></div>
+        <div><strong id="sesriemEnergyValue">Energia</strong><small>Świt</small></div>
+      </div>
+
+      <div class="sesriem-camp-board">
+        <div class="camp-phase-strip" id="sesriemCampSlots"></div>
+        <div class="camp-card-tray" id="sesriemCampCards"></div>
+      </div>
+
+      <div class="sesriem-camp-panel">
+        <p id="sesriemCampMessage">Ułóż plan obozu. Najpierw zabezpiecz bazę i wodę, potem braai, na końcu poranek przed wyjazdem do Sossusvlei.</p>
+        <div class="sesriem-camp-actions">
+          <button onclick="resetSesriemCamp()">Reset</button>
+          <button id="sesriemCampCheckButton" onclick="checkSesriemCamp()">Sprawdź</button>
+          <button id="sesriemCampContinueButton" onclick="finishSesriemCamp()">Dalej</button>
+        </div>
       </div>
     </div>
   </section>

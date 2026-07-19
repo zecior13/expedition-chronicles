@@ -3031,6 +3031,10 @@ button:disabled{
     animation:windhoekToSolitaire 4s cubic-bezier(0.24, 0.76, 0.34, 1) forwards;
 }
 
+.map-travel-jeep.active.solitaire-to-sesriem{
+    animation:solitaireToSesriem 3.2s cubic-bezier(0.24, 0.76, 0.34, 1) forwards;
+}
+
 @keyframes windhoekToSolitaire{
     0%{
         left:66%;
@@ -3049,6 +3053,22 @@ button:disabled{
         left:50%;
         top:64%;
         transform:translate(-50%, -50%) scale(0.86) rotate(-12deg);
+    }
+}
+
+@keyframes solitaireToSesriem{
+    0%{
+        left:50%;
+        top:64%;
+        transform:translate(-50%, -50%) scale(0.86) rotate(-14deg);
+    }
+    18%{
+        transform:translate(-50%, -50%) scale(1) rotate(-12deg);
+    }
+    100%{
+        left:39%;
+        top:66%;
+        transform:translate(-50%, -50%) scale(0.9) rotate(-18deg);
     }
 }
 
@@ -3562,6 +3582,10 @@ button:disabled{
     z-index:8;
 }
 
+.solitaire-game-shell.solitaire-traveling .solitaire-location{
+    pointer-events:none;
+}
+
 #solitaireScreen .solitaire-location{
     min-width:0;
     width:42px;
@@ -3914,14 +3938,15 @@ button:disabled{
 .scene-sign .scene-prop,
 .scene-burrow .scene-prop,
 .scene-bakery .scene-prop,
-.scene-bakery-inside .scene-prop{
+.scene-bakery-inside .scene-prop,
+.scene-cars .scene-prop{
     display:none;
 }
 
 .scene-cars::before{
     background:
-        radial-gradient(ellipse at 25% 48%, #293c44 0 14%, transparent 15%),
-        radial-gradient(ellipse at 62% 55%, #7d442d 0 16%, transparent 17%),
+        linear-gradient(180deg, rgba(20,13,8,0.02), rgba(20,13,8,0.26)),
+        url("../assets/solitaire/scenes/solitaire-rust-cars.png") center / cover no-repeat,
         linear-gradient(180deg, #e5bd75, #7f4b33);
 }
 
@@ -3948,6 +3973,24 @@ button:disabled{
     background:rgba(255,246,218,0.92);
 
     font-size:0.78rem;
+}
+
+.solitaire-scene-complete{
+    position:absolute;
+    z-index:9;
+    right:12px;
+    top:12px;
+
+    width:118px;
+    min-width:0;
+    padding:10px 12px;
+
+    border-radius:14px;
+
+    color:#102b3f;
+    background:linear-gradient(180deg, #ffe49a, #d8a13c);
+
+    font-size:0.82rem;
 }
 
 .solitaire-scene-title{
@@ -4049,6 +4092,289 @@ button:disabled{
 
 .solitaire-object.collected{
     opacity:0.42;
+}
+
+.sesriem-hero{
+    background:
+        linear-gradient(180deg, rgba(16,43,63,0.72), rgba(16,43,63,0.88)),
+        radial-gradient(circle at 84% 16%, rgba(234,129,55,0.52), transparent 34%),
+        linear-gradient(145deg, #142d3d, #b66a3c 64%, #d9a441);
+}
+
+.sesriem-region.unlocked{
+    border-color:rgba(217,164,65,0.70);
+}
+
+#sesriemCampScreen.active{
+    display:block;
+    padding:0;
+    overflow:hidden;
+    text-align:left;
+    background:#1a1009;
+}
+
+.sesriem-camp-shell{
+    position:relative;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+
+    background:
+        linear-gradient(180deg, rgba(21,13,7,0.10), rgba(21,13,7,0.60)),
+        url("../assets/sesriem/sesriem-camp-sunset.png") center / cover no-repeat,
+        #8d4f28;
+}
+
+.sesriem-camp-shell::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at 50% 34%, transparent 34%, rgba(20,10,4,0.24) 86%),
+        linear-gradient(180deg, rgba(16,43,63,0.22), transparent 30%, rgba(20,10,4,0.78));
+}
+
+.sesriem-camp-hud{
+    position:absolute;
+    z-index:5;
+    left:10px;
+    right:10px;
+    top:10px;
+
+    display:grid;
+    grid-template-columns:58px repeat(3, 1fr);
+    gap:7px;
+}
+
+.sesriem-camp-hud button,
+.sesriem-camp-hud div{
+    min-width:0;
+    min-height:48px;
+    padding:7px 6px;
+
+    border:1px solid rgba(255,255,255,0.20);
+    border-radius:14px;
+
+    color:#fff6dc;
+    background:rgba(16,43,63,0.78);
+    backdrop-filter:blur(10px);
+
+    text-align:center;
+    box-shadow:0 10px 22px rgba(0,0,0,0.22);
+}
+
+.sesriem-camp-hud button{
+    font-size:0.72rem;
+}
+
+.sesriem-camp-hud strong,
+.sesriem-camp-hud small{
+    display:block;
+}
+
+.sesriem-camp-hud strong{
+    color:#ffffff;
+    font-size:0.78rem;
+    line-height:1.05;
+}
+
+.sesriem-camp-hud small{
+    margin-top:3px;
+    color:#f6d78e;
+    font-size:0.52rem;
+    font-weight:950;
+    text-transform:uppercase;
+}
+
+.sesriem-camp-board{
+    position:absolute;
+    z-index:3;
+    left:10px;
+    right:10px;
+    top:74px;
+    bottom:182px;
+
+    display:grid;
+    grid-template-rows:1fr auto;
+    gap:10px;
+}
+
+.camp-phase-strip{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    grid-auto-rows:1fr;
+    gap:8px;
+}
+
+.camp-slot{
+    position:relative;
+    min-width:0;
+    min-height:0;
+    padding:9px;
+
+    border:1px dashed rgba(255,239,194,0.56);
+    border-radius:16px;
+
+    color:#fff8df;
+    background:rgba(16,43,63,0.38);
+    backdrop-filter:blur(7px);
+
+    text-align:left;
+    box-shadow:0 8px 16px rgba(0,0,0,0.16);
+}
+
+.camp-slot small,
+.camp-slot strong{
+    display:block;
+}
+
+.camp-slot small{
+    color:#f6d78e;
+    font-size:0.58rem;
+    font-weight:950;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+}
+
+.camp-slot strong{
+    margin-top:4px;
+    color:#ffffff;
+    font-size:0.86rem;
+    line-height:1.08;
+}
+
+.camp-slot.filled{
+    border-style:solid;
+    background:rgba(255,246,218,0.86);
+}
+
+.camp-slot.filled strong{
+    color:#102b3f;
+}
+
+.camp-slot.good{
+    box-shadow:
+        0 0 0 3px rgba(66,184,129,0.22),
+        0 8px 16px rgba(0,0,0,0.16);
+}
+
+.camp-slot span{
+    position:absolute;
+    right:6px;
+    top:6px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:22px;
+    height:22px;
+    border-radius:50%;
+
+    color:#102b3f;
+    background:rgba(255,255,255,0.82);
+
+    font-size:0.9rem;
+    font-weight:950;
+}
+
+.camp-card-tray{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
+}
+
+.camp-action-card{
+    min-width:0;
+    min-height:58px;
+    padding:8px;
+
+    border:1px solid rgba(255,255,255,0.26);
+    border-radius:16px;
+
+    color:#102b3f;
+    background:rgba(255,246,218,0.92);
+
+    text-align:left;
+    box-shadow:0 10px 20px rgba(0,0,0,0.18);
+}
+
+.camp-action-card.selected{
+    background:linear-gradient(180deg, #ffe49a, #d8a13c);
+    box-shadow:
+        0 0 0 4px rgba(255,255,255,0.26),
+        0 12px 24px rgba(0,0,0,0.24);
+}
+
+.camp-action-card strong,
+.camp-action-card small{
+    display:block;
+}
+
+.camp-action-card strong{
+    font-size:0.82rem;
+}
+
+.camp-action-card small{
+    margin-top:3px;
+    color:#5b5348;
+    font-size:0.58rem;
+    line-height:1.15;
+    font-weight:850;
+}
+
+.camp-empty-tray{
+    grid-column:1 / -1;
+    padding:10px;
+    border-radius:14px;
+    color:#fff8df;
+    background:rgba(16,43,63,0.62);
+    font-size:0.78rem;
+    font-weight:850;
+}
+
+.sesriem-camp-panel{
+    position:absolute;
+    z-index:5;
+    left:10px;
+    right:10px;
+    bottom:10px;
+
+    display:grid;
+    grid-template-rows:auto auto;
+    gap:8px;
+}
+
+.sesriem-camp-panel p{
+    min-height:66px;
+    margin:0;
+    padding:12px;
+
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:16px;
+
+    color:#fff8df;
+    background:rgba(16,43,63,0.82);
+    backdrop-filter:blur(10px);
+
+    font-size:0.78rem;
+    line-height:1.24;
+    font-weight:850;
+}
+
+.sesriem-camp-actions{
+    display:grid;
+    grid-template-columns:0.9fr 1.1fr 0.9fr;
+    gap:8px;
+}
+
+.sesriem-camp-actions button{
+    min-width:0;
+    padding:11px 8px;
+    border-radius:14px;
+    font-size:0.8rem;
 }
 
 /* Windhoek history puzzle reset: fixed board, fixed tiles, no inherited button scaling. */

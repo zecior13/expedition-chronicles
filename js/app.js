@@ -208,6 +208,27 @@ let solitaireCurrentPlaceId = "arrival";
 let solitaireInventory = [];
 let solitaireFlags = [];
 let solitaireSceneFeedback = "";
+let solitaireTravelTimers = [];
+let sesriemSelectedActionId = null;
+let sesriemPlan = [];
+
+const sesriemCampSlots = [
+    { id: "arrival", label: "Zmierzch", hint: "Gdzie śpisz?" },
+    { id: "water", label: "Upał", hint: "Co z wodą?" },
+    { id: "fire", label: "Braai", hint: "Ogień" },
+    { id: "meal", label: "Kolacja", hint: "Stek" },
+    { id: "night", label: "Noc", hint: "Regeneracja" },
+    { id: "dawn", label: "Mgła", hint: "Wyjazd" }
+];
+
+const sesriemCampActions = [
+    { id: "tent", label: "Rozbij namiot przy skale", short: "Namiot", slot: "arrival", water: 0, energy: 1, heat: -1 },
+    { id: "water", label: "Schowaj wodę w cieniu", short: "Woda", slot: "water", water: 2, energy: 0, heat: -2 },
+    { id: "wood", label: "Zbierz drewno na braai", short: "Drewno", slot: "fire", water: -1, energy: -1, heat: 1 },
+    { id: "braai", label: "Zrób pierwszy braai", short: "Braai", slot: "meal", water: 0, energy: 2, heat: 0 },
+    { id: "sleep", label: "Krótki sen przed świtem", short: "Sen", slot: "night", water: 0, energy: 3, heat: -1 },
+    { id: "mist", label: "Sprawdź mgłę i spakuj plecak", short: "Mgła", slot: "dawn", water: 1, energy: 1, heat: 0 }
+];
 
 const solitairePlaces = [
     {
@@ -234,7 +255,7 @@ const solitairePlaces = [
         sceneClass: "station",
         scene: "Dystrybutory są suche od lat. Metal skrzypi na wietrze, a piasek zebrał się pod drzwiami starego sklepu.",
         objects: [
-            { id: "station-pump", label: "dystrybutor", x: 66, y: 48, w: 26, h: 39, flag: "pumpClue", result: "Pod warstwą pyłu widać wydrapany napis: \"Jeśli chcesz szarlotki, zacznij od budki. Kierowcy zawsze dzwonią, gdy coś zgubią\"." },
+            { id: "station-pump", label: "dystrybutor", x: 66, y: 48, w: 26, h: 39, flag: "pumpClue", result: "Pod warstwą pyłu widać wydrapany napis: \"Kierowcy zawsze dzwonią, gdy coś zgubią\"." },
             { id: "station-window", label: "szyba", x: 23, y: 34, w: 39, h: 20, result: "Za szybą stoją stare puszki i wyblakły kalendarz. Nic, co otwierałoby piekarnię." },
             { id: "station-crate", label: "skrzynka", x: 23, y: 59, w: 34, h: 18, result: "Skrzynka jest pusta. Ktoś zostawił tylko kapsel i piasek." }
         ]
@@ -264,7 +285,7 @@ const solitairePlaces = [
         sceneClass: "sign",
         scene: "Tablica trzyma się ostatkiem śrub. Jedna część jest luźna, jakby ktoś wielokrotnie ją odwracał.",
         objects: [
-            { id: "sign-arrow", label: "luźna tablica", x: 40, y: 23, w: 50, h: 30, flag: "signClue", result: "Na odwrocie jest strzałka i dopisek: \"Klucz do piekarni siedzi w niebieskim wraku. Najpierw trzeba dostać się do auta\"." },
+            { id: "sign-arrow", label: "luźna tablica", x: 40, y: 23, w: 50, h: 30, flag: "signClue", result: "Na odwrocie jest strzałka i dopisek: \"Niebieskie auto wie więcej niż wygląda\"." },
             { id: "sign-bolts", label: "śruby", x: 17, y: 39, w: 19, h: 31, result: "Śruby są tak zardzewiałe, że mają własną historię. Niczego nie odkręcisz." },
             { id: "sign-tracks", label: "ślady", x: 61, y: 70, w: 32, h: 18, result: "Ślady prowadzą raz do wraku, raz do nor. Solitaire najwyraźniej lubi małe labirynty." }
         ]
@@ -279,11 +300,11 @@ const solitairePlaces = [
         sceneClass: "wreck",
         scene: "Lakier wypłowiał do koloru starego nieba. Przez szybę widać popękany fotel, lusterko i coś metalowego przy siedzeniu. Drzwi są zamknięte.",
         objects: [
-            { id: "wreck-mirror", label: "lusterko", x: 24, y: 28, w: 14, h: 12, result: "W lusterku widzisz siebie, kurz i minę człowieka, który zdecydowanie za bardzo chce szarlotki." },
-            { id: "wreck-window", label: "szyba", x: 39, y: 22, w: 39, h: 28, result: "Przez szybę dostrzegasz metalowy błysk na siedzeniu. To może być klucz." },
-            { id: "wreck-door", label: "drzwi auta", x: 30, y: 42, w: 26, h: 28, needsItem: "carKey", flag: "carUnlocked", result: "Klucz z nory pasuje. Zamek chrupie, drzwi puszczają i możesz zajrzeć do środka.", lockedResult: "Drzwi nie puszczają. To nie jest wrak do oglądania przez szybę, tylko auto, które trzeba otworzyć." },
-            { id: "wreck-seat", label: "siedzenie", x: 47, y: 54, w: 31, h: 25, item: "bakeryKey", needsFlags: ["carUnlocked", "signClue"], result: "Na siedzeniu leży drugi klucz, z małym brelokiem w kształcie szarlotki. To musi być klucz do piekarni.", lockedResult: "Widzisz coś metalowego na siedzeniu, ale potrzebujesz otworzyć auto i wiedzieć, czego dokładnie szukać." },
-            { id: "wreck-tire", label: "koło", x: 13, y: 68, w: 22, h: 22, result: "Opona dawno przegrała z pustynią. W środku tylko piach." }
+            { id: "wreck-mirror", label: "lusterko", x: 49, y: 44, w: 20, h: 13, result: "Lusterko jest całe w rdzy i piasku. Widzisz w nim tylko kawałek nieba i bardzo zdeterminowaną twarz łowcy szarlotki." },
+            { id: "wreck-window", label: "szyba", x: 12, y: 20, w: 45, h: 29, result: "Przez popękaną szybę widać fotel. Na siedzeniu coś błyszczy, ale drzwi nadal blokują dostęp." },
+            { id: "wreck-door", label: "klamka", x: 73, y: 46, w: 18, h: 20, needsItem: "carKey", flag: "carUnlocked", result: "Klucz z nory pasuje. Zamek chrupie, drzwi puszczają i możesz zajrzeć do środka.", lockedResult: "Klamka porusza się, ale zamek trzyma. Potrzebujesz klucza do auta." },
+            { id: "wreck-seat", label: "siedzenie", x: 22, y: 35, w: 34, h: 23, item: "bakeryKey", needsFlag: "carUnlocked", result: "Na siedzeniu leży drugi klucz, z małym brelokiem w kształcie szarlotki. To musi być klucz do piekarni.", lockedResult: "Widzisz coś metalowego na siedzeniu, ale zamknięte drzwi blokują dostęp." },
+            { id: "wreck-tire", label: "koło", x: 20, y: 74, w: 24, h: 20, result: "Opona dawno przegrała z pustynią. W środku tylko piach i trochę cienia." }
         ]
     },
     {
@@ -296,9 +317,9 @@ const solitairePlaces = [
         sceneClass: "burrow",
         scene: "Co chwilę coś rusza się w piasku. Wiewiórki pojawiają się i znikają, jakby pilnowały własnego mikrokrólestwa.",
         objects: [
-            { id: "burrow-crumbs", label: "okruszki", x: 51, y: 66, w: 24, h: 16, flag: "crumbClue", result: "Okruszki pachną cynamonem. Ktoś musiał nieść deser z piekarni do tej części osady." },
-            { id: "burrow-hole", label: "nora", x: 31, y: 45, w: 32, h: 25, item: "carKey", needsFlag: "carKeyClue", result: "W norze błyska metal. Wyciągasz mały klucz samochodowy. Wiewiórki patrzą, jakby właśnie straciły rodzinny skarb.", lockedResult: "W norze coś błyska, ale bez konkretnej wskazówki nie wkładasz ręki do pustynnej dziury. Rozsądnie." },
-            { id: "burrow-can", label: "puszka", x: 68, y: 39, w: 18, h: 20, result: "Puszka jest pusta. Brzmi dramatycznie, kiedy turla ją wiatr." }
+            { id: "burrow-crumbs", label: "okruszki", x: 45, y: 65, w: 32, h: 18, flag: "crumbClue", result: "Okruszki pachną cynamonem. Ktoś musiał nieść deser z piekarni do tej części osady." },
+            { id: "burrow-hole", label: "główna nora", x: 29, y: 43, w: 33, h: 23, item: "carKey", needsItem: "bentWire", result: "Krzywym drutem zahaczasz coś metalowego i wyciągasz mały klucz samochodowy. Wiewiórki patrzą, jakby właśnie straciły rodzinny skarb.", lockedResult: "W norze coś błyska, ale nie wkładasz ręki do pustynnej dziury. Rozsądnie. Przydałoby się coś długiego i zakrzywionego." },
+            { id: "burrow-side-hole", label: "druga nora", x: 66, y: 48, w: 24, h: 18, result: "To druga nora, nie puszka. Jest ciemna, pusta i bardzo przekonująco mówi: tutaj nic nie ma." }
         ]
     },
     {
@@ -341,9 +362,9 @@ const solitairePlaces = [
         sceneClass: "cars",
         scene: "Kilka aut stoi jak muzeum nieudanych podróży. Między nimi prowadzi wąska ścieżka i pachnie gorącą rdzą.",
         objects: [
-            { id: "cars-hood", label: "maska auta", x: 23, y: 39, w: 29, h: 22, result: "Pod maską nie ma silnika. Jest za to cień, kurz i spokój rzeczy porzuconych dawno temu." },
-            { id: "cars-trunk", label: "bagażnik", x: 61, y: 50, w: 26, h: 23, result: "Bagażnik jest pusty. Po Twojej minigrze z pakowaniem to prawie obraźliwe." },
-            { id: "cars-path", label: "ścieżka", x: 45, y: 74, w: 34, h: 14, result: "Ścieżka prowadzi do niebieskiego wraku i dalej w stronę piekarni." }
+            { id: "cars-hood", label: "maska auta", x: 8, y: 57, w: 35, h: 20, result: "Pod maską nie ma silnika. Jest za to cień, kurz i spokój rzeczy porzuconych dawno temu." },
+            { id: "cars-wire", label: "krzywy drut", x: 57, y: 56, w: 34, h: 23, item: "bentWire", result: "Od samochodu odstaje zakrzywiony stary drut. Pociągasz, odpada z cichym jękiem rdzy. Zabierasz go ze sobą, bo w takim terenie nigdy nie wiadomo." },
+            { id: "cars-path", label: "ścieżka", x: 34, y: 49, w: 31, h: 34, result: "Ścieżka prowadzi przez rdzawy korytarz aut do niebieskiego wraku i dalej w stronę piekarni." }
         ]
     }
 ];
@@ -486,6 +507,7 @@ function showScreen(id){
     updateWalvisBayMapState();
     updateWindhoekState();
     updateSolitaireState();
+    updateSesriemState();
 
     if(id === "mapScreen"){
         setupNamibiaMap();
@@ -515,6 +537,10 @@ function showScreen(id){
 
     if(id === "solitaireScreen"){
         renderSolitaireEncounter();
+    }
+
+    if(id === "sesriemCampScreen"){
+        renderSesriemCamp();
     }
 
     if(id === "walvisChronicleScreen"){
@@ -914,6 +940,7 @@ function updateSolitaireState(){
     const unlocked = localStorage.getItem("solitaireUnlocked") === "true";
     const completed = localStorage.getItem("solitaireCompleted") === "true";
     const travelPending = localStorage.getItem("windhoekDepartureAnimationPending") === "true";
+    const solitaireTravelPending = localStorage.getItem("solitaireDepartureAnimationPending") === "true";
 
     if(solitaireLocation){
         solitaireLocation.classList.toggle("locked", !unlocked);
@@ -931,7 +958,34 @@ function updateSolitaireState(){
     }
 
     if(travelJeep){
-        travelJeep.classList.toggle("active", travelPending);
+        travelJeep.classList.toggle("active", travelPending || solitaireTravelPending);
+        travelJeep.classList.toggle("solitaire-to-sesriem", solitaireTravelPending);
+    }
+}
+
+function updateSesriemState(){
+    const sesriemLocation = document.getElementById("sesriemMapLocation");
+    const sesriemStatus = document.getElementById("sesriemMapStatus");
+    const campStatus = document.getElementById("sesriemCampStatus");
+    const unlocked = localStorage.getItem("sesriemUnlocked") === "true" || localStorage.getItem("solitaireCompleted") === "true";
+    const completed = localStorage.getItem("sesriemCampCompleted") === "true";
+
+    if(sesriemLocation){
+        sesriemLocation.classList.toggle("locked", !unlocked);
+        sesriemLocation.classList.toggle("unlocked", unlocked);
+        sesriemLocation.classList.toggle("completed", completed);
+    }
+
+    if(sesriemStatus){
+        if(completed){
+            sesriemStatus.innerText = "Ukończono";
+        }else{
+            sesriemStatus.innerText = unlocked ? "Odblokowano" : "Po Solitaire";
+        }
+    }
+
+    if(campStatus){
+        campStatus.innerText = completed ? "✓ ukończone" : "Survival-lite: woda, ogień, sen i mgła";
     }
 }
 
@@ -940,7 +994,22 @@ function openWindhoek(){
 }
 
 function openCurrentRegion(){
+    if(localStorage.getItem("sesriemUnlocked") === "true" || localStorage.getItem("solitaireCompleted") === "true"){
+        openSesriem();
+        return;
+    }
+
     openWindhoek();
+}
+
+function openSesriem(){
+    if(localStorage.getItem("sesriemUnlocked") !== "true" && localStorage.getItem("solitaireCompleted") !== "true"){
+        showScreen("mapScreen");
+        return;
+    }
+
+    localStorage.setItem("sesriemUnlocked", "true");
+    showScreen("sesriemScreen");
 }
 
 function openExpeditionPrep(){
@@ -1843,6 +1912,9 @@ function renderSolitaireScene(place){
         ? solitaireInventory.map(item=>"<span>" + getSolitaireItemLabel(item) + "</span>").join("")
         : "<span>Pusty</span>";
     const completeClass = localStorage.getItem("solitaireCompleted") === "true" ? " completed" : "";
+    const completeButtonHtml = localStorage.getItem("solitaireCompleted") === "true"
+        ? "<button class=\"solitaire-scene-complete\" onclick=\"finishSolitaireEncounter()\">Ruszamy</button>"
+        : "";
     const sceneText = solitaireSceneFeedback || place.scene;
 
     return "<div class=\"solitaire-scene-stage scene-" + place.sceneClass + completeClass + "\">" +
@@ -1851,6 +1923,7 @@ function renderSolitaireScene(place){
         "<button class=\"solitaire-scene-close\" onclick=\"closeSolitaireScene()\">Mapa</button>" +
         "<div class=\"solitaire-scene-title\"><strong>" + place.title + "</strong><span>" + sceneText + "</span></div>" +
         "<div class=\"solitaire-inventory\"><small>Ekwipunek</small>" + inventoryHtml + "</div>" +
+        completeButtonHtml +
     "</div>";
 }
 
@@ -1885,6 +1958,7 @@ function renderSolitaireObject(object){
 
 function travelToSolitairePlace(placeId){
     const place = getSolitairePlace(placeId);
+    const currentPlace = getSolitairePlace(solitaireCurrentPlaceId) || solitairePlaces[0];
     const message = document.getElementById("solitaireMessage");
 
     if(!place){
@@ -1895,33 +1969,123 @@ function travelToSolitairePlace(placeId){
         solitaireSteps += 1;
     }
 
-    solitaireCurrentPlaceId = placeId;
-    solitairePlayerX = place.x;
-    solitairePlayerY = place.y;
     solitaireSceneFeedback = "";
-    saveSolitaireProgress();
 
     if(message){
         message.innerText = "Idziesz ścieżką do miejsca: " + place.label + ".";
     }
 
-    renderSolitaireEncounter();
+    closeSolitaireScene();
+    animateSolitaireTravel(currentPlace, place, ()=>{
+        solitaireCurrentPlaceId = placeId;
+        solitairePlayerX = place.x;
+        solitairePlayerY = place.y;
+        saveSolitaireProgress();
+        renderSolitaireEncounter();
+        openSolitaireScene();
+    });
+}
 
+function animateSolitaireTravel(fromPlace, toPlace, onComplete){
     const player = document.getElementById("solitairePlayer");
+    const shell = document.querySelector(".solitaire-game-shell");
+    const path = getSolitaireTravelPath(fromPlace, toPlace);
 
-    if(player){
-        player.classList.add("walking");
+    solitaireTravelTimers.forEach(timer=>window.clearTimeout(timer));
+    solitaireTravelTimers = [];
+
+    if(shell){
+        shell.classList.add("solitaire-traveling");
     }
 
-    window.setTimeout(()=>{
-        const latestPlayer = document.getElementById("solitairePlayer");
+    if(!player){
+        onComplete();
+        return;
+    }
 
-        if(latestPlayer){
-            latestPlayer.classList.remove("walking");
+    player.classList.add("walking");
+
+    path.forEach((point, index)=>{
+        const timer = window.setTimeout(()=>{
+            player.style.left = point.x + "%";
+            player.style.top = point.y + "%";
+        }, index * 420);
+
+        solitaireTravelTimers.push(timer);
+    });
+
+    const doneTimer = window.setTimeout(()=>{
+        player.classList.remove("walking");
+
+        if(shell){
+            shell.classList.remove("solitaire-traveling");
         }
 
-        openSolitaireScene();
-    }, 780);
+        onComplete();
+    }, path.length * 420 + 120);
+
+    solitaireTravelTimers.push(doneTimer);
+}
+
+function getSolitaireTravelPath(fromPlace, toPlace){
+    const hub = { id: "hub", x: 45, y: 67 };
+    const west = { id: "west", x: 39, y: 57 };
+    const phone = { id: "phonePath", x: 59, y: 66 };
+    const station = { id: "stationPath", x: 31, y: 74 };
+    const north = { id: "north", x: 58, y: 47 };
+    const path = [];
+    const fromExit = getSolitairePathExit(fromPlace);
+    const toEntry = getSolitairePathExit(toPlace);
+
+    if(fromPlace.id !== "arrival"){
+        path.push(fromExit);
+    }else{
+        path.push({ id: "arrivalPath", x: 25, y: 83 });
+    }
+
+    if(fromExit.id !== toEntry.id){
+        if(fromExit.id !== "hub" && fromPlace.id !== "arrival"){
+            path.push(hub);
+        }else if(fromPlace.id === "arrival"){
+            path.push(hub);
+        }
+
+        if(toEntry.id === "north"){
+            path.push(north);
+        }
+
+        if(toEntry.id === "west"){
+            path.push(west);
+        }
+
+        if(toEntry.id === "phonePath"){
+            path.push(phone);
+        }
+
+        if(toEntry.id === "stationPath"){
+            path.push(station);
+        }
+    }
+
+    path.push({ x: toPlace.x, y: toPlace.y });
+
+    return path.filter((point, index, points)=>index === 0 || point.x !== points[index - 1].x || point.y !== points[index - 1].y);
+}
+
+function getSolitairePathExit(place){
+    if(place.id === "bakery" || place.id === "sign"){
+        return { id: "north", x: 58, y: 47 };
+    }
+
+    if(place.id === "phone"){
+        return { id: "phonePath", x: 59, y: 66 };
+    }
+
+    if(place.id === "station"){
+        return { id: "stationPath", x: 31, y: 74 };
+    }
+
+    return { id: "west", x: 39, y: 57 };
 }
 
 function openSolitaireScene(){
@@ -2086,7 +2250,7 @@ function resetSolitaireEncounter(){
     const message = document.getElementById("solitaireMessage");
 
     if(message){
-        message.innerText = "Solitaire od początku. Najpierw znajdź wskazówki, potem klucz i wejście do piekarni.";
+        message.innerText = "Znowu stoisz w Solitaire. Szarlotka gdzieś tu jest, ale osada najwyraźniej ma własne zasady.";
     }
 
     renderSolitaireEncounter();
@@ -2125,13 +2289,19 @@ function finishSolitaireEncounter(){
 
     if(localStorage.getItem("solitaireCompleted") !== "true"){
         if(message){
-            message.innerText = "Najpierw znajdź trzy tropy i legendarną szarlotkę.";
+            message.innerText = "Jeszcze nie czas ruszać dalej. Solitaire nie oddało Ci swojej legendy.";
         }
 
         return;
     }
 
+    localStorage.setItem("solitaireDepartureAnimationPending", "true");
     showScreen("mapScreen");
+
+    window.setTimeout(()=>{
+        localStorage.removeItem("solitaireDepartureAnimationPending");
+        updateSolitaireState();
+    }, 3600);
 }
 
 function getSolitairePlace(id){
@@ -2155,6 +2325,10 @@ function getSolitairePlaceSolvedClass(place){
 }
 
 function getSolitaireItemLabel(item){
+    if(item === "bentWire"){
+        return "Krzywy drut";
+    }
+
     if(item === "carKey"){
         return "Klucz auta";
     }
@@ -2173,6 +2347,219 @@ function saveSolitaireProgress(){
     localStorage.setItem("solitaireCurrentPlaceId", solitaireCurrentPlaceId);
     localStorage.setItem("solitaireInventory", JSON.stringify(solitaireInventory));
     localStorage.setItem("solitaireFlags", JSON.stringify(solitaireFlags));
+}
+
+function startSesriemCamp(){
+    hydrateSesriemCamp();
+    showScreen("sesriemCampScreen");
+}
+
+function hydrateSesriemCamp(){
+    try{
+        sesriemPlan = JSON.parse(localStorage.getItem("sesriemCampPlan") || "[]");
+    }catch(error){
+        sesriemPlan = [];
+    }
+
+    if(!Array.isArray(sesriemPlan) || sesriemPlan.length !== sesriemCampSlots.length){
+        sesriemPlan = Array(sesriemCampSlots.length).fill(null);
+    }
+
+    if(!sesriemSelectedActionId || sesriemPlan.includes(sesriemSelectedActionId)){
+        sesriemSelectedActionId = getUnusedSesriemActions()[0]?.id || null;
+    }
+}
+
+function renderSesriemCamp(){
+    hydrateSesriemCamp();
+
+    const slots = document.getElementById("sesriemCampSlots");
+    const cards = document.getElementById("sesriemCampCards");
+    const continueButton = document.getElementById("sesriemCampContinueButton");
+    const stats = getSesriemCampStats();
+
+    if(slots){
+        slots.innerHTML = sesriemCampSlots.map((slot, index)=>renderSesriemSlot(slot, index)).join("");
+    }
+
+    if(cards){
+        cards.innerHTML = getUnusedSesriemActions().map(renderSesriemCard).join("") || "<p class=\"camp-empty-tray\">Plan jest pełny. Sprawdź, czy pustynia go zaakceptuje.</p>";
+    }
+
+    updateSesriemMeters(stats);
+
+    if(continueButton){
+        const completed = localStorage.getItem("sesriemCampCompleted") === "true";
+        continueButton.disabled = !completed;
+        continueButton.classList.toggle("disabled-button", !completed);
+    }
+}
+
+function renderSesriemSlot(slot, index){
+    const action = getSesriemAction(sesriemPlan[index]);
+    const filled = action ? " filled" : "";
+    const good = action && action.slot === slot.id ? " good" : "";
+
+    return "<button class=\"camp-slot" + filled + good + "\" onclick=\"placeSesriemAction(" + index + ")\">" +
+        "<small>" + slot.label + "</small>" +
+        "<strong>" + (action ? action.short : slot.hint) + "</strong>" +
+        (action ? "<span onclick=\"removeSesriemAction(event, " + index + ")\">×</span>" : "") +
+    "</button>";
+}
+
+function renderSesriemCard(action){
+    const selected = action.id === sesriemSelectedActionId ? " selected" : "";
+
+    return "<button class=\"camp-action-card" + selected + "\" onclick=\"selectSesriemAction('" + action.id + "')\">" +
+        "<strong>" + action.short + "</strong>" +
+        "<small>" + action.label + "</small>" +
+    "</button>";
+}
+
+function selectSesriemAction(actionId){
+    sesriemSelectedActionId = actionId;
+    renderSesriemCamp();
+}
+
+function placeSesriemAction(slotIndex){
+    if(!sesriemSelectedActionId){
+        return;
+    }
+
+    const existing = sesriemPlan[slotIndex];
+
+    if(existing){
+        sesriemPlan[slotIndex] = sesriemSelectedActionId;
+        sesriemSelectedActionId = existing;
+    }else{
+        sesriemPlan[slotIndex] = sesriemSelectedActionId;
+        sesriemSelectedActionId = getUnusedSesriemActions()[0]?.id || null;
+    }
+
+    saveSesriemPlan();
+    renderSesriemCamp();
+}
+
+function removeSesriemAction(event, slotIndex){
+    event.stopPropagation();
+    sesriemSelectedActionId = sesriemPlan[slotIndex];
+    sesriemPlan[slotIndex] = null;
+    saveSesriemPlan();
+    renderSesriemCamp();
+}
+
+function checkSesriemCamp(){
+    const message = document.getElementById("sesriemCampMessage");
+    const planFull = sesriemPlan.every(Boolean);
+    const misplaced = sesriemPlan.some((actionId, index)=>{
+        const action = getSesriemAction(actionId);
+        return !action || action.slot !== sesriemCampSlots[index].id;
+    });
+
+    if(!planFull){
+        if(message){
+            message.innerText = "Plan ma dziury. Na pustyni pusta godzina potrafi kosztować najwięcej.";
+        }
+
+        return;
+    }
+
+    if(misplaced){
+        if(message){
+            message.innerText = "Coś nie gra: ogień, woda albo poranek są w złym momencie. Przestaw plan zanim zapadnie noc.";
+        }
+
+        return;
+    }
+
+    localStorage.setItem("sesriemCampCompleted", "true");
+    localStorage.setItem("bigDaddyUnlocked", "true");
+
+    if(message){
+        message.innerText = "Obóz działa: woda jest w cieniu, braai daje energię, a mglisty świt nie zaskoczy ekipy. Big Daddy czeka.";
+    }
+
+    renderSesriemCamp();
+    updateSesriemState();
+}
+
+function resetSesriemCamp(){
+    sesriemPlan = Array(sesriemCampSlots.length).fill(null);
+    sesriemSelectedActionId = sesriemCampActions[0].id;
+    localStorage.removeItem("sesriemCampPlan");
+    localStorage.removeItem("sesriemCampCompleted");
+    localStorage.removeItem("bigDaddyUnlocked");
+
+    const message = document.getElementById("sesriemCampMessage");
+
+    if(message){
+        message.innerText = "Obóz od początku. Pustynia nie wybacza chaosu, ale daje drugą próbę.";
+    }
+
+    renderSesriemCamp();
+    updateSesriemState();
+}
+
+function finishSesriemCamp(){
+    const message = document.getElementById("sesriemCampMessage");
+
+    if(localStorage.getItem("sesriemCampCompleted") !== "true"){
+        if(message){
+            message.innerText = "Najpierw dopnij obóz. Big Daddy nie ucieknie, ale siły mogą.";
+        }
+
+        return;
+    }
+
+    showScreen("mapScreen");
+}
+
+function getUnusedSesriemActions(){
+    return sesriemCampActions.filter(action=>!sesriemPlan.includes(action.id));
+}
+
+function getSesriemAction(actionId){
+    return sesriemCampActions.find(action=>action.id === actionId);
+}
+
+function getSesriemCampStats(){
+    return sesriemPlan.reduce((stats, actionId)=>{
+        const action = getSesriemAction(actionId);
+
+        if(!action){
+            return stats;
+        }
+
+        return {
+            heat: stats.heat + action.heat,
+            water: stats.water + action.water,
+            energy: stats.energy + action.energy
+        };
+    }, { heat: 5, water: 3, energy: 2 });
+}
+
+function updateSesriemMeters(stats){
+    const heat = document.getElementById("sesriemHeatValue");
+    const water = document.getElementById("sesriemWaterValue");
+    const energy = document.getElementById("sesriemEnergyValue");
+
+    if(heat){
+        heat.innerText = stats.heat <= 2 ? "Nisko" : (stats.heat <= 4 ? "Średnio" : "Wysoko");
+    }
+
+    if(water){
+        water.innerText = stats.water >= 5 ? "Dobry" : (stats.water >= 3 ? "OK" : "Ryzyko");
+    }
+
+    if(energy){
+        energy.innerText = stats.energy >= 7 ? "Gotowi" : (stats.energy >= 4 ? "OK" : "Słabo");
+    }
+}
+
+function saveSesriemPlan(){
+    localStorage.setItem("sesriemCampPlan", JSON.stringify(sesriemPlan));
+    localStorage.removeItem("sesriemCampCompleted");
+    localStorage.removeItem("bigDaddyUnlocked");
 }
 
 function openWalvisBay(){
