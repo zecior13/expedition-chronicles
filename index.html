@@ -415,15 +415,24 @@
       <h2>Postapokaliptyczny przystanek z wrakami, starą stacją i szarlotką, której nikt nie omija.</h2>
     </div>
 
-    <div class="card">
-      <p class="app-kicker">Następny prototyp</p>
-      <h3>Apple Pie Rust Maze</h3>
-      <p>Tu zrobimy osobną aktywną mini-grę: kręcenie się po małej osadzie, ścieżki między wrakami, ziemne wiewiórki i finał przy szarlotce.</p>
+    <div class="solitaire-game-card">
+      <div class="solitaire-hud">
+        <div><strong id="solitaireClueCount">0 / 3</strong><small>Wskazówki</small></div>
+        <div><strong id="solitaireStepCount">0</strong><small>Kroki</small></div>
+        <div><strong id="solitairePieStatus">Brak</strong><small>Klucz</small></div>
+      </div>
+      <div id="solitaireBoard" class="solitaire-board">
+        <div id="solitaireLocationLayer" class="solitaire-location-layer"></div>
+        <div id="solitairePlayer" class="solitaire-player"></div>
+      </div>
+      <div id="solitaireScenePanel" class="solitaire-scene-panel"></div>
+      <p id="solitaireMessage" class="solitaire-message">Wybierz miejsce w osadzie. Na miejscu obejrzysz scenę jak w klasycznej przygodówce.</p>
     </div>
 
     <div class="bottom-nav">
       <button class="small-button secondary" onclick="showScreen('mapScreen')">Mapa</button>
-      <button class="small-button" onclick="showScreen('windhoekDepartureScreen')">Powrót</button>
+      <button class="small-button secondary" onclick="resetSolitaireEncounter()">Reset</button>
+      <button id="solitaireContinueButton" class="small-button" onclick="finishSolitaireEncounter()">Dalej</button>
     </div>
   </section>
 
