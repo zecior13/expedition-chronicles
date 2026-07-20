@@ -1730,8 +1730,8 @@ function renderPlacedPackingItems(){
         }
 
         const size = getPackingItemSize(item, placement.rotated);
-        return "<button class=\"packing-piece placed tone-" + item.tone + "\" style=\"grid-column:" + (placement.col + 1) + " / span " + size.w + "; grid-row:" + (placement.row + 1) + " / span " + size.h + "\" onclick=\"removePackingItem('" + item.id + "')\">" +
-            "<span>" + item.short + "</span>" +
+        return "<button class=\"packing-piece placed tone-" + item.tone + " packing-item-" + item.id + "\" style=\"grid-column:" + (placement.col + 1) + " / span " + size.w + "; grid-row:" + (placement.row + 1) + " / span " + size.h + "\" onclick=\"removePackingItem('" + item.id + "')\">" +
+            "<span><i aria-hidden=\"true\"></i><b>" + item.short + "</b></span>" +
         "</button>";
     }).join("");
 }
@@ -1740,8 +1740,8 @@ function renderPackingPaletteItem(item){
     const selected = item.id === packingSelectedItemId ? " selected" : "";
     const size = getPackingItemSize(item, item.id === packingSelectedItemId ? packingRotated : false);
 
-    return "<button class=\"packing-palette-item tone-" + item.tone + selected + "\" onclick=\"selectPackingItem('" + item.id + "')\">" +
-        "<span>" + item.name + "</span>" +
+    return "<button class=\"packing-palette-item tone-" + item.tone + " packing-item-" + item.id + selected + "\" onclick=\"selectPackingItem('" + item.id + "')\">" +
+        "<span><i aria-hidden=\"true\"></i><b>" + item.name + "</b></span>" +
         "<small>" + size.w + "x" + size.h + " · " + item.weight + " kg · " + getPackingRuleLabel(item.rule) + "</small>" +
     "</button>";
 }
