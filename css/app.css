@@ -5043,6 +5043,318 @@ button:disabled{
     font-size:0.7rem;
 }
 
+.fog-drive-world{
+    position:absolute;
+    z-index:2;
+    left:10px;
+    right:10px;
+    top:72px;
+    bottom:122px;
+    overflow:hidden;
+    border:1px solid rgba(16,43,63,0.14);
+    border-radius:24px;
+    background:
+        linear-gradient(180deg, rgba(231,238,230,0.92), rgba(245,215,160,0.62) 42%, rgba(193,126,67,0.80)),
+        #d8a26a;
+    box-shadow:inset 0 0 82px rgba(255,255,255,0.52), 0 18px 38px rgba(83,62,37,0.18);
+}
+
+.fog-drive-sky{
+    position:absolute;
+    inset:0 0 45%;
+    overflow:hidden;
+    background:
+        linear-gradient(180deg, rgba(218,231,231,0.96), rgba(248,232,191,0.72)),
+        #e6eeee;
+}
+
+.fog-drive-sun{
+    position:absolute;
+    left:68%;
+    top:20%;
+    width:74px;
+    height:74px;
+    border-radius:50%;
+    background:rgba(255,225,146,0.88);
+    box-shadow:0 0 70px 44px rgba(255,255,255,0.72);
+}
+
+.fog-dune{
+    position:absolute;
+    left:-12%;
+    right:-12%;
+    bottom:-42px;
+    height:110px;
+    border-radius:50% 50% 0 0;
+    background:linear-gradient(180deg, rgba(205,128,65,0.82), rgba(149,86,49,0.74));
+}
+
+.dune-two{
+    left:28%;
+    bottom:-64px;
+    height:138px;
+    opacity:0.74;
+}
+
+.fog-drive-road{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    height:58%;
+    overflow:hidden;
+    background:
+        linear-gradient(90deg, rgba(151,90,51,0.88), rgba(116,91,68,0.92) 22%, rgba(98,91,78,0.96) 50%, rgba(116,91,68,0.92) 78%, rgba(151,90,51,0.88)),
+        #77614c;
+}
+
+.fog-drive-road::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        repeating-linear-gradient(90deg, transparent 0 34px, rgba(255,255,255,0.08) 34px 38px),
+        linear-gradient(180deg, rgba(255,255,255,0.16), transparent 34%);
+    opacity:0.34;
+}
+
+.fog-road-stripes{
+    position:absolute;
+    left:0;
+    right:0;
+    top:45%;
+    height:4px;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,0.58) 0 28px, transparent 28px 58px);
+    opacity:0.42;
+    animation:fogRoadMove 0.8s linear infinite;
+}
+
+.fog-drive-goal{
+    position:absolute;
+    z-index:8;
+    left:14px;
+    right:14px;
+    top:14px;
+    height:8px;
+    overflow:hidden;
+    border-radius:99px;
+    background:rgba(16,43,63,0.18);
+}
+
+.fog-drive-goal span{
+    display:block;
+    width:0;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg, #1d9ab4, #d9a441);
+}
+
+.fog-car{
+    position:absolute;
+    z-index:10;
+    left:28%;
+    bottom:28px;
+    width:82px;
+    height:48px;
+    transition:transform 80ms linear;
+}
+
+.fog-car-body{
+    position:absolute;
+    left:8px;
+    right:5px;
+    bottom:10px;
+    height:24px;
+    border-radius:9px 13px 7px 7px;
+    background:linear-gradient(180deg, #1d9ab4, #0e5e74);
+    box-shadow:inset 0 -5px 0 rgba(0,0,0,0.16), 0 10px 18px rgba(33,28,19,0.28);
+}
+
+.fog-car-roof{
+    position:absolute;
+    left:26px;
+    bottom:30px;
+    width:34px;
+    height:18px;
+    border-radius:12px 12px 4px 4px;
+    background:linear-gradient(180deg, #9bd4df, #247f99);
+    border:2px solid rgba(16,43,63,0.22);
+}
+
+.fog-car-wheel{
+    position:absolute;
+    bottom:4px;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:#17212b;
+    border:3px solid #5e6870;
+    animation:fogWheelSpin 0.34s linear infinite;
+}
+
+.wheel-one{ left:18px; }
+.wheel-two{ right:12px; }
+
+.fog-car-smoke{
+    position:absolute;
+    right:-6px;
+    bottom:22px;
+    width:18px;
+    height:12px;
+    border-radius:50%;
+    background:rgba(40,47,50,0.0);
+}
+
+.fog-car.crashed .fog-car-smoke,
+.fog-car.stuck .fog-car-smoke{
+    background:rgba(40,47,50,0.42);
+    box-shadow:12px -6px 0 rgba(40,47,50,0.24), 24px -2px 0 rgba(40,47,50,0.18);
+}
+
+.fog-car.crashed{
+    transform:rotate(-8deg);
+}
+
+.fog-car.stuck{
+    transform:translateY(8px) rotate(2deg);
+}
+
+.fog-obstacle-layer{
+    position:absolute;
+    inset:0;
+    z-index:7;
+    pointer-events:none;
+}
+
+.fog-obstacle{
+    position:absolute;
+    bottom:28px;
+    min-width:48px;
+    min-height:34px;
+    transform:translateX(-50%);
+}
+
+.fog-obstacle span{
+    position:absolute;
+    left:50%;
+    bottom:100%;
+    transform:translateX(-50%);
+    padding:4px 7px;
+    border-radius:99px;
+    color:#102b3f;
+    background:rgba(255,255,255,0.86);
+    font-size:0.52rem;
+    font-weight:950;
+    white-space:nowrap;
+    box-shadow:0 6px 12px rgba(16,43,63,0.12);
+}
+
+.obstacle-sand{
+    width:116px;
+    height:28px;
+    border-radius:50%;
+    background:
+        repeating-linear-gradient(12deg, rgba(121,76,45,0.20) 0 8px, transparent 8px 15px),
+        rgba(181,112,61,0.64);
+    box-shadow:inset 0 0 18px rgba(80,49,30,0.34);
+}
+
+.obstacle-oryx::before{
+    content:"";
+    position:absolute;
+    left:8px;
+    bottom:7px;
+    width:42px;
+    height:24px;
+    border-radius:44% 40% 34% 34%;
+    background:#7e5531;
+    box-shadow:22px 3px 0 -11px #583a23;
+}
+
+.obstacle-oryx::after{
+    content:"";
+    position:absolute;
+    left:36px;
+    bottom:25px;
+    width:18px;
+    height:24px;
+    border-radius:50% 50% 30% 30%;
+    background:#7e5531;
+    box-shadow:3px -20px 0 -7px #17212b, 10px -22px 0 -8px #17212b;
+}
+
+.obstacle-rock{
+    width:56px;
+    height:34px;
+}
+
+.obstacle-rock::before,
+.obstacle-rock::after{
+    content:"";
+    position:absolute;
+    bottom:0;
+    border-radius:40% 50% 35% 45%;
+    background:linear-gradient(180deg, #766354, #463b35);
+}
+
+.obstacle-rock::before{
+    left:0;
+    width:34px;
+    height:28px;
+}
+
+.obstacle-rock::after{
+    right:2px;
+    width:28px;
+    height:22px;
+}
+
+.fog-bank{
+    position:absolute;
+    z-index:12;
+    top:-8%;
+    bottom:-8%;
+    width:24%;
+    border-radius:50%;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at 40% 26%, rgba(255,255,255,0.92), rgba(255,255,255,0.66) 32%, transparent 66%),
+        linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent);
+    filter:blur(5px);
+    animation:fogBankPulse 3.4s ease-in-out infinite alternate;
+}
+
+.bank-one{ left:66%; }
+.bank-two{ left:88%; opacity:0.44; }
+
+.sesriem-fog-panel{
+    bottom:8px;
+}
+
+.sesriem-fog-actions{
+    grid-template-columns:repeat(3, 1fr);
+}
+
+.sesriem-fog-actions button:nth-child(4),
+.sesriem-fog-actions button:nth-child(5){
+    grid-column:span 1;
+}
+
+@keyframes fogRoadMove{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-58px); }
+}
+
+@keyframes fogWheelSpin{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+}
+
+@keyframes fogBankPulse{
+    from{ transform:translateX(-4px) scaleX(0.92); opacity:0.46; }
+    to{ transform:translateX(6px) scaleX(1.08); opacity:0.72; }
+}
+
 /* Windhoek history puzzle reset: fixed board, fixed tiles, no inherited button scaling. */
 #windhoekHistoryScreen{
     gap:8px;

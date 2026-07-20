@@ -535,34 +535,39 @@
     <div class="sesriem-fog-shell">
       <div class="sesriem-fog-hud">
         <button onclick="showScreen('sesriemMorningScreen')">Wróć</button>
-        <div><strong id="sesriemFogStepValue">1/7</strong><small>Odcinek</small></div>
-        <div><strong id="sesriemFogTimeValue">9</strong><small>Czas</small></div>
-        <div><strong id="sesriemFogMistValue">Gęsta</strong><small>Mgła</small></div>
+        <div><strong id="sesriemFogDistanceValue">0 m</strong><small>Dystans</small></div>
+        <div><strong id="sesriemFogTimeValue">45</strong><small>Woda/czas</small></div>
+        <div><strong id="sesriemFogSpeedValue">40</strong><small>Prędkość</small></div>
       </div>
-      <div class="sesriem-fog-view">
-        <div class="fog-road-art" id="sesriemFogRoad">
-          <div class="fog-objective-card">
-            <span>Cel minigry</span>
-            <strong>Przejedź 7 odcinków przez mgłę, zanim skończy się czas.</strong>
-          </div>
-          <div class="fog-route-map">
-            <span class="fog-route-line"></span>
-            <span class="fog-route-point start">Camp</span>
-            <span class="fog-jeep">🚙</span>
-            <span class="fog-route-point finish">Sossusvlei</span>
+      <div class="fog-drive-world" id="sesriemFogWorld">
+        <div class="fog-drive-sky">
+          <span class="fog-drive-sun"></span>
+          <span class="fog-dune dune-one"></span>
+          <span class="fog-dune dune-two"></span>
+        </div>
+        <div class="fog-drive-road" id="sesriemFogRoad">
+          <div class="fog-road-stripes"></div>
+          <div class="fog-obstacle-layer" id="sesriemFogObstacles"></div>
+          <div class="fog-bank bank-one"></div>
+          <div class="fog-bank bank-two"></div>
+          <div class="fog-car" id="sesriemFogCar">
+            <span class="fog-car-body"></span>
+            <span class="fog-car-roof"></span>
+            <span class="fog-car-wheel wheel-one"></span>
+            <span class="fog-car-wheel wheel-two"></span>
+            <span class="fog-car-smoke"></span>
           </div>
         </div>
-        <div class="fog-clue-card">
-          <p class="app-kicker">Poranna mgła</p>
-          <h2 id="sesriemFogTitle">Wyjazd z campingu</h2>
-          <p id="sesriemFogClue">Widoczność jest słaba. Trzeba czytać ślady i wybierać drogę bez paniki.</p>
+        <div class="fog-drive-goal">
+          <span id="sesriemFogGoalBar"></span>
         </div>
       </div>
-      <div class="sesriem-fog-choices" id="sesriemFogChoices"></div>
       <div class="sesriem-fog-panel">
-        <p id="sesriemFogMessage">Jak grać: przeczytaj sytuację, porównaj trzy karty śladów i wybierz tę, która najlepiej pasuje. Błąd kosztuje 2 czasu.</p>
+        <p id="sesriemFogMessage">Jedź do Sossusvlei przez mgłę. Gaz na grząski piasek, hamulec przy zwierzętach, podbij na kamieniach.</p>
         <div class="sesriem-fog-actions">
-          <button onclick="useSesriemFogHint()">Podpowiedź</button>
+          <button id="fogBrakeButton" onpointerdown="setSesriemFogInput('brake', true)" onpointerup="setSesriemFogInput('brake', false)" onpointerleave="setSesriemFogInput('brake', false)" onpointercancel="setSesriemFogInput('brake', false)">Zwolnij</button>
+          <button id="fogJumpButton" onclick="jumpSesriemFogCar()">Podbij</button>
+          <button id="fogGasButton" onpointerdown="setSesriemFogInput('gas', true)" onpointerup="setSesriemFogInput('gas', false)" onpointerleave="setSesriemFogInput('gas', false)" onpointercancel="setSesriemFogInput('gas', false)">Gaz</button>
           <button onclick="resetSesriemFogDrive()">Reset</button>
           <button id="sesriemFogContinueButton" onclick="finishSesriemFogDrive()">Dalej</button>
         </div>

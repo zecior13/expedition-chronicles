@@ -211,6 +211,9 @@ let solitaireSceneFeedback = "";
 let solitaireTravelTimers = [];
 let sesriemCampState = null;
 let sesriemFogState = null;
+let sesriemFogAnimationId = null;
+let sesriemFogLastFrame = 0;
+let sesriemFogInput = { gas: false, brake: false };
 let elimPuzzleState = null;
 let elimPuzzleSelectedPieceId = null;
 let elimPuzzleDragGhost = null;
@@ -663,7 +666,7 @@ kayakImage.onload = function(){
 kayakImage.src = "assets/kayak.svg";
 
 function showScreen(id){
-    cleanupTransientGameLayers();
+    cleanupTransientGameLayers(id);
 
     document.querySelectorAll(".screen").forEach(screen=>{
         screen.classList.remove("active");
@@ -727,10 +730,16 @@ function showScreen(id){
     }
 }
 
-function cleanupTransientGameLayers(){
+function cleanupTransientGameLayers(nextScreenId){
+    const targetScreenId = typeof nextScreenId === "string" ? nextScreenId : document.querySelector(".screen.active")?.id;
+
     if(elimPuzzleDragGhost){
         elimPuzzleDragGhost.remove();
         elimPuzzleDragGhost = null;
+    }
+
+    if(targetScreenId !== "sesriemFogScreen"){
+        stopSesriemFogLoop();
     }
 }
 
@@ -2783,20 +2792,25 @@ function renderSesriemMorning(){
 }
 
 function startSesriemFogDrive(){
-    hydrateSesriemFogDrive();
+    hydrateSesriemFogDrive(true);
     showScreen("sesriemFogScreen");
+    startSesriemFogLoop();
 }
 
-function hydrateSesriemFogDrive(){
+function hydrateSesriemFogDrive(forceFresh){
+    if(!forceFresh && sesriemFogState && typeof sesriemFogState.distance === "number"){
+        return;
+    }
+
     const savedState = localStorage.getItem("sesriemFogState");
 
     try{
-        sesriemFogState = savedState ? JSON.parse(savedState) : null;
+        sesriemFogState = !forceFresh && savedState ? JSON.parse(savedState) : null;
     }catch(error){
         sesriemFogState = null;
     }
 
-    if(!sesriemFogState || typeof sesriemFogState.step !== "number"){
+    if(!sesriemFogState || typeof sesriemFogState.distance !== "number"){
         sesriemFogState = getDefaultSesriemFogState();
     }
 }
@@ -2807,62 +2821,60 @@ function getDefaultSesriemFogState(){
     const gear = Number(localStorage.getItem("bigDaddyGear") || 1);
     const route = Number(localStorage.getItem("bigDaddyRoute") || 0);
     const condition = localStorage.getItem("bigDaddyMorningCondition") || "rough";
-    const baseTime = 8 + Math.min(3, Math.floor((energy + water) / 4));
-    const hints = 1 + Math.min(2, Math.floor((gear + route) / 4));
+    const baseTime = 34 + (water * 3) + Math.floor(energy * 1.5);
+    const fogWidth = route >= 5 ? 18 : (route >= 3 ? 24 : 32);
 
     return {
-        step: 0,
-        time: condition === "excellent" ? baseTime + 1 : baseTime,
+        distance: 0,
+        targetDistance: 1000,
+        time: condition === "excellent" ? baseTime + 4 : baseTime,
+        speed: 42 + Math.min(12, energy * 2),
+        carY: 0,
+        carVelocityY: 0,
+        jumpCooldown: 0,
+        obstacleTimer: 0.8,
+        fogTimer: 1.2,
+        fogWidth,
+        obstacles: [],
+        fogBanks: [
+            { x: 74, width: fogWidth, opacity: 0.62 },
+            { x: 112, width: Math.max(16, fogWidth - 4), opacity: 0.46 }
+        ],
         mistakes: 0,
-        hints,
-        lastChoice: "",
         completed: localStorage.getItem("sesriemFogCompleted") === "true",
-        message: "Cel: przejedź 7 odcinków do Sossusvlei, zanim skończy się czas. Na każdym odcinku wybierz ślad, który najlepiej pasuje do opisu."
+        crashed: false,
+        stuck: false,
+        message: "Cel: dojedź 1000 m do Sossusvlei. Gaz na grząski piach, zwolnij przy zwierzętach, podbij na kamieniach."
     };
 }
 
 function renderSesriemFogDrive(){
     hydrateSesriemFogDrive();
 
-    const stepValue = document.getElementById("sesriemFogStepValue");
+    const distanceValue = document.getElementById("sesriemFogDistanceValue");
     const timeValue = document.getElementById("sesriemFogTimeValue");
-    const mistValue = document.getElementById("sesriemFogMistValue");
-    const title = document.getElementById("sesriemFogTitle");
-    const clue = document.getElementById("sesriemFogClue");
+    const speedValue = document.getElementById("sesriemFogSpeedValue");
     const message = document.getElementById("sesriemFogMessage");
-    const choices = document.getElementById("sesriemFogChoices");
     const continueButton = document.getElementById("sesriemFogContinueButton");
-    const road = document.getElementById("sesriemFogRoad");
-    const shell = document.querySelector(".sesriem-fog-shell");
-    const current = sesriemFogRoute[Math.min(sesriemFogState.step, sesriemFogRoute.length - 1)];
-    const progress = sesriemFogState.step / sesriemFogRoute.length;
+    const obstacles = document.getElementById("sesriemFogObstacles");
+    const car = document.getElementById("sesriemFogCar");
+    const goalBar = document.getElementById("sesriemFogGoalBar");
+    const progress = Math.min(1, sesriemFogState.distance / sesriemFogState.targetDistance);
 
-    if(stepValue){
-        stepValue.innerText = Math.min(sesriemFogState.step + 1, sesriemFogRoute.length) + "/" + sesriemFogRoute.length;
+    if(distanceValue){
+        distanceValue.innerText = Math.floor(sesriemFogState.distance) + " m";
     }
 
     if(timeValue){
-        timeValue.innerText = String(sesriemFogState.time);
+        timeValue.innerText = Math.max(0, Math.ceil(sesriemFogState.time));
     }
 
-    if(mistValue){
-        mistValue.innerText = getSesriemFogLabel();
-    }
-
-    if(title){
-        title.innerText = sesriemFogState.completed ? "Droga odnaleziona" : current.title;
-    }
-
-    if(clue){
-        clue.innerText = sesriemFogState.completed ? "Mgła ustępuje. Macie przejazd do Deadvlei i pierwszy widok czerwonych wydm." : current.clue;
+    if(speedValue){
+        speedValue.innerText = Math.round(sesriemFogState.speed);
     }
 
     if(message){
         message.innerText = sesriemFogState.message;
-    }
-
-    if(choices){
-        choices.innerHTML = ["left", "center", "right"].map(direction=>renderSesriemFogChoice(direction)).join("");
     }
 
     if(continueButton){
@@ -2870,137 +2882,275 @@ function renderSesriemFogDrive(){
         continueButton.classList.toggle("disabled-button", !sesriemFogState.completed);
     }
 
-    if(road){
-        road.style.setProperty("--fog-progress", String(progress));
-        road.classList.toggle("cleared", sesriemFogState.completed);
-        road.classList.remove("choice-left", "choice-center", "choice-right");
-
-        if(sesriemFogState.lastChoice){
-            road.classList.add("choice-" + sesriemFogState.lastChoice);
-        }
+    if(goalBar){
+        goalBar.style.width = Math.round(progress * 100) + "%";
     }
 
-    if(shell){
-        shell.style.setProperty("--fog-progress", String(progress));
+    if(car){
+        car.style.transform = "translateY(" + (-sesriemFogState.carY) + "px)";
+        car.classList.toggle("crashed", sesriemFogState.crashed);
+        car.classList.toggle("stuck", sesriemFogState.stuck);
     }
+
+    if(obstacles){
+        obstacles.innerHTML = sesriemFogState.obstacles.map(renderSesriemFogObstacle).join("");
+    }
+
+    updateSesriemFogControls();
 }
 
-function renderSesriemFogChoice(direction){
-    const current = sesriemFogRoute[Math.min(sesriemFogState.step, sesriemFogRoute.length - 1)];
-    const fallback = {
-        left: { title: "Lewy ślad", detail: "Sprawdź, czy pasuje do opisu." },
-        center: { title: "Prosto", detail: "Sprawdź, czy pasuje do opisu." },
-        right: { title: "Prawy ślad", detail: "Sprawdź, czy pasuje do opisu." }
-    };
-    const option = (current.options && current.options[direction]) || fallback[direction];
-    const labels = { left: "Lewo", center: "Środek", right: "Prawo" };
-    const disabled = sesriemFogState.completed || sesriemFogState.time <= 0;
+function renderSesriemFogObstacle(obstacle){
+    const label = {
+        sand: "grząski piach",
+        oryx: "oryks",
+        rock: "kamienie"
+    }[obstacle.type] || "przeszkoda";
 
-    return "<button class=\"fog-choice-card\" onclick=\"chooseSesriemFogPath('" + direction + "')\" " + (disabled ? "disabled" : "") + ">" +
-        "<span>" + labels[direction] + "</span>" +
-        "<strong>" + option.title + "</strong>" +
-        "<small>" + option.detail + "</small>" +
-    "</button>";
+    return "<div class=\"fog-obstacle obstacle-" + obstacle.type + "\" style=\"left:" + obstacle.x + "%\">" +
+        "<span>" + label + "</span>" +
+    "</div>";
 }
 
-function chooseSesriemFogPath(direction){
-    hydrateSesriemFogDrive();
-
-    if(sesriemFogState.completed || sesriemFogState.time <= 0){
+function startSesriemFogLoop(){
+    if(sesriemFogAnimationId || sesriemFogState.completed || sesriemFogState.crashed || sesriemFogState.stuck){
         return;
     }
 
-    const current = sesriemFogRoute[sesriemFogState.step];
-    sesriemFogState.lastChoice = direction;
+    sesriemFogLastFrame = performance.now();
+    sesriemFogAnimationId = requestAnimationFrame(tickSesriemFogDrive);
+}
 
-    if(direction === current.correct){
-        sesriemFogState.step += 1;
-        sesriemFogState.message = current.success;
+function stopSesriemFogLoop(){
+    if(sesriemFogAnimationId){
+        cancelAnimationFrame(sesriemFogAnimationId);
+        sesriemFogAnimationId = null;
+    }
+}
 
-        if(sesriemFogState.step >= sesriemFogRoute.length){
-            completeSesriemFogDrive();
+function tickSesriemFogDrive(timestamp){
+    sesriemFogAnimationId = null;
+
+    if(!document.getElementById("sesriemFogScreen")?.classList.contains("active")){
+        stopSesriemFogLoop();
+        return;
+    }
+
+    const dt = Math.min(0.05, (timestamp - sesriemFogLastFrame) / 1000);
+    sesriemFogLastFrame = timestamp;
+    updateSesriemFogDrive(dt);
+    renderSesriemFogDrive();
+
+    if(sesriemFogState && !sesriemFogState.completed && !sesriemFogState.crashed && !sesriemFogState.stuck){
+        startSesriemFogLoop();
+    }
+}
+
+function updateSesriemFogDrive(dt){
+    if(sesriemFogState.completed || sesriemFogState.crashed || sesriemFogState.stuck){
+        stopSesriemFogLoop();
+        return;
+    }
+
+    sesriemFogState.time = Math.max(0, sesriemFogState.time - dt);
+
+    if(sesriemFogState.time <= 0){
+        sesriemFogState.message = "Skończyła się woda/czas kierowcy. Mgła wygrała ten przejazd. Zresetuj i spróbuj jeszcze raz.";
+        stopSesriemFogLoop();
+        return;
+    }
+
+    const targetSpeed = sesriemFogInput.gas ? 74 : (sesriemFogInput.brake ? 24 : 46);
+    sesriemFogState.speed += (targetSpeed - sesriemFogState.speed) * Math.min(1, dt * 4.2);
+    sesriemFogState.distance += sesriemFogState.speed * dt * 2.1;
+    sesriemFogState.jumpCooldown = Math.max(0, sesriemFogState.jumpCooldown - dt);
+
+    if(sesriemFogState.carY > 0 || sesriemFogState.carVelocityY > 0){
+        sesriemFogState.carVelocityY -= 640 * dt;
+        sesriemFogState.carY = Math.max(0, sesriemFogState.carY + sesriemFogState.carVelocityY * dt);
+
+        if(sesriemFogState.carY <= 0){
+            sesriemFogState.carVelocityY = 0;
         }
+    }
+
+    updateSesriemFogObstacles(dt);
+    updateSesriemFogBanks(dt);
+
+    if(sesriemFogState.distance >= sesriemFogState.targetDistance){
+        completeSesriemFogDrive();
+    }
+}
+
+function updateSesriemFogObstacles(dt){
+    sesriemFogState.obstacleTimer -= dt;
+
+    if(sesriemFogState.obstacleTimer <= 0){
+        spawnSesriemFogObstacle();
+        sesriemFogState.obstacleTimer = 1.25 + Math.random() * 0.9;
+    }
+
+    const move = sesriemFogState.speed * dt * 0.78;
+    sesriemFogState.obstacles.forEach(obstacle=>{
+        obstacle.x -= move;
+    });
+
+    sesriemFogState.obstacles = sesriemFogState.obstacles.filter(obstacle=>obstacle.x > -18 && !obstacle.done);
+    checkSesriemFogCollisions();
+}
+
+function spawnSesriemFogObstacle(){
+    const roll = Math.random();
+    const type = roll < 0.38 ? "sand" : (roll < 0.70 ? "oryx" : "rock");
+    const width = type === "sand" ? 18 : (type === "oryx" ? 8 : 7);
+
+    sesriemFogState.obstacles.push({ type, x: 112, width });
+}
+
+function checkSesriemFogCollisions(){
+    const carX = 30;
+
+    for(const obstacle of sesriemFogState.obstacles){
+        const near = obstacle.x < carX + 7 && obstacle.x + obstacle.width > carX - 4;
+
+        if(!near || obstacle.done){
+            continue;
+        }
+
+        if(obstacle.type === "sand"){
+            if(sesriemFogState.speed < 58){
+                failSesriemFogObstacle("stuck", "Za wolno na grząskim piachu. Auto zakopało się w miękkiej drodze.");
+            }else{
+                obstacle.done = true;
+                sesriemFogState.message = "Dobrze: gaz przez grząski piach. Auto prześlizgnęło się bez zakopania.";
+            }
+        }
+
+        if(obstacle.type === "oryx"){
+            if(sesriemFogState.speed > 34){
+                failSesriemFogObstacle("crash", "Za szybko przy oryksie. Gwałtowne hamowanie kończy przejazd.");
+            }else{
+                obstacle.done = true;
+                sesriemFogState.message = "Dobrze: zwolniłeś. Oryks przebiegł przez drogę, a Wy jedziecie dalej.";
+            }
+        }
+
+        if(obstacle.type === "rock"){
+            if(sesriemFogState.carY < 24){
+                failSesriemFogObstacle("crash", "Kamienie uderzyły w przód auta. Przejazd kończy się awarią.");
+            }else{
+                obstacle.done = true;
+                sesriemFogState.message = "Dobrze: podbicie nad kamieniami. Zawieszenie jęknęło, ale wytrzymało.";
+            }
+        }
+    }
+}
+
+function failSesriemFogObstacle(kind, text){
+    sesriemFogState.mistakes += 1;
+    sesriemFogState.message = text;
+
+    if(kind === "stuck"){
+        sesriemFogState.stuck = true;
     }else{
-        sesriemFogState.mistakes += 1;
-        sesriemFogState.time = Math.max(0, sesriemFogState.time - 2);
-        sesriemFogState.message = current.fail;
-
-        if(sesriemFogState.time <= 0){
-            sesriemFogState.message += " Czas się skończył. Mgła wygrała ten poranek: wróć do ostatniego punktu i spróbuj jeszcze raz.";
-        }
+        sesriemFogState.crashed = true;
     }
 
     saveSesriemFogDrive();
-    renderSesriemFogDrive();
+    stopSesriemFogLoop();
 }
 
-function useSesriemFogHint(){
+function updateSesriemFogBanks(dt){
+    sesriemFogState.fogTimer -= dt;
+
+    if(sesriemFogState.fogTimer <= 0){
+        const width = sesriemFogState.fogWidth + Math.random() * 10;
+        sesriemFogState.fogBanks.push({ x: 112, width, opacity: 0.34 + Math.random() * 0.32 });
+        sesriemFogState.fogTimer = 1.1 + Math.random() * 1.1;
+    }
+
+    sesriemFogState.fogBanks.forEach(bank=>{
+        bank.x -= sesriemFogState.speed * dt * 0.36;
+    });
+
+    sesriemFogState.fogBanks = sesriemFogState.fogBanks.filter(bank=>bank.x + bank.width > 46);
+
+    const road = document.getElementById("sesriemFogRoad");
+
+    if(road){
+        road.querySelectorAll(".fog-bank").forEach(bank=>bank.remove());
+        sesriemFogState.fogBanks.forEach((bank, index)=>{
+            const element = document.createElement("div");
+            element.className = "fog-bank dynamic-bank";
+            element.style.left = bank.x + "%";
+            element.style.width = bank.width + "%";
+            element.style.opacity = bank.opacity;
+            element.style.animationDelay = (index * -0.7) + "s";
+            road.appendChild(element);
+        });
+    }
+}
+
+function setSesriemFogInput(inputName, value){
+    sesriemFogInput[inputName] = value;
+}
+
+function jumpSesriemFogCar(){
     hydrateSesriemFogDrive();
 
-    if(sesriemFogState.completed){
+    if(sesriemFogState.completed || sesriemFogState.crashed || sesriemFogState.stuck || sesriemFogState.jumpCooldown > 0 || sesriemFogState.carY > 0){
         return;
     }
 
-    const message = document.getElementById("sesriemFogMessage");
+    sesriemFogState.carVelocityY = 340;
+    sesriemFogState.jumpCooldown = 0.55;
+}
 
-    if(sesriemFogState.hints <= 0){
-        if(message){
-            message.innerText = "Nie macie już spokojnych obserwacji. Teraz trzeba zaufać temu, co widać przez mgłę.";
+function updateSesriemFogControls(){
+    const disabled = sesriemFogState.completed || sesriemFogState.crashed || sesriemFogState.stuck || sesriemFogState.time <= 0;
+
+    ["fogBrakeButton", "fogJumpButton", "fogGasButton"].forEach(id=>{
+        const button = document.getElementById(id);
+
+        if(button){
+            button.disabled = disabled;
+            button.classList.toggle("disabled-button", disabled);
         }
-
-        return;
-    }
-
-    sesriemFogState.hints -= 1;
-    sesriemFogState.message = sesriemFogRoute[sesriemFogState.step].hint + " Pozostałe obserwacje: " + sesriemFogState.hints + ".";
-    saveSesriemFogDrive();
-    renderSesriemFogDrive();
+    });
 }
 
 function completeSesriemFogDrive(){
     sesriemFogState.completed = true;
-    sesriemFogState.message = "Udało się. Przebiliście się przez mglisty poranek, a droga do Deadvlei i Big Daddy jest otwarta.";
+    sesriemFogState.distance = sesriemFogState.targetDistance;
+    sesriemFogState.message = "Udało się. Przebiliście się przez mgłę i zdążyliście w stronę Deadvlei. Big Daddy czeka.";
     localStorage.setItem("sesriemFogCompleted", "true");
     localStorage.setItem("bigDaddyUnlocked", "true");
     localStorage.setItem("bigDaddyFogMistakes", String(sesriemFogState.mistakes));
-    localStorage.setItem("bigDaddyFogTimeLeft", String(sesriemFogState.time));
+    localStorage.setItem("bigDaddyFogTimeLeft", String(Math.ceil(sesriemFogState.time)));
+    saveSesriemFogDrive();
+    stopSesriemFogLoop();
 }
 
 function resetSesriemFogDrive(){
+    stopSesriemFogLoop();
     sesriemFogState = getDefaultSesriemFogState();
     localStorage.removeItem("sesriemFogState");
     localStorage.removeItem("sesriemFogCompleted");
     localStorage.removeItem("bigDaddyFogMistakes");
     localStorage.removeItem("bigDaddyFogTimeLeft");
     renderSesriemFogDrive();
+    startSesriemFogLoop();
 }
 
 function finishSesriemFogDrive(){
     hydrateSesriemFogDrive();
 
     if(!sesriemFogState.completed){
-        sesriemFogState.message = "Najpierw trzeba przejechać przez mgłę. Big Daddy zaczyna się dopiero za nią.";
+        sesriemFogState.message = "Najpierw trzeba dojechać do Sossusvlei. Dystans musi dojść do 1000 m.";
         renderSesriemFogDrive();
         return;
     }
 
     showScreen("mapScreen");
-}
-
-function getSesriemFogLabel(){
-    if(sesriemFogState.completed){
-        return "Rzednie";
-    }
-
-    if(sesriemFogState.mistakes >= 3){
-        return "Biała";
-    }
-
-    if(sesriemFogState.mistakes >= 1){
-        return "Gęsta";
-    }
-
-    return "Chłodna";
 }
 
 function saveSesriemFogDrive(){
