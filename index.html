@@ -541,11 +541,16 @@
       </div>
       <div class="sesriem-fog-view">
         <div class="fog-road-art" id="sesriemFogRoad">
-          <span class="fog-sunrise"></span>
-          <span class="fog-jeep">🚙</span>
-          <span class="fog-track track-left"></span>
-          <span class="fog-track track-center"></span>
-          <span class="fog-track track-right"></span>
+          <div class="fog-objective-card">
+            <span>Cel minigry</span>
+            <strong>Przejedź 7 odcinków przez mgłę, zanim skończy się czas.</strong>
+          </div>
+          <div class="fog-route-map">
+            <span class="fog-route-line"></span>
+            <span class="fog-route-point start">Camp</span>
+            <span class="fog-jeep">🚙</span>
+            <span class="fog-route-point finish">Sossusvlei</span>
+          </div>
         </div>
         <div class="fog-clue-card">
           <p class="app-kicker">Poranna mgła</p>
@@ -555,9 +560,9 @@
       </div>
       <div class="sesriem-fog-choices" id="sesriemFogChoices"></div>
       <div class="sesriem-fog-panel">
-        <p id="sesriemFogMessage">Wybierz ślad. Dobre przygotowanie z wieczoru daje większy margines w mgle.</p>
+        <p id="sesriemFogMessage">Jak grać: przeczytaj sytuację, porównaj trzy karty śladów i wybierz tę, która najlepiej pasuje. Błąd kosztuje 2 czasu.</p>
         <div class="sesriem-fog-actions">
-          <button onclick="useSesriemFogHint()">Obserwuj ślady</button>
+          <button onclick="useSesriemFogHint()">Podpowiedź</button>
           <button onclick="resetSesriemFogDrive()">Reset</button>
           <button id="sesriemFogContinueButton" onclick="finishSesriemFogDrive()">Dalej</button>
         </div>

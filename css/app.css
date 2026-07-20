@@ -4808,9 +4808,9 @@ button:disabled{
     top:72px;
     left:10px;
     right:10px;
-    bottom:204px;
+    bottom:386px;
     display:grid;
-    grid-template-rows:1fr auto;
+    grid-template-rows:minmax(138px, 0.9fr) auto;
     gap:10px;
 }
 
@@ -4821,75 +4821,109 @@ button:disabled{
     border:1px solid rgba(16,43,63,0.14);
     border-radius:24px;
     background:
-        linear-gradient(90deg, rgba(170,116,63,0.28), transparent 18%, rgba(84,78,69,0.52) 46%, rgba(84,78,69,0.52) 54%, transparent 82%, rgba(170,116,63,0.28)),
-        linear-gradient(180deg, #f4f0dd, #d8c29b 58%, #9c7653);
+        radial-gradient(circle at 50% 24%, rgba(255,255,255,0.94), rgba(255,255,255,0.24) 42%, transparent 70%),
+        linear-gradient(180deg, rgba(244,240,221,0.94), rgba(216,194,155,0.76)),
+        #d8c29b;
     box-shadow:inset 0 0 80px rgba(255,255,255,0.72), 0 18px 38px rgba(83,62,37,0.18);
 }
 
 .fog-road-art::before{
-    content:"";
-    position:absolute;
-    left:50%;
-    bottom:-18%;
-    width:56%;
-    height:126%;
-    transform:translateX(-50%) perspective(170px) rotateX(28deg);
-    border-left:2px dashed rgba(255,255,255,0.46);
-    border-right:2px dashed rgba(255,255,255,0.46);
-    background:linear-gradient(180deg, rgba(58,68,68,0.06), rgba(41,44,40,0.34));
+    content:none;
 }
 
-.fog-sunrise{
+.fog-objective-card{
     position:absolute;
-    left:50%;
-    top:12%;
-    width:74px;
-    height:74px;
-    transform:translateX(-50%);
-    border-radius:50%;
-    background:rgba(255,230,167,0.88);
-    box-shadow:0 0 68px 44px rgba(255,255,255,0.82);
+    z-index:2;
+    left:14px;
+    right:14px;
+    top:14px;
+    padding:12px;
+    border:1px solid rgba(16,43,63,0.12);
+    border-radius:18px;
+    background:rgba(255,255,255,0.78);
+    backdrop-filter:blur(10px);
+}
+
+.fog-objective-card span,
+.fog-objective-card strong{
+    display:block;
+}
+
+.fog-objective-card span{
+    color:#9b6e27;
+    font-size:0.56rem;
+    font-weight:950;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+}
+
+.fog-objective-card strong{
+    margin-top:4px;
+    color:#102b3f;
+    font-size:0.86rem;
+    line-height:1.14;
+}
+
+.fog-route-map{
+    position:absolute;
+    left:24px;
+    right:24px;
+    bottom:22px;
+    height:62px;
+}
+
+.fog-route-line{
+    position:absolute;
+    left:24px;
+    right:24px;
+    top:30px;
+    height:4px;
+    border-radius:99px;
+    background:rgba(16,43,63,0.20);
+}
+
+.fog-route-line::before{
+    content:"";
+    display:block;
+    width:calc(var(--fog-progress, 0) * 100%);
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg, #1d9ab4, #d9a441);
+}
+
+.fog-route-point{
+    position:absolute;
+    top:13px;
+    padding:7px 9px;
+    border-radius:99px;
+    color:#102b3f;
+    background:rgba(255,255,255,0.88);
+    font-size:0.6rem;
+    font-weight:950;
+    box-shadow:0 8px 18px rgba(16,43,63,0.14);
+}
+
+.fog-route-point.start{
+    left:0;
+}
+
+.fog-route-point.finish{
+    right:0;
 }
 
 .fog-jeep{
     position:absolute;
-    left:50%;
-    bottom:12%;
+    left:calc(24px + (100% - 48px) * var(--fog-progress, 0));
+    top:8px;
     z-index:3;
-    transform:translateX(-50%) translateX(calc(var(--choice-x, 0) * 1px));
-    font-size:2.3rem;
+    transform:translateX(-50%);
+    font-size:1.9rem;
     filter:drop-shadow(0 12px 16px rgba(33,28,19,0.28));
     transition:transform 220ms ease;
 }
 
-.fog-road-art.choice-left{ --choice-x:-74; }
-.fog-road-art.choice-center{ --choice-x:0; }
-.fog-road-art.choice-right{ --choice-x:74; }
-.fog-road-art.cleared::after{
-    opacity:0.18;
-}
-
 .fog-track{
-    position:absolute;
-    bottom:18%;
-    width:34%;
-    height:54%;
-    border-top:2px solid rgba(255,255,255,0.24);
-    opacity:0.62;
-}
-
-.track-left{
-    left:0;
-    transform:skewX(-18deg);
-}
-
-.track-center{
-    left:33%;
-}
-
-.track-right{
-    right:0;
-    transform:skewX(18deg);
+    display:none;
 }
 
 .fog-clue-card{
@@ -4923,17 +4957,52 @@ button:disabled{
     z-index:4;
     left:10px;
     right:10px;
-    bottom:120px;
+    bottom:112px;
     display:grid;
-    grid-template-columns:repeat(3, 1fr);
+    grid-template-columns:1fr;
     gap:8px;
+    max-height:264px;
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
 }
 
-.sesriem-fog-choices button{
+.fog-choice-card{
     min-width:0;
-    padding:13px 8px;
+    padding:11px 12px;
     border-radius:16px;
-    font-size:0.74rem;
+    text-align:left;
+    background:rgba(255,255,255,0.92);
+    color:#102b3f;
+    box-shadow:0 10px 22px rgba(16,43,63,0.12);
+}
+
+.fog-choice-card span,
+.fog-choice-card strong,
+.fog-choice-card small{
+    display:block;
+}
+
+.fog-choice-card span{
+    color:#0f879f;
+    font-size:0.55rem;
+    font-weight:950;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+}
+
+.fog-choice-card strong{
+    margin-top:2px;
+    color:#102b3f;
+    font-size:0.86rem;
+    line-height:1.05;
+}
+
+.fog-choice-card small{
+    margin-top:3px;
+    color:#526671;
+    font-size:0.62rem;
+    line-height:1.14;
+    font-weight:850;
 }
 
 .sesriem-fog-panel{

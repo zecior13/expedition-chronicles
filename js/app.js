@@ -223,13 +223,104 @@ const ELIM_PHOTO_PUZZLE_IMAGE = "assets/sesriem/elim-dune-sunset-photo.jpg";
 const elimPuzzleInitialTray = [13, 2, 18, 7, 0, 15, 9, 4, 11, 19, 6, 1, 16, 10, 3, 14, 8, 17, 5, 12];
 
 const sesriemFogRoute = [
-    { id: "camp", title: "Wyjazd z campingu", clue: "Po lewej słychać kuchnię campingu, po prawej piasek robi się miękki. Szukasz twardszego śladu prowadzącego do bramy.", correct: "center", hint: "Najpewniejszy ślad jest na środku.", success: "Koła łapią twardy szuter. Camping znika w mlecznej mgle.", fail: "Auto wpada w miękki piach. Trzeba skorygować tor i tracicie kilka minut." },
-    { id: "gate", title: "Brama do parku", clue: "W mgle majaczy niski znak. Światła odbijają się od słupków, ale jeden ślad omija zamknięty wjazd techniczny.", correct: "right", hint: "Nie jedź prosto w najjaśniejsze słupki. Droga odbija w prawo.", success: "Znak bramy zostaje po lewej. Jesteście na właściwym dojeździe.", fail: "Podjeżdżacie pod zły szlaban. Cofanie w mgle kosztuje nerwy." },
-    { id: "dry-river", title: "Suchy korytarz rzeki", clue: "Piasek układa się w płytki korytarz. Lewa strona ma świeże koleiny, ale nagle urywają się przy miękkim brzegu.", correct: "center", hint: "Koleiny urywają się po lewej. Trzymaj środek.", success: "Przejeżdżacie przez suchy korytarz bez zakopania kół.", fail: "Zbyt blisko brzegu. Auto szarpie i mgła wydaje się jeszcze gęstsza." },
-    { id: "dune-shadow", title: "Cień wydmy", clue: "Wiatr przerzuca piasek przez drogę. Widzisz trzy ciemne pasy, ale tylko jeden ma kamyki zamiast świeżego nawiewu.", correct: "left", hint: "Kamyki są po lewej. Tam piasek jest mniej zdradliwy.", success: "Lewy pas trzyma auto stabilnie. Wydma przesuwa się jak cień za szybą.", fail: "Wjeżdżacie w świeży nawiew. Trzeba zejść z gazu i ratować rytm." },
-    { id: "oryx", title: "Oryks w półmroku", clue: "Przez mgłę przechodzi sylwetka oryksa. Nie można go płoszyć ani tracić drogi z oczu.", correct: "right", hint: "Daj zwierzęciu przestrzeń i omiń je po prawej.", success: "Oryks spokojnie znika w bieli. Droga zostaje pod kontrolą.", fail: "Hamowanie jest zbyt gwałtowne. Przez chwilę wszyscy szukają oddechu." },
-    { id: "deadvlei-turn", title: "Rozjazd do Deadvlei", clue: "Tu łatwo pojechać za konwojem, ale ślady rozdzielają się. Szukasz skrętu pod wschodzące słońce.", correct: "left", hint: "Słońce przebija po lewej. Tam idzie właściwy skręt.", success: "Wybieracie skręt do Deadvlei. Mgła zaczyna świecić od środka.", fail: "Jedziecie za cudzymi światłami i musicie zawrócić na rozjeździe." },
-    { id: "first-light", title: "Pierwsze światło", clue: "Mgła rzednie. Przed Wami jasna linia drogi i pierwszy cień czerwonych wydm.", correct: "center", hint: "Teraz nie kombinuj. Prosto do światła.", success: "Wjeżdżacie w świt. Sossusvlei otwiera się przed Wami.", fail: "Ostatni nerwowy skręt wybija rytm, ale światło pomaga wrócić na drogę." }
+    {
+        id: "camp",
+        title: "Wyjazd z campingu",
+        clue: "Cel: wybierz ślad, który wygląda na twardy i prowadzi do bramy. Mgła ukrywa drogę, więc czytaj opis opcji.",
+        correct: "center",
+        hint: "Najpewniejszy ślad jest na środku.",
+        success: "Koła łapią twardy szuter. Camping znika w mlecznej mgle.",
+        fail: "Auto wpada w miękki piach. Trzeba skorygować tor i tracicie kilka minut.",
+        options: {
+            left: { title: "Szum kuchni", detail: "Słychać camping. To raczej powrót między namioty." },
+            center: { title: "Twarde koleiny", detail: "Dwie równe linie idą prosto w stronę bramy." },
+            right: { title: "Miękki piach", detail: "Koła poprzedniego auta zapadały się coraz głębiej." }
+        }
+    },
+    {
+        id: "gate",
+        title: "Brama do parku",
+        clue: "Widzisz słupki i rozmazany znak. Jeden ślad omija zamknięty wjazd techniczny.",
+        correct: "right",
+        hint: "Nie jedź prosto w najjaśniejsze słupki. Droga odbija w prawo.",
+        success: "Znak bramy zostaje po lewej. Jesteście na właściwym dojeździe.",
+        fail: "Podjeżdżacie pod zły szlaban. Cofanie w mgle kosztuje nerwy.",
+        options: {
+            left: { title: "Cień budki", detail: "Blisko obsługi bramy, ale ślad kończy się przy płocie." },
+            center: { title: "Jasne słupki", detail: "Najbardziej widoczne, ale prowadzą w zamknięty wjazd." },
+            right: { title: "Objazd znaku", detail: "Ślad delikatnie omija słupki i wraca na drogę." }
+        }
+    },
+    {
+        id: "dry-river",
+        title: "Suchy korytarz rzeki",
+        clue: "Koleiny rozchodzą się przy suchym korytarzu. Szukasz śladu, który nie wpada w miękki brzeg.",
+        correct: "center",
+        hint: "Koleiny urywają się po lewej. Trzymaj środek.",
+        success: "Przejeżdżacie przez suchy korytarz bez zakopania kół.",
+        fail: "Zbyt blisko brzegu. Auto szarpie i mgła wydaje się jeszcze gęstsza.",
+        options: {
+            left: { title: "Świeże koleiny", detail: "Wyglądają kusząco, ale urywają się przy miękkim brzegu." },
+            center: { title: "Płaski przejazd", detail: "Mniej wyraźny, za to równy i twardszy." },
+            right: { title: "Ciemny piasek", detail: "Wygląda mokro. Może wciągnąć koła." }
+        }
+    },
+    {
+        id: "dune-shadow",
+        title: "Cień wydmy",
+        clue: "Wiatr nawiewa piasek na drogę. Dobry ślad ma kamyki i mniej świeżego piachu.",
+        correct: "left",
+        hint: "Kamyki są po lewej. Tam piasek jest mniej zdradliwy.",
+        success: "Lewy pas trzyma auto stabilnie. Wydma przesuwa się jak cień za szybą.",
+        fail: "Wjeżdżacie w świeży nawiew. Trzeba zejść z gazu i ratować rytm.",
+        options: {
+            left: { title: "Kamyki na śladzie", detail: "Wiatr nie zasypał go świeżym piaskiem." },
+            center: { title: "Gładki nawiew", detail: "Piękny, ale podejrzanie miękki." },
+            right: { title: "Znikające koleiny", detail: "Ślad kończy się pod jęzorem piasku." }
+        }
+    },
+    {
+        id: "oryx",
+        title: "Oryks w półmroku",
+        clue: "Przez mgłę przechodzi oryks. Trzeba dać mu przestrzeń i nie stracić drogi.",
+        correct: "right",
+        hint: "Daj zwierzęciu przestrzeń i omiń je po prawej.",
+        success: "Oryks spokojnie znika w bieli. Droga zostaje pod kontrolą.",
+        fail: "Hamowanie jest zbyt gwałtowne. Przez chwilę wszyscy szukają oddechu.",
+        options: {
+            left: { title: "Nagłe hamowanie", detail: "Bezpieczne dla zwierzęcia, ale łatwo zgubić tor." },
+            center: { title: "Prosto za śladem", detail: "Za blisko sylwetki oryksa." },
+            right: { title: "Szeroki łuk", detail: "Daje zwierzęciu miejsce i wraca na koleiny." }
+        }
+    },
+    {
+        id: "deadvlei-turn",
+        title: "Rozjazd do Deadvlei",
+        clue: "Ślady rozdzielają się. Szukasz skrętu w stronę pierwszego światła nad wydmami.",
+        correct: "left",
+        hint: "Słońce przebija po lewej. Tam idzie właściwy skręt.",
+        success: "Wybieracie skręt do Deadvlei. Mgła zaczyna świecić od środka.",
+        fail: "Jedziecie za cudzymi światłami i musicie zawrócić na rozjeździe.",
+        options: {
+            left: { title: "Światło nad wydmą", detail: "Blady pas słońca pokazuje skręt do Deadvlei." },
+            center: { title: "Cudze światła", detail: "Ktoś jedzie prosto, ale nie wiadomo dokąd." },
+            right: { title: "Pusty objazd", detail: "Ślad wygląda stary i słabo używany." }
+        }
+    },
+    {
+        id: "first-light",
+        title: "Pierwsze światło",
+        clue: "Mgła rzednie. Ostatni wybór: nie zgubić rytmu przed czerwonymi wydmami.",
+        correct: "center",
+        hint: "Teraz nie kombinuj. Prosto do światła.",
+        success: "Wjeżdżacie w świt. Sossusvlei otwiera się przed Wami.",
+        fail: "Ostatni nerwowy skręt wybija rytm, ale światło pomaga wrócić na drogę.",
+        options: {
+            left: { title: "Boczny skręt", detail: "Wygląda ciekawie, ale odchodzi od światła." },
+            center: { title: "Jasna linia drogi", detail: "Najprostszy i najbardziej czytelny ślad." },
+            right: { title: "Cień pobocza", detail: "Mgła ukrywa tam krawędź piasku." }
+        }
+    }
 ];
 
 const sesriemCampActions = [
@@ -2726,7 +2817,7 @@ function getDefaultSesriemFogState(){
         hints,
         lastChoice: "",
         completed: localStorage.getItem("sesriemFogCompleted") === "true",
-        message: "Mgła jest gęsta. Czytaj ślady, nie jedź na pamięć."
+        message: "Cel: przejedź 7 odcinków do Sossusvlei, zanim skończy się czas. Na każdym odcinku wybierz ślad, który najlepiej pasuje do opisu."
     };
 }
 
@@ -2795,13 +2886,21 @@ function renderSesriemFogDrive(){
 }
 
 function renderSesriemFogChoice(direction){
-    const labels = {
-        left: "Lewy ślad",
-        center: "Prosto",
-        right: "Prawy ślad"
+    const current = sesriemFogRoute[Math.min(sesriemFogState.step, sesriemFogRoute.length - 1)];
+    const fallback = {
+        left: { title: "Lewy ślad", detail: "Sprawdź, czy pasuje do opisu." },
+        center: { title: "Prosto", detail: "Sprawdź, czy pasuje do opisu." },
+        right: { title: "Prawy ślad", detail: "Sprawdź, czy pasuje do opisu." }
     };
+    const option = (current.options && current.options[direction]) || fallback[direction];
+    const labels = { left: "Lewo", center: "Środek", right: "Prawo" };
+    const disabled = sesriemFogState.completed || sesriemFogState.time <= 0;
 
-    return "<button onclick=\"chooseSesriemFogPath('" + direction + "')\" " + (sesriemFogState.completed || sesriemFogState.time <= 0 ? "disabled" : "") + ">" + labels[direction] + "</button>";
+    return "<button class=\"fog-choice-card\" onclick=\"chooseSesriemFogPath('" + direction + "')\" " + (disabled ? "disabled" : "") + ">" +
+        "<span>" + labels[direction] + "</span>" +
+        "<strong>" + option.title + "</strong>" +
+        "<small>" + option.detail + "</small>" +
+    "</button>";
 }
 
 function chooseSesriemFogPath(direction){
