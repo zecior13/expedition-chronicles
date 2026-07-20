@@ -210,6 +210,7 @@ let solitaireFlags = [];
 let solitaireSceneFeedback = "";
 let solitaireTravelTimers = [];
 let sesriemCampState = null;
+let sesriemFogState = null;
 let elimPuzzleState = null;
 let elimPuzzleSelectedPieceId = null;
 let elimPuzzleDragGhost = null;
@@ -220,6 +221,16 @@ const ELIM_PHOTO_PUZZLE_COLS = 5;
 const ELIM_PHOTO_PUZZLE_ROWS = 4;
 const ELIM_PHOTO_PUZZLE_IMAGE = "assets/sesriem/elim-dune-sunset-photo.jpg";
 const elimPuzzleInitialTray = [13, 2, 18, 7, 0, 15, 9, 4, 11, 19, 6, 1, 16, 10, 3, 14, 8, 17, 5, 12];
+
+const sesriemFogRoute = [
+    { id: "camp", title: "Wyjazd z campingu", clue: "Po lewej słychać kuchnię campingu, po prawej piasek robi się miękki. Szukasz twardszego śladu prowadzącego do bramy.", correct: "center", hint: "Najpewniejszy ślad jest na środku.", success: "Koła łapią twardy szuter. Camping znika w mlecznej mgle.", fail: "Auto wpada w miękki piach. Trzeba skorygować tor i tracicie kilka minut." },
+    { id: "gate", title: "Brama do parku", clue: "W mgle majaczy niski znak. Światła odbijają się od słupków, ale jeden ślad omija zamknięty wjazd techniczny.", correct: "right", hint: "Nie jedź prosto w najjaśniejsze słupki. Droga odbija w prawo.", success: "Znak bramy zostaje po lewej. Jesteście na właściwym dojeździe.", fail: "Podjeżdżacie pod zły szlaban. Cofanie w mgle kosztuje nerwy." },
+    { id: "dry-river", title: "Suchy korytarz rzeki", clue: "Piasek układa się w płytki korytarz. Lewa strona ma świeże koleiny, ale nagle urywają się przy miękkim brzegu.", correct: "center", hint: "Koleiny urywają się po lewej. Trzymaj środek.", success: "Przejeżdżacie przez suchy korytarz bez zakopania kół.", fail: "Zbyt blisko brzegu. Auto szarpie i mgła wydaje się jeszcze gęstsza." },
+    { id: "dune-shadow", title: "Cień wydmy", clue: "Wiatr przerzuca piasek przez drogę. Widzisz trzy ciemne pasy, ale tylko jeden ma kamyki zamiast świeżego nawiewu.", correct: "left", hint: "Kamyki są po lewej. Tam piasek jest mniej zdradliwy.", success: "Lewy pas trzyma auto stabilnie. Wydma przesuwa się jak cień za szybą.", fail: "Wjeżdżacie w świeży nawiew. Trzeba zejść z gazu i ratować rytm." },
+    { id: "oryx", title: "Oryks w półmroku", clue: "Przez mgłę przechodzi sylwetka oryksa. Nie można go płoszyć ani tracić drogi z oczu.", correct: "right", hint: "Daj zwierzęciu przestrzeń i omiń je po prawej.", success: "Oryks spokojnie znika w bieli. Droga zostaje pod kontrolą.", fail: "Hamowanie jest zbyt gwałtowne. Przez chwilę wszyscy szukają oddechu." },
+    { id: "deadvlei-turn", title: "Rozjazd do Deadvlei", clue: "Tu łatwo pojechać za konwojem, ale ślady rozdzielają się. Szukasz skrętu pod wschodzące słońce.", correct: "left", hint: "Słońce przebija po lewej. Tam idzie właściwy skręt.", success: "Wybieracie skręt do Deadvlei. Mgła zaczyna świecić od środka.", fail: "Jedziecie za cudzymi światłami i musicie zawrócić na rozjeździe." },
+    { id: "first-light", title: "Pierwsze światło", clue: "Mgła rzednie. Przed Wami jasna linia drogi i pierwszy cień czerwonych wydm.", correct: "center", hint: "Teraz nie kombinuj. Prosto do światła.", success: "Wjeżdżacie w świt. Sossusvlei otwiera się przed Wami.", fail: "Ostatni nerwowy skręt wybija rytm, ale światło pomaga wrócić na drogę." }
+];
 
 const sesriemCampActions = [
     {
@@ -614,6 +625,10 @@ function showScreen(id){
 
     if(id === "sesriemMorningScreen"){
         renderSesriemMorning();
+    }
+
+    if(id === "sesriemFogScreen"){
+        renderSesriemFogDrive();
     }
 
     if(id === "walvisChronicleScreen"){
@@ -2676,6 +2691,223 @@ function renderSesriemMorning(){
     }
 }
 
+function startSesriemFogDrive(){
+    hydrateSesriemFogDrive();
+    showScreen("sesriemFogScreen");
+}
+
+function hydrateSesriemFogDrive(){
+    const savedState = localStorage.getItem("sesriemFogState");
+
+    try{
+        sesriemFogState = savedState ? JSON.parse(savedState) : null;
+    }catch(error){
+        sesriemFogState = null;
+    }
+
+    if(!sesriemFogState || typeof sesriemFogState.step !== "number"){
+        sesriemFogState = getDefaultSesriemFogState();
+    }
+}
+
+function getDefaultSesriemFogState(){
+    const water = Number(localStorage.getItem("bigDaddyWater") || 2);
+    const energy = Number(localStorage.getItem("bigDaddyEnergy") || 2);
+    const gear = Number(localStorage.getItem("bigDaddyGear") || 1);
+    const route = Number(localStorage.getItem("bigDaddyRoute") || 0);
+    const condition = localStorage.getItem("bigDaddyMorningCondition") || "rough";
+    const baseTime = 8 + Math.min(3, Math.floor((energy + water) / 4));
+    const hints = 1 + Math.min(2, Math.floor((gear + route) / 4));
+
+    return {
+        step: 0,
+        time: condition === "excellent" ? baseTime + 1 : baseTime,
+        mistakes: 0,
+        hints,
+        lastChoice: "",
+        completed: localStorage.getItem("sesriemFogCompleted") === "true",
+        message: "Mgła jest gęsta. Czytaj ślady, nie jedź na pamięć."
+    };
+}
+
+function renderSesriemFogDrive(){
+    hydrateSesriemFogDrive();
+
+    const stepValue = document.getElementById("sesriemFogStepValue");
+    const timeValue = document.getElementById("sesriemFogTimeValue");
+    const mistValue = document.getElementById("sesriemFogMistValue");
+    const title = document.getElementById("sesriemFogTitle");
+    const clue = document.getElementById("sesriemFogClue");
+    const message = document.getElementById("sesriemFogMessage");
+    const choices = document.getElementById("sesriemFogChoices");
+    const continueButton = document.getElementById("sesriemFogContinueButton");
+    const road = document.getElementById("sesriemFogRoad");
+    const shell = document.querySelector(".sesriem-fog-shell");
+    const current = sesriemFogRoute[Math.min(sesriemFogState.step, sesriemFogRoute.length - 1)];
+    const progress = sesriemFogState.step / sesriemFogRoute.length;
+
+    if(stepValue){
+        stepValue.innerText = Math.min(sesriemFogState.step + 1, sesriemFogRoute.length) + "/" + sesriemFogRoute.length;
+    }
+
+    if(timeValue){
+        timeValue.innerText = String(sesriemFogState.time);
+    }
+
+    if(mistValue){
+        mistValue.innerText = getSesriemFogLabel();
+    }
+
+    if(title){
+        title.innerText = sesriemFogState.completed ? "Droga odnaleziona" : current.title;
+    }
+
+    if(clue){
+        clue.innerText = sesriemFogState.completed ? "Mgła ustępuje. Macie przejazd do Deadvlei i pierwszy widok czerwonych wydm." : current.clue;
+    }
+
+    if(message){
+        message.innerText = sesriemFogState.message;
+    }
+
+    if(choices){
+        choices.innerHTML = ["left", "center", "right"].map(direction=>renderSesriemFogChoice(direction)).join("");
+    }
+
+    if(continueButton){
+        continueButton.disabled = !sesriemFogState.completed;
+        continueButton.classList.toggle("disabled-button", !sesriemFogState.completed);
+    }
+
+    if(road){
+        road.style.setProperty("--fog-progress", String(progress));
+        road.classList.toggle("cleared", sesriemFogState.completed);
+        road.classList.remove("choice-left", "choice-center", "choice-right");
+
+        if(sesriemFogState.lastChoice){
+            road.classList.add("choice-" + sesriemFogState.lastChoice);
+        }
+    }
+
+    if(shell){
+        shell.style.setProperty("--fog-progress", String(progress));
+    }
+}
+
+function renderSesriemFogChoice(direction){
+    const labels = {
+        left: "Lewy ślad",
+        center: "Prosto",
+        right: "Prawy ślad"
+    };
+
+    return "<button onclick=\"chooseSesriemFogPath('" + direction + "')\" " + (sesriemFogState.completed || sesriemFogState.time <= 0 ? "disabled" : "") + ">" + labels[direction] + "</button>";
+}
+
+function chooseSesriemFogPath(direction){
+    hydrateSesriemFogDrive();
+
+    if(sesriemFogState.completed || sesriemFogState.time <= 0){
+        return;
+    }
+
+    const current = sesriemFogRoute[sesriemFogState.step];
+    sesriemFogState.lastChoice = direction;
+
+    if(direction === current.correct){
+        sesriemFogState.step += 1;
+        sesriemFogState.message = current.success;
+
+        if(sesriemFogState.step >= sesriemFogRoute.length){
+            completeSesriemFogDrive();
+        }
+    }else{
+        sesriemFogState.mistakes += 1;
+        sesriemFogState.time = Math.max(0, sesriemFogState.time - 2);
+        sesriemFogState.message = current.fail;
+
+        if(sesriemFogState.time <= 0){
+            sesriemFogState.message += " Czas się skończył. Mgła wygrała ten poranek: wróć do ostatniego punktu i spróbuj jeszcze raz.";
+        }
+    }
+
+    saveSesriemFogDrive();
+    renderSesriemFogDrive();
+}
+
+function useSesriemFogHint(){
+    hydrateSesriemFogDrive();
+
+    if(sesriemFogState.completed){
+        return;
+    }
+
+    const message = document.getElementById("sesriemFogMessage");
+
+    if(sesriemFogState.hints <= 0){
+        if(message){
+            message.innerText = "Nie macie już spokojnych obserwacji. Teraz trzeba zaufać temu, co widać przez mgłę.";
+        }
+
+        return;
+    }
+
+    sesriemFogState.hints -= 1;
+    sesriemFogState.message = sesriemFogRoute[sesriemFogState.step].hint + " Pozostałe obserwacje: " + sesriemFogState.hints + ".";
+    saveSesriemFogDrive();
+    renderSesriemFogDrive();
+}
+
+function completeSesriemFogDrive(){
+    sesriemFogState.completed = true;
+    sesriemFogState.message = "Udało się. Przebiliście się przez mglisty poranek, a droga do Deadvlei i Big Daddy jest otwarta.";
+    localStorage.setItem("sesriemFogCompleted", "true");
+    localStorage.setItem("bigDaddyUnlocked", "true");
+    localStorage.setItem("bigDaddyFogMistakes", String(sesriemFogState.mistakes));
+    localStorage.setItem("bigDaddyFogTimeLeft", String(sesriemFogState.time));
+}
+
+function resetSesriemFogDrive(){
+    sesriemFogState = getDefaultSesriemFogState();
+    localStorage.removeItem("sesriemFogState");
+    localStorage.removeItem("sesriemFogCompleted");
+    localStorage.removeItem("bigDaddyFogMistakes");
+    localStorage.removeItem("bigDaddyFogTimeLeft");
+    renderSesriemFogDrive();
+}
+
+function finishSesriemFogDrive(){
+    hydrateSesriemFogDrive();
+
+    if(!sesriemFogState.completed){
+        sesriemFogState.message = "Najpierw trzeba przejechać przez mgłę. Big Daddy zaczyna się dopiero za nią.";
+        renderSesriemFogDrive();
+        return;
+    }
+
+    showScreen("mapScreen");
+}
+
+function getSesriemFogLabel(){
+    if(sesriemFogState.completed){
+        return "Rzednie";
+    }
+
+    if(sesriemFogState.mistakes >= 3){
+        return "Biała";
+    }
+
+    if(sesriemFogState.mistakes >= 1){
+        return "Gęsta";
+    }
+
+    return "Chłodna";
+}
+
+function saveSesriemFogDrive(){
+    localStorage.setItem("sesriemFogState", JSON.stringify(sesriemFogState));
+}
+
 function resetSesriemCamp(){
     sesriemCampState = getDefaultSesriemCampState();
     localStorage.removeItem("sesriemCampState");
@@ -2687,6 +2919,10 @@ function resetSesriemCamp(){
     localStorage.removeItem("bigDaddyEnergy");
     localStorage.removeItem("bigDaddyGear");
     localStorage.removeItem("bigDaddyRoute");
+    localStorage.removeItem("sesriemFogState");
+    localStorage.removeItem("sesriemFogCompleted");
+    localStorage.removeItem("bigDaddyFogMistakes");
+    localStorage.removeItem("bigDaddyFogTimeLeft");
     localStorage.removeItem("elimDuneVisited");
     localStorage.removeItem("elimDunePhotoPuzzleUnlocked");
     localStorage.removeItem("elimDunePhotoRestored");
@@ -2826,11 +3062,13 @@ function hydrateElimPhotoPuzzle(){
 
 function renderElimPhotoPuzzle(){
     hydrateElimPhotoPuzzle();
+    cleanupElimPuzzleDrag();
 
     const board = document.getElementById("elimPuzzleBoard");
     const tray = document.getElementById("elimPuzzleTray");
     const message = document.getElementById("elimPuzzleMessage");
     const doneButton = document.getElementById("elimPuzzleDoneButton");
+    const checkButton = document.getElementById("elimPuzzleCheckButton");
 
     if(board){
         board.innerHTML = elimPuzzleState.slots.map((pieceId, index)=>renderElimPuzzleSlot(pieceId, index)).join("");
@@ -2842,7 +3080,7 @@ function renderElimPhotoPuzzle(){
 
     if(message){
         if(elimPuzzleState.completed){
-            message.innerText = "Zdjęcie uratowane. Zachód słońca na Elim Dune trafia do Kroniki i zostaje jako bonus z Sesriem.";
+            message.innerText = "Zdjęcie uratowane! Nagroda: zdjęcie Elim Dune trafia do Kroniki, a ekipa dostaje +1 morale za piękny zachód słońca.";
         }else{
             message.innerText = "Wybierz kawałek z dołu, a potem miejsce na białej planszy. Kawałki można zamieniać, aż zdjęcie znowu złoży się w całość.";
         }
@@ -2850,6 +3088,11 @@ function renderElimPhotoPuzzle(){
 
     if(doneButton){
         doneButton.innerText = elimPuzzleState.completed ? "Wróć z gotowym zdjęciem" : "Wróć do obozu";
+    }
+
+    if(checkButton){
+        checkButton.disabled = !!elimPuzzleState.completed;
+        checkButton.classList.toggle("disabled-button", !!elimPuzzleState.completed);
     }
 }
 
@@ -2880,18 +3123,14 @@ function getElimPuzzleBackgroundPosition(pieceId){
 
 function selectElimPuzzlePiece(event, pieceId){
     event.stopPropagation();
-
-    if(elimPuzzleSuppressClick){
-        elimPuzzleSuppressClick = false;
-        return;
-    }
+    elimPuzzleSuppressClick = false;
 
     elimPuzzleSelectedPieceId = pieceId;
     renderElimPhotoPuzzle();
 }
 
 function startElimPuzzleDrag(event, pieceId){
-    if(!elimPuzzleState || elimPuzzleState.completed || event.pointerType === "mouse" && event.button !== 0){
+    if(!event.isPrimary || !elimPuzzleState || elimPuzzleState.completed || event.pointerType === "mouse" && event.button !== 0){
         return;
     }
 
@@ -2902,6 +3141,7 @@ function startElimPuzzleDrag(event, pieceId){
 
     const source = event.currentTarget;
     const rect = source.getBoundingClientRect();
+    cleanupElimPuzzleDrag();
     const ghost = source.cloneNode(false);
     ghost.className = "elim-puzzle-drag-ghost";
     ghost.style.backgroundImage = source.style.backgroundImage;
@@ -2947,10 +3187,7 @@ function moveElimPuzzleDragGhost(clientX, clientY){
 }
 
 function finishElimPuzzleDrag(clientX, clientY){
-    if(elimPuzzleDragGhost){
-        elimPuzzleDragGhost.remove();
-        elimPuzzleDragGhost = null;
-    }
+    cleanupElimPuzzleDrag();
 
     if(clientX === null || clientY === null){
         return;
@@ -3004,12 +3241,40 @@ function placeElimPuzzlePiece(slotIndex){
     elimPuzzleState.slots[slotIndex] = selectedPiece;
     elimPuzzleSelectedPieceId = null;
 
-    checkElimPhotoPuzzleSolved();
     saveElimPhotoPuzzle();
     renderElimPhotoPuzzle();
 }
 
-function checkElimPhotoPuzzleSolved(){
+function checkElimPhotoPuzzle(){
+    hydrateElimPhotoPuzzle();
+
+    const message = document.getElementById("elimPuzzleMessage");
+    const missing = elimPuzzleState.slots.filter(pieceId=>pieceId === null || pieceId === undefined).length;
+
+    if(missing > 0){
+        if(message){
+            message.innerText = "Brakuje jeszcze " + missing + " kawałków. Najpierw uzupełnij całą planszę.";
+        }
+
+        return;
+    }
+
+    const wrong = elimPuzzleState.slots.filter((pieceId, index)=>pieceId !== index).length;
+
+    if(wrong > 0){
+        if(message){
+            message.innerText = "Jeszcze nie. " + wrong + " kawałków nie pasuje do zdjęcia. Popraw układ i sprawdź ponownie.";
+        }
+
+        return;
+    }
+
+    completeElimPhotoPuzzle();
+    saveElimPhotoPuzzle();
+    renderElimPhotoPuzzle();
+}
+
+function completeElimPhotoPuzzle(){
     const solved = elimPuzzleState.slots.every((pieceId, index)=>pieceId === index);
 
     if(!solved){
@@ -3021,21 +3286,44 @@ function checkElimPhotoPuzzleSolved(){
     localStorage.setItem("elimDunePhotoRestored", "true");
     localStorage.setItem("elimDunePhotoUnlocked", "true");
     localStorage.setItem("chronicleElimDunePhoto", "true");
+    localStorage.setItem("sesriemElimDuneReward", "photo_morale");
+    hydrateSesriemCamp();
+    sesriemCampState.morale = Math.min(9, (sesriemCampState.morale || 0) + 1);
+    sesriemCampState.message = "Zdjęcie z Elim Dune zostało uratowane. Kronika dostaje pamiątkę, a ekipa wraca do obozu z lepszym morale.";
+    saveSesriemCampState();
 }
 
 function resetElimPhotoPuzzle(){
+    cleanupElimPuzzleDrag();
     elimPuzzleState = null;
     elimPuzzleSelectedPieceId = null;
     localStorage.removeItem("elimPhotoPuzzleState");
     localStorage.removeItem("elimDunePhotoRestored");
     localStorage.removeItem("elimDunePhotoUnlocked");
     localStorage.removeItem("chronicleElimDunePhoto");
+    localStorage.removeItem("sesriemElimDuneReward");
     renderElimPhotoPuzzle();
 }
 
 function saveElimPhotoPuzzle(){
     localStorage.setItem("elimPhotoPuzzleState", JSON.stringify(elimPuzzleState));
 }
+
+function cleanupElimPuzzleDrag(){
+    if(elimPuzzleDragGhost){
+        elimPuzzleDragGhost.remove();
+        elimPuzzleDragGhost = null;
+    }
+}
+
+window.addEventListener("resize", cleanupTransientGameLayers);
+window.addEventListener("orientationchange", cleanupTransientGameLayers);
+document.addEventListener("touchcancel", cleanupTransientGameLayers, { passive:true });
+document.addEventListener("touchstart", function(event){
+    if(document.getElementById("elimPhotoPuzzleScreen")?.classList.contains("active") && event.touches && event.touches.length > 1){
+        cleanupTransientGameLayers();
+    }
+}, { passive:true });
 
 function openWalvisBay(){
     const sealAlreadyCollected = localStorage.getItem("oceanGuardianSeal") === "true";

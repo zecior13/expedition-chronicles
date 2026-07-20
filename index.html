@@ -511,7 +511,10 @@
       </div>
       <div class="elim-puzzle-panel">
         <p id="elimPuzzleMessage">Szakale zrobiły z pamiątkowego zdjęcia puzzle. Wybierz kawałek i włóż go na białą planszę. Dobre ułożenie odblokuje zdjęcie do Kroniki.</p>
-        <button id="elimPuzzleDoneButton" onclick="showScreen('sesriemCampScreen')">Wróć do obozu</button>
+        <div class="elim-puzzle-panel-actions">
+          <button id="elimPuzzleCheckButton" onclick="checkElimPhotoPuzzle()">Sprawdź zdjęcie</button>
+          <button id="elimPuzzleDoneButton" onclick="showScreen('sesriemCampScreen')">Wróć do obozu</button>
+        </div>
       </div>
     </div>
   </section>
@@ -523,7 +526,41 @@
         <h1>Świt przed Sossusvlei</h1>
         <p id="sesriemMorningText">Nad campingiem wisi chłodna mgła. Decyzje z wieczoru zaczynają ważyć więcej niż wyglądały przy ognisku.</p>
         <div class="sesriem-morning-stats" id="sesriemMorningStats"></div>
-        <button class="small-button" onclick="showScreen('mapScreen')">Ruszamy do Sossusvlei</button>
+        <button class="small-button" onclick="startSesriemFogDrive()">Wjedź w mgłę</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="sesriemFogScreen" class="screen sesriem-fog-screen">
+    <div class="sesriem-fog-shell">
+      <div class="sesriem-fog-hud">
+        <button onclick="showScreen('sesriemMorningScreen')">Wróć</button>
+        <div><strong id="sesriemFogStepValue">1/7</strong><small>Odcinek</small></div>
+        <div><strong id="sesriemFogTimeValue">9</strong><small>Czas</small></div>
+        <div><strong id="sesriemFogMistValue">Gęsta</strong><small>Mgła</small></div>
+      </div>
+      <div class="sesriem-fog-view">
+        <div class="fog-road-art" id="sesriemFogRoad">
+          <span class="fog-sunrise"></span>
+          <span class="fog-jeep">🚙</span>
+          <span class="fog-track track-left"></span>
+          <span class="fog-track track-center"></span>
+          <span class="fog-track track-right"></span>
+        </div>
+        <div class="fog-clue-card">
+          <p class="app-kicker">Poranna mgła</p>
+          <h2 id="sesriemFogTitle">Wyjazd z campingu</h2>
+          <p id="sesriemFogClue">Widoczność jest słaba. Trzeba czytać ślady i wybierać drogę bez paniki.</p>
+        </div>
+      </div>
+      <div class="sesriem-fog-choices" id="sesriemFogChoices"></div>
+      <div class="sesriem-fog-panel">
+        <p id="sesriemFogMessage">Wybierz ślad. Dobre przygotowanie z wieczoru daje większy margines w mgle.</p>
+        <div class="sesriem-fog-actions">
+          <button onclick="useSesriemFogHint()">Obserwuj ślady</button>
+          <button onclick="resetSesriemFogDrive()">Reset</button>
+          <button id="sesriemFogContinueButton" onclick="finishSesriemFogDrive()">Dalej</button>
+        </div>
       </div>
     </div>
   </section>
