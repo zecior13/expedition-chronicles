@@ -24,8 +24,98 @@
       </div>
     </div>
     <div class="button-stack">
+      <button onclick="startV2Game()">Nowa Namibia Quest v2</button>
       <button onclick="showScreen('expeditionScreen')">Rozpocznij wyprawę</button>
       <button class="secondary" onclick="showScreen('mapScreen')">Kontynuuj</button>
+    </div>
+  </section>
+
+  <section id="v2StartScreen" class="screen v2-screen v2-start-screen">
+    <div class="v2-art-panel v2-start-art"></div>
+    <div class="v2-title-card">
+      <p class="app-kicker">Namibia Quest v2</p>
+      <h1>Gra o wyprawie przez Namibię</h1>
+      <p>Wybierz bohatera, nadaj mu imię i rusz przez kolejne etapy trasy. To już nie kronika, tylko pełna przygodowa gra RPG-lite.</p>
+      <button onclick="showScreen('v2HeroScreen')">Wybierz postać</button>
+      <button class="secondary" onclick="showScreen('startScreen')">Wróć</button>
+    </div>
+  </section>
+
+  <section id="v2HeroScreen" class="screen v2-screen v2-hero-screen">
+    <div class="v2-header-strip">
+      <p class="app-kicker">Twój bohater</p>
+      <h1>Kim ruszasz w trasę?</h1>
+    </div>
+    <label class="v2-name-field">
+      <span>Imię postaci</span>
+      <input id="v2HeroNameInput" value="Radek">
+    </label>
+    <div id="v2HeroRoster" class="v2-hero-roster"></div>
+    <div id="v2HeroPreview" class="v2-hero-preview"></div>
+    <div class="v2-bottom-actions">
+      <button class="secondary" onclick="showScreen('v2StartScreen')">Wróć</button>
+      <button onclick="saveV2Hero()">Na mapę</button>
+    </div>
+  </section>
+
+  <section id="v2MapScreen" class="screen v2-screen v2-map-screen">
+    <div class="v2-map-art">
+      <div id="v2RouteLayer" class="v2-route-layer"></div>
+    </div>
+    <div class="v2-map-panel">
+      <p class="app-kicker">Mapa wyprawy</p>
+      <h1>Namibia Quest</h1>
+      <p id="v2MapHeroLine">Wybierz postać, żeby rozpocząć grę.</p>
+      <button onclick="showScreen('v2WindhoekScreen')">Windhoek</button>
+      <button class="secondary" onclick="showScreen('v2HeroScreen')">Postać</button>
+    </div>
+  </section>
+
+  <section id="v2WindhoekScreen" class="screen v2-screen v2-location-screen">
+    <div class="v2-location-art v2-windhoek-art"></div>
+    <div class="v2-location-panel">
+      <p class="app-kicker">Etap 1 · Windhoek</p>
+      <h1>Start wyprawy</h1>
+      <p>Miasto jest ostatnim spokojnym miejscem przed drogą. Tu wybierasz sprzęt i przygotowujesz 4x4 do trasy przez pustynię.</p>
+      <button onclick="showScreen('v2GearScreen')">Wybierz ekwipunek</button>
+      <button class="secondary" onclick="showScreen('v2MapScreen')">Mapa</button>
+    </div>
+  </section>
+
+  <section id="v2GearScreen" class="screen v2-screen v2-gear-screen">
+    <div class="v2-header-strip">
+      <p class="app-kicker">Windhoek · ekwipunek</p>
+      <h1>Co zabierasz?</h1>
+      <p>Masz 5 miejsc. Sprzęt zmienia cechy, ale żaden wybór nie blokuje gry.</p>
+    </div>
+    <div id="v2StatsPanel" class="v2-stats-panel"></div>
+    <div id="v2GearGrid" class="v2-gear-grid"></div>
+    <div id="v2GearMessage" class="v2-message">Wybierz ekwipunek przed pakowaniem 4x4.</div>
+    <div class="v2-bottom-actions">
+      <button class="secondary" onclick="showScreen('v2WindhoekScreen')">Wróć</button>
+      <button onclick="saveV2GearAndGoPacking()">Pakuj 4x4</button>
+    </div>
+  </section>
+
+  <section id="v2PackingScreen" class="screen v2-screen v2-pack-screen">
+    <div class="v2-header-strip">
+      <p class="app-kicker">Windhoek · 4x4</p>
+      <h1>Pack the 4x4 v2</h1>
+      <p>Ten ekran jest nową, czystą bazą pod pełnoprawną układankę pakowania w stylu A.</p>
+    </div>
+    <div class="v2-pack-prototype">
+      <div class="v2-pack-vehicle">
+        <span class="v2-pack-rack"></span>
+        <span class="v2-pack-trunk"></span>
+      </div>
+      <div class="v2-pack-note">
+        <strong>Następny krok produkcyjny</strong>
+        <span>Tu nie używamy starego CSS-bagażnika. Kolejny build dostanie rysowaną planszę pojazdu i sprzęt jako assety w stylu A.</span>
+      </div>
+    </div>
+    <div class="v2-bottom-actions">
+      <button class="secondary" onclick="showScreen('v2GearScreen')">Wróć</button>
+      <button onclick="completeV2Windhoek()">Zakończ etap testowy</button>
     </div>
   </section>
 

@@ -193,6 +193,78 @@ const expeditionHeroes = [
     }
 ];
 
+const v2Stats = {
+    sila: "Siła",
+    spryt: "Spryt",
+    spokoj: "Spokój",
+    tempo: "Tempo"
+};
+
+const v2Heroes = [
+    {
+        id: "driver",
+        name: "Kapitan 4x4",
+        color: "rust",
+        role: "Kierowca wyprawowy",
+        description: "Silny, spokojny i pewny za kierownicą. Nie jest najszybszy w zagadkach, ale gdy droga robi się zła, on robi się lepszy.",
+        stats: { sila: 7, spryt: 5, spokoj: 8, tempo: 6 }
+    },
+    {
+        id: "tracker",
+        name: "Tropicielka Szczegółów",
+        color: "teal",
+        role: "Ślady, zwierzęta, ukryte rzeczy",
+        description: "Widziała trop zanim reszta zobaczyła piasek. Świetna w obserwacji, szukaniu przejść i rozumieniu świata wokół.",
+        stats: { sila: 4, spryt: 9, spokoj: 7, tempo: 5 }
+    },
+    {
+        id: "logistician",
+        name: "Mistrz Logistyki",
+        color: "gold",
+        role: "Planowanie i zasoby",
+        description: "Ma wszystko. Czasem nawet za dużo. Najlepszy w pakowaniu, przygotowaniu i ratowaniu planu, gdy inni już improwizują.",
+        stats: { sila: 5, spryt: 8, spokoj: 6, tempo: 3 }
+    },
+    {
+        id: "daredevil",
+        name: "Ryzykant Adrenaliny",
+        color: "orange",
+        role: "Prędkość i reakcje",
+        description: "Najpierw jedzie, potem pyta czy była droga. Świetny w szybkich akcjach, gorszy tam, gdzie trzeba długo zachować spokój.",
+        stats: { sila: 6, spryt: 4, spokoj: 3, tempo: 10 }
+    },
+    {
+        id: "chatterbox",
+        name: "Negocjator Opowieści",
+        color: "blue",
+        role: "Rozmowy, handel, absurd",
+        description: "Mówi dużo, czasem za dużo, ale ludzie zwykle kończą rozmowę z uśmiechem. Dobry w targowaniu i dialogach.",
+        stats: { sila: 3, spryt: 7, spokoj: 8, tempo: 4 }
+    },
+    {
+        id: "diva",
+        name: "Safari Diva",
+        color: "rose",
+        role: "Styl, presja społeczna, komfort",
+        description: "Przyjechała jak do hotelu z basenem, ale zaskakująco często znajduje wyjście z sytuacji, gdy trzeba uroku i zimnej krwi.",
+        stats: { sila: 2, spryt: 6, spokoj: 8, tempo: 5 }
+    }
+];
+
+const v2GearItems = [
+    { id: "water", name: "Duży zapas wody", detail: "Bezpieczniej na pustyni, ale ciężej.", mods: { sila: 1, spokoj: 1, tempo: -1 } },
+    { id: "hat", name: "Kapelusz pustynny", detail: "Lepszy margines w upale.", mods: { spokoj: 1 } },
+    { id: "boots", name: "Buty trekkingowe", detail: "Stabilność na skałach i wydmach.", mods: { sila: 1, tempo: -1 } },
+    { id: "binoculars", name: "Lornetka", detail: "Tropy, zwierzęta i dalekie szczegóły.", mods: { spryt: 2 } },
+    { id: "tools", name: "Narzędzia", detail: "Auto, wraki i awaryjne naprawy.", mods: { spryt: 1, sila: 1 } },
+    { id: "medkit", name: "Apteczka", detail: "Jedna pomyłka boli mniej.", mods: { spokoj: 1 } },
+    { id: "lightpack", name: "Lekki plecak", detail: "Szybciej, ale mniej zapasu.", mods: { tempo: 2, sila: -1 } },
+    { id: "notebook", name: "Notes wyprawy", detail: "Historia, rozmowy i logiczne ślady.", mods: { spryt: 1, spokoj: 1 } }
+];
+
+let v2SelectedHeroId = "driver";
+let v2SelectedGear = [];
+
 let selectedHeroId = "driver";
 let windhoekHistoryChoices = [];
 let draggedHistoryEventId = null;
@@ -689,6 +761,18 @@ function showScreen(id){
         renderHeroRoster();
     }
 
+    if(id === "v2HeroScreen"){
+        renderV2HeroScreen();
+    }
+
+    if(id === "v2MapScreen"){
+        renderV2MapScreen();
+    }
+
+    if(id === "v2GearScreen"){
+        renderV2GearScreen();
+    }
+
     if(id === "expeditionProfileScreen"){
         updateExpeditionProfilePreview();
     }
@@ -765,6 +849,183 @@ function savePlayers(){
         localStorage.getItem("expeditionName");
 
     showScreen("heroSelectScreen");
+}
+
+function startV2Game(){
+    const savedHero = localStorage.getItem("v2HeroId");
+
+    if(savedHero){
+        v2SelectedHeroId = savedHero;
+    }
+
+    try{
+        v2SelectedGear = JSON.parse(localStorage.getItem("v2Gear") || "[]");
+    }catch(error){
+        v2SelectedGear = [];
+    }
+
+    showScreen("v2StartScreen");
+}
+
+function getV2Hero(heroId){
+    return v2Heroes.find(hero=>hero.id === heroId) || v2Heroes[0];
+}
+
+function getV2HeroName(){
+    return localStorage.getItem("v2HeroCustomName") || document.getElementById("v2HeroNameInput")?.value || "Bohater";
+}
+
+function renderV2HeroScreen(){
+    const roster = document.getElementById("v2HeroRoster");
+    const preview = document.getElementById("v2HeroPreview");
+    const input = document.getElementById("v2HeroNameInput");
+    const savedName = localStorage.getItem("v2HeroCustomName");
+
+    if(savedName && input){
+        input.value = savedName;
+    }
+
+    if(roster){
+        roster.innerHTML = v2Heroes.map(hero=>
+            "<button class=\"v2-hero-card v2-tone-" + hero.color + (hero.id === v2SelectedHeroId ? " selected" : "") + "\" onclick=\"selectV2Hero('" + hero.id + "')\">" +
+                "<span class=\"v2-hero-portrait v2-portrait-" + hero.id + "\"></span>" +
+                "<span class=\"v2-hero-copy\"><strong>" + hero.name + "</strong><small>" + hero.role + "</small></span>" +
+            "</button>"
+        ).join("");
+    }
+
+    if(preview){
+        const hero = getV2Hero(v2SelectedHeroId);
+        preview.innerHTML =
+            "<div class=\"v2-preview-portrait v2-portrait-" + hero.id + "\"></div>" +
+            "<div class=\"v2-preview-copy\">" +
+                "<p class=\"app-kicker\">Wybrany archetyp</p>" +
+                "<h2>" + hero.name + "</h2>" +
+                "<p>" + hero.description + "</p>" +
+                renderV2Stats(hero.stats) +
+            "</div>";
+    }
+}
+
+function selectV2Hero(heroId){
+    v2SelectedHeroId = heroId;
+    renderV2HeroScreen();
+}
+
+function saveV2Hero(){
+    const input = document.getElementById("v2HeroNameInput");
+    const customName = (input?.value || "Bohater").trim() || "Bohater";
+    const hero = getV2Hero(v2SelectedHeroId);
+
+    localStorage.setItem("v2HeroId", hero.id);
+    localStorage.setItem("v2HeroCustomName", customName);
+    localStorage.setItem("v2HeroArchetype", hero.name);
+    localStorage.setItem("v2Progress", localStorage.getItem("v2Progress") || "windhoek");
+
+    showScreen("v2MapScreen");
+}
+
+function renderV2MapScreen(){
+    const heroLine = document.getElementById("v2MapHeroLine");
+    const hero = getV2Hero(localStorage.getItem("v2HeroId") || v2SelectedHeroId);
+
+    if(heroLine){
+        heroLine.innerText = getV2HeroName() + " · " + hero.name + " · Etap 1: Windhoek";
+    }
+}
+
+function renderV2GearScreen(){
+    const grid = document.getElementById("v2GearGrid");
+    const statsPanel = document.getElementById("v2StatsPanel");
+    const message = document.getElementById("v2GearMessage");
+
+    try{
+        v2SelectedGear = JSON.parse(localStorage.getItem("v2GearDraft") || localStorage.getItem("v2Gear") || "[]");
+    }catch(error){
+        v2SelectedGear = [];
+    }
+
+    if(grid){
+        grid.innerHTML = v2GearItems.map(item=>{
+            const selected = v2SelectedGear.includes(item.id);
+            return "<button class=\"v2-gear-card" + (selected ? " selected" : "") + "\" onclick=\"toggleV2Gear('" + item.id + "')\">" +
+                "<strong>" + item.name + "</strong>" +
+                "<span>" + item.detail + "</span>" +
+                "<small>" + renderV2GearMods(item.mods) + "</small>" +
+            "</button>";
+        }).join("");
+    }
+
+    if(statsPanel){
+        statsPanel.innerHTML = renderV2Stats(getV2CurrentStats());
+    }
+
+    if(message){
+        message.innerText = "Wybrane miejsca: " + v2SelectedGear.length + " / 5";
+    }
+}
+
+function toggleV2Gear(gearId){
+    if(v2SelectedGear.includes(gearId)){
+        v2SelectedGear = v2SelectedGear.filter(id=>id !== gearId);
+    }else if(v2SelectedGear.length < 5){
+        v2SelectedGear.push(gearId);
+    }else{
+        const message = document.getElementById("v2GearMessage");
+
+        if(message){
+            message.innerText = "Masz tylko 5 miejsc. Zdejmij coś z listy, jeśli chcesz zabrać inny sprzęt.";
+        }
+
+        return;
+    }
+
+    localStorage.setItem("v2GearDraft", JSON.stringify(v2SelectedGear));
+    renderV2GearScreen();
+}
+
+function saveV2GearAndGoPacking(){
+    localStorage.setItem("v2Gear", JSON.stringify(v2SelectedGear));
+    localStorage.removeItem("v2GearDraft");
+    localStorage.setItem("v2Stats", JSON.stringify(getV2CurrentStats()));
+    showScreen("v2PackingScreen");
+}
+
+function completeV2Windhoek(){
+    localStorage.setItem("v2WindhoekCompleted", "true");
+    localStorage.setItem("v2Progress", "route-to-solitaire");
+    showScreen("v2MapScreen");
+}
+
+function getV2CurrentStats(){
+    const hero = getV2Hero(localStorage.getItem("v2HeroId") || v2SelectedHeroId);
+    const stats = { ...hero.stats };
+
+    for(const gearId of v2SelectedGear){
+        const gear = v2GearItems.find(item=>item.id === gearId);
+
+        if(!gear){
+            continue;
+        }
+
+        for(const statName of Object.keys(gear.mods)){
+            stats[statName] = Math.max(1, Math.min(10, (stats[statName] || 1) + gear.mods[statName]));
+        }
+    }
+
+    return stats;
+}
+
+function renderV2Stats(stats){
+    return "<div class=\"v2-stat-grid\">" + Object.keys(v2Stats).map(statName=>
+        "<div><span>" + v2Stats[statName] + "</span><strong>" + (stats[statName] || 1) + "</strong><em style=\"width:" + ((stats[statName] || 1) * 10) + "%\"></em></div>"
+    ).join("") + "</div>";
+}
+
+function renderV2GearMods(mods){
+    return Object.keys(mods).map(statName=>
+        (mods[statName] > 0 ? "+" : "") + mods[statName] + " " + v2Stats[statName]
+    ).join(" · ");
 }
 
 function getExpeditionHero(heroId){
